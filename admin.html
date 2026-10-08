@@ -20,6 +20,7 @@ input:focus{outline:1px solid #FFB020}
 button{background:#FFB020;color:#0a0800;border:none;border-radius:10px;padding:12px 20px;font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.08em;font-weight:800;cursor:pointer;margin:6px 8px 6px 0}
 button.ghost{background:none;border:1px solid rgba(255,255,255,.2);color:#F5F7FA}
 button.danger{background:#FF3B30;color:#fff}
+button.mini,.mono button.mini{background:none;border:1px solid #FF3B30;color:#FF8FA3;border-radius:6px;font-size:10px;padding:2px 8px;cursor:pointer;font-family:ui-monospace,monospace;margin:0 0 0 6px;letter-spacing:.06em}
 label.row{display:flex;gap:10px;align-items:center;font-family:ui-monospace,monospace;font-size:13px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 label.row input{width:auto;margin:0}
 .err{color:#FF3B30;font-family:ui-monospace,monospace;font-size:12.5px;min-height:20px}
@@ -75,6 +76,8 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
   <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">CLOUD DATABASE // READ LIVE</div>
     <div class="mono" id="cloudStatus" style="font-size:12px;margin:8px 0">CLOUD: …</div>
     <div class="mono" id="cloudStats" style="font-size:12.5px;line-height:2"></div>
+    <div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A;margin-top:12px">OPERATIVES</div>
+    <div class="mono" id="userFeed" style="font-size:12px;line-height:2"></div>
     <div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A;margin-top:12px">LATEST SCORES</div>
     <div class="mono" id="cloudFeed" style="font-size:12px;line-height:2"></div>
     <div><button id="cRefresh">⟳ REFRESH</button></div>
@@ -209,10 +212,22 @@ async function cloudRefresh(){
     var pc=await SBN.from("profiles").select("id",{count:"exact",head:true});
     var sc=await SBN.from("scores").select("id",{count:"exact",head:true});
     stats.textContent="operatives: "+(pc.count||0)+" · posted scores: "+(sc.count||0);
-    var r=await SBN.from("scores").select("callsign,game,score,total,created_at").order("created_at",{ascending:false}).limit(12);
+    var u=await SBN.from("profiles").select("id,callsign,avatar,created_at").order("created_at",{ascending:false}).limit(30);
+    if(u.error) throw u.error;
+    document.getElementById("userFeed").innerHTML=u.data.length?u.data.map(function(x){
+      return escapeHtml(x.callsign)+" · hero"+(x.avatar||0)+" · "+new Date(x.created_at).toISOString().slice(0,10)+
+      ` <button class="mini" data-wipe="${x.id}">WIPE SCORES</button>`;}).join("<br>"):"no operatives yet.";
+    document.querySelectorAll("#userFeed [data-wipe]").forEach(function(b){b.onclick=function(){
+      if(!confirm("Wipe ALL scores of this operative?"))return;
+      adminAct({action:"wipe_scores",user_id:b.dataset.wipe},cloudRefresh);};});
+    var r=await SBN.from("scores").select("id,callsign,game,score,total,created_at").order("created_at",{ascending:false}).limit(12);
     if(r.error) throw r.error;
     feed.innerHTML=r.data.length?r.data.map(function(x){
-      return new Date(x.created_at).toISOString().slice(5,16).replace("T"," ")+" · "+x.callsign+" · "+x.game+" "+x.score+"/"+x.total}).join("<br>"):"no scores yet.";
+      return new Date(x.created_at).toISOString().slice(5,16).replace("T"," ")+" · "+escapeHtml(x.callsign)+" · "+x.game+" "+x.score+"/"+x.total+
+      ` <button class="mini" data-del="${x.id}">✕</button>`;}).join("<br>"):"no scores yet.";
+    feed.querySelectorAll("[data-del]").forEach(function(b){b.onclick=function(){
+      if(!confirm("Delete this score row?"))return;
+      adminAct({action:"delete_score",score_id:+b.dataset.del},cloudRefresh);};});
   }catch(e){st.textContent="CLOUD ERROR: "+(e.message||"unreachable");}
 }
 /* tabbed console: groups cards, adds overview + callsign override */
@@ -312,6 +327,19 @@ document.getElementById("luCopy").onclick=()=>{
   toast2("UUID loaded into ban field.");
 };
 function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+async function adminAct(payload,done){
+  const fnUrl=(document.getElementById("fnUrl")||{}).value||"";
+  const sec=(document.getElementById("fnSecret")||{}).value||"";
+  if(!fnUrl||!sec){toast2("Set function URL + secret (ban card) first.");return;}
+  try{
+    const r=await fetch(fnUrl,{method:"POST",
+      headers:{"Content-Type":"application/json","x-admin-secret":sec},
+      body:JSON.stringify(payload)});
+    const j=await r.json().catch(function(){return{}});
+    toast2(r.ok?("◉ "+(j.result||"done")):("✗ "+(j.error||("HTTP "+r.status))));
+    if(r.ok&&done)done();
+  }catch(e){toast2("✗ function unreachable — deployed?");}
+}
 show();
 cloudRefresh();
 </script>

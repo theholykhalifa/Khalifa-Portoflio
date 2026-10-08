@@ -459,6 +459,12 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .bav{display:inline-flex;width:22px;height:22px;border-radius:50%;overflow:hidden;vertical-align:-5px;background:#0a0e13;flex:none}
 .bav svg,.bav img{width:22px;height:22px;display:block;object-fit:cover}
 .brow{align-items:center}
+/* live board motion — rotating tri-color border, travelling sheen, live dot */
+.board-top{position:relative;overflow:hidden;border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from var(--ba,0deg),rgba(255,51,85,.75),rgba(255,176,32,.7),rgba(125,235,255,.55),rgba(255,51,85,.75)) border-box;animation:holyspin 7s linear infinite}
+.board-top::after{content:"";position:absolute;top:0;bottom:0;width:35%;left:-45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);animation:sheenmove 6s ease-in-out infinite;pointer-events:none}
+@keyframes sheenmove{0%{left:-45%}60%,100%{left:135%}}
+.board-top .idx::before{content:"● ";color:#00ffa3;animation:blinkSoft 1.6s ease-in-out infinite}
+@keyframes blinkSoft{50%{opacity:.2}}
 /* toolkit + challenge */
 .tfield{width:100%;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:13px;margin:8px 0}
 textarea.tfield{min-height:90px;resize:vertical}

@@ -41,6 +41,18 @@ serve(async (req) => {
     await admin.from("bans").delete().eq("user_id", body.user_id);
     return Response.json({ result: "unbanned " + body.user_id }, { headers: CORS });
   }
+  // moderation: delete one score row / wipe one operative's scores
+  if (body.action === "delete_score") {
+    const { error } = await admin.from("scores").delete().eq("id", Number(body.score_id));
+    if (error) return Response.json({ error: error.message }, { status: 500, headers: CORS });
+    return Response.json({ result: "deleted score #" + body.score_id }, { headers: CORS });
+  }
+  if (body.action === "wipe_scores") {
+    if (!body.user_id) return Response.json({ error: "user_id required" }, { status: 400, headers: CORS });
+    const { error, count } = await admin.from("scores").delete({ count: "exact" }).eq("user_id", body.user_id);
+    if (error) return Response.json({ error: error.message }, { status: 500, headers: CORS });
+    return Response.json({ result: `wiped ${count ?? "?"} score(s)` }, { headers: CORS });
+  }
   // default: ban
   const hours = Number(body.hours) || 0;
   const duration = hours > 0 ? `${hours}h` : "87600h"; // 0 = ~10 years (permanent)

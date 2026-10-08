@@ -583,12 +583,23 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#pal").addEventListener("click",e=>{if(e.target.id==="pal")closePal();});
   addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openPal();}});
 
-  // contact form (no backend — compose mailto)
+  // contact form → delivered to HVoid9@proton.me via FormSubmit (AJAX, mailto fallback)
   $("#cform").addEventListener("submit",e=>{
     e.preventDefault();
-    const n=$("#cname").value,m=$("#cemail").value,t=$("#cmsg").value;
-    location.href=`mailto:${HOLY_SOCIALS.emailLabel}?subject=${encodeURIComponent("Portfolio contact — "+n)}&body=${encodeURIComponent(t+"\n\n— "+n+" ("+m+")")}`;
-    toast("Opening email client — simulation form, no data stored.");
+    const form=e.target, btn=form.querySelector("button[type=submit]");
+    const n=$("#cname").value.trim(), m=$("#cemail").value.trim(), t=$("#cmsg").value.trim();
+    if(!n||!m||!t) return;
+    btn.disabled=true; const old=btn.textContent; btn.textContent="SENDING…";
+    fetch("https://formsubmit.co/ajax/HVoid9@proton.me",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({name:n,email:m,message:t,_subject:"Portfolio contact — "+n})
+    }).then(r=>{ if(!r.ok) throw 0;
+      toast("Message sent — Holy will reply soon."); form.reset();
+    }).catch(()=>{
+      location.href=`mailto:HVoid9@proton.me?subject=${encodeURIComponent("Portfolio contact — "+n)}&body=${encodeURIComponent(t+"\n\n— "+n+" ("+m+")")}`;
+      toast("Direct send failed — opening your email app instead.");
+    }).finally(()=>{btn.disabled=false; btn.textContent=old;});
   });
 
   // pentest phase ticker (duplicated for seamless loop)

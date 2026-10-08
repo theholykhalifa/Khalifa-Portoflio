@@ -333,8 +333,8 @@ const HOLY_RESEARCH = [
 const HOLY_SOCIALS = {
   github: "https://github.com/theholykhalifa",
   linkedin: "https://www.linkedin.com/",
-  email: "mailto:hello@example.com",
-  emailLabel: "hello@example.com",
+  email: "mailto:HVoid9@proton.me",
+  emailLabel: "HVoid9@proton.me",
 };
 
 const HOLY_MINDSET = [

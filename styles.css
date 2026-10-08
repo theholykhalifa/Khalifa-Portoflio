@@ -368,6 +368,15 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 #trophyCase{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
 #trophyCase .trophy{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--muted)}
 #trophyCase .trophy.won{border-color:rgba(255,176,32,.55);color:#FFD88A;background:rgba(255,176,32,.06)}
+/* compact cloud auth bar */
+.authbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line2);border-radius:12px;padding:10px 14px;background:rgba(255,255,255,.02);margin-bottom:8px}
+.authbar .mono{font-size:10.5px;letter-spacing:.12em;color:var(--accent2);white-space:nowrap}
+.authrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex:1}
+.authbar input{background:var(--card);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:12px;width:150px;max-width:38vw}
+.authbar input:focus{outline:1px solid var(--accent)}
+.authbar button{background:var(--accent);color:#0a0507;border:none;border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.06em}
+.authbar button.ghost{background:none;border:1px solid var(--line2);color:var(--text)}
+.authbar [hidden]{display:none!important}
 /* toolkit + challenge */
 .tfield{width:100%;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:13px;margin:8px 0}
 textarea.tfield{min-height:90px;resize:vertical}

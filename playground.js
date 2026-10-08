@@ -5,6 +5,22 @@
 const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>[...c.querySelectorAll(s)];
 function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function toast(t){const el=document.getElementById("toast");if(!el)return;el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600);}
+function safe(fn){try{fn()}catch(e){if(window.console)console.error(e);}}
+/* lazy Supabase loader — never blocks page render */
+const SB_CDN="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js";
+function loadSbLib(){
+  return new Promise(res=>{
+    if(typeof supabase!=="undefined") return res(true);
+    let done=false;
+    const fin=ok=>{if(!done){done=true;res(ok);}};
+    const s=document.createElement("script");
+    s.src=SB_CDN; s.async=true;
+    s.onload=()=>fin(typeof supabase!=="undefined");
+    s.onerror=()=>fin(false);
+    document.head.appendChild(s);
+    setTimeout(()=>fin(typeof supabase!=="undefined"),10000);
+  });
+}
 const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
 const BADGE_META={
  term:{n:"TERMINAL ACCESS",d:"Ran your first terminal command. The rabbit hole opens.",i:"⌁",c:"b-term"},
@@ -367,7 +383,9 @@ async function sbInit(){
   if(typeof HOLY_SUPABASE==="undefined"||!HOLY_SUPABASE.url||!HOLY_SUPABASE.key){
     sbStatus("off — add project keys (config.js → HOLY_SUPABASE, see SUPABASE_SETUP.md).");return;}
   if(typeof supabase==="undefined"){
-    sbStatus("library blocked — CDN unreachable (adblock/VPN?) — allow jsdelivr.");return;}
+    sbStatus("loading cloud library…");
+    if(!(await loadSbLib())){
+      sbStatus("library blocked — CDN unreachable (adblock/VPN?) — allow jsdelivr.");return;}}
   try{
     SB=supabase.createClient(HOLY_SUPABASE.url,HOLY_SUPABASE.key);
     const {data}=await SB.auth.getSession();
@@ -427,10 +445,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   tV.onclick=()=>{paint("vuln");quizStart(QUIZ_VULN);};
   tS.onclick=()=>{paint("sec");quizStart(QUIZ_SEC);};
   tL.onclick=()=>{paint("lab");renderVulnLab();};
-  quizStart(QUIZ_VULN);
-  $$("#toolTabs .btn").forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));
-  renderTool("hash"); renderDaily(); renderCtf(); renderTrophies(); renderDashboard();
-  sbInit();
+  safe(()=>quizStart(QUIZ_VULN));
+  safe(()=>{$$("#toolTabs .btn").forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));});
+  safe(()=>renderTool("hash")); safe(()=>renderDaily()); safe(()=>renderCtf());
+  safe(()=>renderTrophies()); safe(()=>renderDashboard());
+  safe(()=>sbInit());
   $("#boardSec").onclick=()=>loadBoard("sec");
   $("#boardVuln").onclick=()=>loadBoard("vuln");
   $("#boardGo").onclick=()=>loadBoard();

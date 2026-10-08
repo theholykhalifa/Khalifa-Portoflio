@@ -535,10 +535,10 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(!document.getElementById("intro")) return;
       ilog.innerHTML+=l+"<br>"; ibar.style.width=((i+1)/blines.length*100)+"%";
       tone(500+i*60,.06,"square",.03);
-    },650*(i+1)));
+    },450*(i+1)));
     setTimeout(()=>{ if(!document.getElementById("intro")) return;
       document.getElementById("introForm").hidden=false;
-      document.getElementById("introIn").focus(); },650*blines.length+300);
+      document.getElementById("introIn").focus(); },450*blines.length+200);
     document.getElementById("introForm").addEventListener("submit",e=>{
       e.preventDefault();
       document.getElementById("introForm").hidden=true;
@@ -547,8 +547,8 @@ document.addEventListener("DOMContentLoaded",()=>{
       setTimeout(()=>{ if(!document.getElementById("intro")) return;
         g.hidden=true; document.getElementById("introWel").hidden=false;
         [523,659,784,1046].forEach((fr,i)=>tone(fr,.22,"triangle",.05,i*.12));
-        setTimeout(introDone,2200);
-      },1300);
+        setTimeout(introDone,1800);
+      },1000);
     });
     document.getElementById("introSkip").onclick=introDone;
     addEventListener("keydown",function esck(e){

@@ -84,7 +84,6 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
   </div>
   <p><a href="index.html">← BACK TO THE SITE</a></p>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script>
 var BADGES={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
@@ -158,12 +157,28 @@ document.getElementById("xNuke").onclick=function(){
   ["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily","holy_vault","holy_rec"].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});
   render();};
 var SBN=null;
+function loadSbLibAdmin(){
+  return new Promise(function(res){
+    if(typeof supabase!=="undefined") return res(true);
+    var done=false;
+    var fin=function(ok){if(!done){done=true;res(ok);}};
+    var s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js";
+    s.async=true;
+    s.onload=function(){fin(typeof supabase!=="undefined");};
+    s.onerror=function(){fin(false);};
+    document.head.appendChild(s);
+    setTimeout(function(){fin(typeof supabase!=="undefined");},10000);
+  });
+}
 async function cloudRefresh(){
   var st=document.getElementById("cloudStatus"), stats=document.getElementById("cloudStats"), feed=document.getElementById("cloudFeed");
   if(typeof HOLY_SUPABASE==="undefined"||!HOLY_SUPABASE.url||!HOLY_SUPABASE.key){
     st.textContent="CLOUD: off — add project keys."; stats.textContent=""; feed.textContent=""; return;}
   if(typeof supabase==="undefined"){
-    st.textContent="CLOUD: library blocked — allow jsdelivr CDN."; return;}
+    st.textContent="CLOUD: loading library…";
+    var ok=await loadSbLibAdmin();
+    if(!ok){st.textContent="CLOUD: library blocked — allow jsdelivr CDN."; return;}}
   try{
     if(!SBN) SBN=supabase.createClient(HOLY_SUPABASE.url,HOLY_SUPABASE.key);
     st.textContent="CLOUD: connected — "+HOLY_SUPABASE.url;

@@ -404,7 +404,7 @@ function sbPaint(){
   const on=!!sbUser;
   document.getElementById("sbForm").hidden=on;
   document.getElementById("sbOut").hidden=!on;
-  renderPersonal();}
+  renderPersonal();
   sbStatus(on?("online as "+(sbUser.user_metadata&&sbUser.user_metadata.callsign?sbUser.user_metadata.callsign:sbUser.email)):"logged out.");
 }
 async function sbCallsign(){

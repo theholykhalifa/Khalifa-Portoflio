@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<!-- FLAG{H0LY_v4ult_hunt3r} — the vault respects proof. Terminal: flag FLAG{...} -->
 <!-- ENTRY SEQUENCE -->
 <div class="intro" id="intro" role="dialog" aria-label="Entry sequence">
   <div class="intro-box">
@@ -53,6 +54,7 @@
       <a href="#contact"><em>08</em>CONTACT</a>
     </div>
     <div class="status" title="Simulated interface element"><span class="dot"></span>SYSTEM ONLINE</div>
+    <button class="langbtn" id="langBtn" aria-label="Switch language">عربي</button>
     <button class="burger" id="burger" aria-label="Open menu">☰</button>
   </div>
 </nav>
@@ -92,7 +94,9 @@
       <div class="btnrow" style="margin-top:14px">
         <button class="btn btn-g" id="resumeBtn">⤓ DOWNLOAD SECURITY PROFILE</button>
         <button class="btn btn-t" id="palBtn">⌘K COMMAND PALETTE</button>
+        <button class="btn btn-t" id="recBtn">◉ RECRUITER VIEW</button>
       </div>
+      <div class="avail"><span class="dot"></span><span>OPEN TO:&nbsp;</span><span class="avail-fill"></span></div>
     </div>
     <div class="tele" role="img" aria-label="Simulated security telemetry panel">
       <div class="tele-head"><h3>HOLY // SECURITY TELEMETRY</h3><span class="sim">● SIMULATION</span></div>
@@ -174,6 +178,9 @@
   <h2 class="head">INDUSTRY EXPOSURE</h2>
   <p class="sub">Every entry renders from <span class="mono" style="color:var(--accent2)">config.js → HOLY_EXPERIENCE</span>. Types: INTERNSHIP · TRAINING · PROGRAM · WORK EXPERIENCE · INDUSTRY EXPOSURE · TARGET · PLANNED. Nothing here claims employment unless its type and status say so — update only when confirmed.</p>
   <div class="tl" id="expList"></div>
+  <h3 class="mono reveal" style="margin:44px 0 8px;font-size:12px;letter-spacing:.22em;color:var(--accent)">VOICES // RECOMMENDATIONS</h3>
+  <p class="sub reveal" style="margin-bottom:20px">Only real words from real supervisors — nothing here is written by me. To add one, drop it in <span class="mono" style="color:var(--accent2)">config.js → HOLY_QUOTES</span> with the author's permission.</p>
+  <div class="quotes" id="quotes"></div>
 </div></section>
 
 <!-- ARSENAL -->
@@ -242,6 +249,47 @@
   <div class="lab-grid" id="labGrid"></div>
 </div></section>
 
+<!-- FIELD NOTES -->
+<section id="notes"><div class="wrap">
+  <div class="sec-label">FIELD NOTES // WRITE-UPS</div>
+  <h2 class="head">DOCUMENTED<br>THINKING</h2>
+  <p class="sub">Working notes from authorized labs. <span class="mono" style="color:var(--accent2)">◐ DOCUMENTING</span> means being written now, <span class="mono" style="color:var(--warn)">⚡ SOON</span> means queued — nothing is listed as published before it exists. New notes go in <span class="mono" style="color:var(--accent2)">config.js → HOLY_WRITEUPS</span>.</p>
+  <div class="notes-grid" id="notesGrid"></div>
+</div></section>
+
+<!-- REPORTS & ENGAGEMENT -->
+<section id="reports"><div class="wrap">
+  <div class="sec-label">PROFESSIONAL PRACTICE</div>
+  <h2 class="head">REPORTS &amp;<br>ENGAGEMENT</h2>
+  <p class="sub">How professional testing is documented, scoped, and billed. The sample report contains <b>fictional findings only</b>; the invoice is a <b>blank template</b> — neither implies any real client or engagement.</p>
+  <div class="lab-grid">
+    <article class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">SAMPLE // FICTIONAL DATA</div>
+      <h3 style="margin:6px 0;font-size:22px">Pentest Report Sample</h3>
+      <p style="color:var(--muted);font-size:14px">Full reporting structure — scope, ROE, executive summary, three fictional findings with remediation. Lab-only example.</p>
+      <div class="btnrow"><button class="btn btn-p" id="repView">VIEW SAMPLE</button><a class="btn btn-g" href="assets/pentest-report-sample.md" download>⤓ DOWNLOAD .MD</a></div>
+    </article>
+    <article class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">PROCESS // 7 STEPS</div>
+      <h3 style="margin:6px 0;font-size:22px">Engagement Workflow</h3>
+      <p style="color:var(--muted);font-size:14px">Contact → scoping → written authorization → testing → reporting → retest → invoice. Authorization is never optional.</p>
+      <div class="btnrow"><button class="btn btn-p" id="wfOpen">OPEN WORKFLOW</button></div>
+    </article>
+    <article class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">TEMPLATE // BLANK</div>
+      <h3 style="margin:6px 0;font-size:22px">Invoice Template</h3>
+      <p style="color:var(--muted);font-size:14px">Professional billing layout with placeholders only — scope refs, line items, terms. Fill before use.</p>
+      <div class="btnrow"><button class="btn btn-p" id="invView">VIEW TEMPLATE</button><a class="btn btn-g" href="assets/invoice-template.md" download>⤓ DOWNLOAD .MD</a></div>
+    </article>
+    <article class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">POLICY // SAFE HARBOR</div>
+      <h3 style="margin:6px 0;font-size:22px">Responsible Disclosure</h3>
+      <p style="color:var(--muted);font-size:14px">Found an issue in this site? Scope, ground rules, how to report privately, and what I commit to.</p>
+      <div class="btnrow"><a class="btn btn-p" href="disclosure.html">READ POLICY →</a></div>
+    </article>
+  </div>
+</div></section>
+
 <!-- RESEARCH -->
 <section id="research" style="background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)"><div class="wrap">
   <div class="sec-label">07 // SECURITY RESEARCH</div>
@@ -251,6 +299,18 @@
 </div></section>
 
 <!-- MINDSET -->
+<!-- PROVE IT -->
+<section id="quiz"><div class="wrap">
+  <div class="sec-label">PROVE IT // INTERACTIVE</div>
+  <h2 class="head">TEST YOUR<br>INSTINCTS</h2>
+  <p class="sub">Two drills — spot the vulnerability, then take the security quiz. Wrong answers teach too. Found a bug in a drill? <a href="disclosure.html" style="color:var(--accent2)">report it →</a></p>
+  <div class="btnrow" style="margin-bottom:20px">
+    <button class="btn btn-p" id="tabVuln">SPOT THE VULN</button>
+    <button class="btn btn-g" id="tabSec">SECURITY QUIZ</button>
+  </div>
+  <div class="card reveal"><div id="quizBox"></div></div>
+</div></section>
+
 <section><div class="wrap mind" id="mind"></div></section>
 
 <!-- TERMINAL -->
@@ -272,6 +332,33 @@
   <div class="btnrow"><button class="btn btn-g" id="resumeBtn2">⤓ DOWNLOAD SECURITY PROFILE</button></div>
 </div></section>
 
+<!-- TOOLKIT -->
+<section id="toolkit"><div class="wrap">
+  <div class="sec-label">CYBERSECURITY TOOLKIT // 100% BROWSER-LOCAL</div>
+  <h2 class="head">POCKET<br>UTILITIES</h2>
+  <p class="sub">Harmless utilities running entirely in your browser — nothing leaves this page. Demos and learning aids, not operational tooling.</p>
+  <div class="btnrow" id="toolTabs" style="margin-bottom:18px">
+    <button class="btn btn-p" data-tool="hash">HASH</button>
+    <button class="btn btn-g" data-tool="b64">BASE64</button>
+    <button class="btn btn-g" data-tool="url">URL</button>
+    <button class="btn btn-g" data-tool="jwt">JWT</button>
+    <button class="btn btn-g" data-tool="time">TIME</button>
+    <button class="btn btn-g" data-tool="regex">REGEX</button>
+  </div>
+  <div class="card reveal"><div id="toolBox"></div></div>
+</div></section>
+
+<!-- CHALLENGE BOARD -->
+<section id="challenge"><div class="wrap">
+  <div class="sec-label">CHALLENGE BOARD // DAILY + MINI-CTF</div>
+  <h2 class="head">TRAIN<br>DAILY</h2>
+  <p class="sub">A fresh question every day plus a 5-minute guided CTF for recruiters and the curious. Progress lives in this browser only.</p>
+  <div class="lab-grid">
+    <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">DAILY CHALLENGE</div><div id="dailyBox" style="margin-top:10px"></div></div>
+    <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">MINI-CTF // ~5 MINUTES</div><div id="ctfBox" style="margin-top:10px"></div></div>
+  </div>
+</div></section>
+
 <!-- CONTACT -->
 <section id="contact" style="background:var(--bg2);border-top:1px solid var(--line2)"><div class="wrap">
   <div class="sec-label">08 // CONTACT</div>
@@ -291,7 +378,22 @@
         <a class="btn btn-g" id="ghBtn" href="https://github.com/" target="_blank" rel="noopener">GITHUB ↗</a>
         <a class="btn btn-g" id="liBtn" href="https://www.linkedin.com/" target="_blank" rel="noopener">LINKEDIN ↗</a>
       </div>
-      <p class="mono" style="font-size:11.5px;color:var(--muted);margin-top:18px">STATUS: <span style="color:#00ffa3">● OPEN TO OPPORTUNITIES</span><br>RESPONSE: research · projects · authorized labs · discussion<br>PRESS ⌘/CTRL + K TO NAVIGATE LIKE AN OPERATOR.</p>
+      <p class="mono" style="font-size:11.5px;color:var(--muted);margin-top:18px">STATUS: <span style="color:#00ffa3">● OPEN TO OPPORTUNITIES</span><br>OPEN TO: <span class="avail-fill" style="color:var(--accent2)"></span><br>RESPONSE: research · projects · authorized labs · discussion<br>PRESS ⌘/CTRL + K TO NAVIGATE LIKE AN OPERATOR.</p>
+    </div>
+    <div class="card reveal" style="grid-column:1/-1">
+      <div class="mono" style="font-size:11px;letter-spacing:.18em;color:var(--accent)">PGP SECURE CONTACT</div>
+      <p class="mono" style="font-size:12px;margin:12px 0 4px">EMAIL: <span style="color:var(--accent2)">HVoid9@proton.me</span></p>
+      <p class="mono" style="font-size:12px;margin:4px 0 0">PGP FINGERPRINT:</p>
+      <div class="fp" id="pgpFp"></div>
+      <div class="btnrow" style="margin-top:14px">
+        <button class="btn btn-g" id="pgpShow">VIEW PUBLIC KEY</button>
+        <button class="btn btn-g" id="pgpDl">⤓ DOWNLOAD PUBLIC KEY</button>
+        <button class="btn btn-t" id="pgpFpBtn">⧉ COPY FINGERPRINT</button>
+        <button class="btn btn-t" id="pgpCopy">⧉ COPY PUBLIC KEY</button>
+        <button class="btn btn-p" id="vcfBtn">⛉ SAVE CONTACT (.VCF)</button>
+      </div>
+      <pre class="pgp" id="pgpKey" hidden style="margin-top:14px"></pre>
+      <p class="mono" style="font-size:11px;color:var(--warn);margin:14px 0 0">⚠ ALWAYS VERIFY THE FINGERPRINT BEFORE TRUSTING THIS KEY.</p>
     </div>
   </div>
 </div></section>
@@ -314,6 +416,7 @@
   </div>
 </div></footer>
 
+<button class="rec-exit" id="recExit">◉ EXIT RECRUITER VIEW</button>
 <!-- MODAL -->
 <div class="modal" id="modal" role="dialog" aria-modal="true"><div class="sheet">
   <div style="display:flex;justify-content:flex-end"><button class="xbtn" id="mclose2">✕ CLOSE</button></div>
@@ -330,6 +433,7 @@
 <div class="toast" id="toast" role="status"></div>
 
 <script src="config.js"></script>
+<script src="notes.js"></script>
 <script src="app.js"></script>
 <script>
 document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);

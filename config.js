@@ -1,3 +1,4 @@
+/* FLAG{c0nf1g_r34d3r} — one of five. Terminal: flag FLAG{...} */
 /* ============================================================
    HOLY // CENTRAL DATA ARCHITECTURE
    Edit everything personal here. The entire site + resume
@@ -17,6 +18,7 @@ const HOLY_PROFILE = {
     "Exploring cybersecurity through penetration testing, network security, web application security, red-team methodologies, vulnerability research, and secure system design.",
   location: "Cairo, Egypt",
   availability: "OPEN TO OPPORTUNITIES",
+  openTo: ["Junior SOC Roles", "Pentest Internships", "Security Projects"],
   focus: "Cybersecurity",
   specialization: "Offensive Security",
   interests: ["Pentesting", "Red Teaming", "Web Security", "Network Security"],
@@ -337,6 +339,70 @@ const HOLY_SOCIALS = {
   emailLabel: "HVoid9@proton.me",
 };
 
+/* PGP public key — paste the full block (BEGIN…END). Empty = "publishing soon". */
+const HOLY_PGP = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEasLQWxYJKwYBBAHaRw8BAQdARR+ENFGz+dmVFwA6nLCAP3ivPoUULrdo
+TCZMGQZhYl3NI0hWb2lkOUBwcm90b24ubWUgPEhWb2lkOUBwcm90b24ubWU+
+wsARBBMWCgCDBYJqwtBbAwsJBwkQWItwl2VJcwdFFAAAAAAAHAAgc2FsdEBu
+b3RhdGlvbnMub3BlbnBncGpzLm9yZ73w98tPDzpZUxaBl1woa91NfPdfj8aZ
+tIkBuIkIjbqIAxUKCAQWAAIBAhkBApsDAh4BFiEEaJvV91YOo+ayRu4WWItw
+l2VJcwcAADkFAQDOcIfx3xUi8+Gn9+78YeJMFsto0A5eagSX/bbCoyjYegEA
+5UcTEHsuZaOrps5a1sDDhu2v9qHCAcXAoY/UXDRJ0gTOOARqwtBbEgorBgEE
+AZdVAQUBAQdAI/Fy+wA+H8ejn4wzZt/ocrIpAbuVGMMV/crf9QRobFUDAQgH
+wr4EGBYKAHAFgmrC0FsJEFiLcJdlSXMHRRQAAAAAABwAIHNhbHRAbm90YXRp
+b25zLm9wZW5wZ3Bqcy5vcmeFsq34IDmjSBrm28ESgJxL5MpblMHXH+w5t9YS
+jmyDSQKbDBYhBGib1fdWDqPmskbuFliLcJdlSXMHAAA26gD/c3o99BpP2+PX
+4bzwv6gpcFEmkf4Duc1h3C9AjS/FjFwBAOKZFvcLK8WsaKtHuqFWYtFhPmQd
+OH48IE3EeGbkzBwK
+=VrZp
+-----END PGP PUBLIC KEY BLOCK-----`;
+
+/* PGP fingerprint — displayed + copied exactly as given. */
+const HOLY_PGP_FP = "689B D5F7 560E A3E6 B246 EE16 588B 7097 6549 7307";
+
+/* Arabic chrome dictionary (technical body copy stays English by design).
+   Keys applied via innerHTML — single quotes safe inside. */
+const NAV_AR = {"#home":"الرئيسية","#about":"من أنا","#credentials":"الشهادات","#experience":"الخبرة","#arsenal":"الترسانة","#lab":"المختبر","#research":"البحث","#contact":"تواصل"};
+const HOLY_I18N = {
+kicker: "الأمن السيبراني // ملف أمني شخصي",
+heroSub: "أنا لا أستخدم الأنظمة فقط.<br>أتعلّم<br><span class='cy'>كيف تفشل.</span>",
+heroLead: "محترف أمن سيبراني يستكشف <b style='color:var(--text)'>الأمن الهجومي، اختبار الاختراق، الدفاع الشبكي، أمن تطبيقات الويب</b> وعمليات الفريق الأحمر.",
+enterLab: "ادخل المختبر ←",
+viewCreds: "عرض الشهادات",
+openTerm: "$ افتح الطرفية",
+resume: "⤓ تحميل الملف الأمني",
+palette: "⌘K لوحة الأوامر",
+avail: "متاح لـ:",
+contactBtn: "تواصل مع هولي ←",
+mailBtn: "راسل هولي",
+cName: "اسمك",
+cEmail: "بريدك",
+cMsg: "حدث هولي عن مشروعك أو بحثك أو فرصتك…",
+tInput: "اكتب help…",
+secAbout: "01 // من هو هولي؟",
+headAbout: "الأمن<br>عقلية.",
+secCreds: "02 // الاعتمادات الأمنية",
+headCreds: "خارطة<br>الشهادات",
+secExp: "03 // الخبرة",
+headExp: "خبرة<br>عملية",
+secArs: "04 // الترسانة",
+headArs: "مصفوفة<br>المهارات",
+secOps: "05 // العمليات الأمنية",
+headOps: "كيف يُدار<br>الاختبار",
+secSoc: "مركز العمليات الأمنية // محاكاة",
+secLab: "06 // المختبر",
+headLab: "تجارب<br>مصرّح بها",
+secNotes: "ملاحظات ميدانية // شروحات",
+headNotes: "تفكير<br>موثّق",
+secRes: "07 // البحث الأمني",
+headRes: "أستكشف<br>حاليًا",
+secTerm: "$ // طرفية تفاعلية",
+headTerm: "اسأل<br>الآلة",
+secContact: "08 // تواصل",
+headContact: "لنبنِ شيئًا<br>آمنًا."
+};
+
 const HOLY_MINDSET = [
   "ASSUME NOTHING.",
   "VERIFY EVERYTHING.",
@@ -346,3 +412,37 @@ const HOLY_MINDSET = [
   "DOCUMENT EVERYTHING.",
   "SECURITY IS A PROCESS.",
 ];
+
+/* Field notes — honest statuses only. Mark DOCUMENTING while writing,
+   PUBLISHED only when the note actually exists. Never invent articles. */
+const HOLY_WRITEUPS = [
+  {
+    index: "NOTE 01",
+    title: "Segmenting My Home Network",
+    track: "NETWORK DEFENSE",
+    status: "PUBLISHED",
+    article: "note1",
+    summary: "What I changed on my own router and why — guest isolation, firmware discipline, DNS filtering and a traffic baseline.",
+  },
+  {
+    index: "NOTE 02",
+    title: "My First Burp Suite Workflow",
+    track: "WEB SECURITY",
+    status: "PUBLISHED",
+    article: "note2",
+    summary: "Mapping, intercepting and actually reading requests against local intentionally-vulnerable apps before any automation.",
+  },
+  {
+    index: "NOTE 03",
+    title: "Nmap Scans I Actually Reuse",
+    track: "RECONNAISSANCE",
+    status: "PUBLISHED",
+    article: "note3",
+    summary: "The scan playbook crystallizing out of my recon lab — timing, output formats and documentation standards.",
+  },
+];
+
+/* Recommendations — add ONLY real quotes, ONLY with the author's
+   explicit permission. Example:
+   // { quote: "…", name: "Eng. …", role: "Supervisor", org: "…" }, */
+const HOLY_QUOTES = [];

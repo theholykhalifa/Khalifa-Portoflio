@@ -71,11 +71,89 @@ function renderResearch(){
     <div class="card reveal"><small class="${cls[r.stage]||""}">${r.stage}</small>
     <h4 style="margin:12px 0 6px">${r.topic}</h4><p style="color:var(--muted);font-size:13.5px;margin:0">${r.note}</p></div>`).join("");
 }
+function renderNotes(){
+  const badge=s=>s==="PUBLISHED"?`<span class="badge b-verified">✓ PUBLISHED</span>`:s==="DOCUMENTING"?`<span class="badge b-progress">◐ DOCUMENTING</span>`:`<span class="badge b-soon">⚡ SOON</span>`;
+  $("#notesGrid").innerHTML=HOLY_WRITEUPS.map((w,i)=>`
+    <article class="card note ${w.article?"clickable":""}" ${w.article?`data-note="${i}" tabindex="0" role="button" aria-label="Open ${w.title}"`:""}><div class="idx">${w.index}</div>
+      <div class="track">${w.track}</div><h4>${w.title}</h4><p>${w.summary}</p>
+      <div>${badge(w.status)}</div>
+      ${w.article?'<div class="mono" style="font-size:11px;color:var(--accent);margin-top:10px;letter-spacing:.1em">OPEN NOTE →</div>':'<div class="mono" style="font-size:10.5px;color:var(--muted);margin-top:10px;letter-spacing:.1em">FULL NOTE PUBLISHING SOON</div>'}
+    </article>`).join("");
+  $$("#notesGrid .note[data-note]").forEach(el=>{
+    el.onclick=()=>openNote(+el.dataset.note);
+    el.onkeydown=e=>{if(e.key==="Enter")openNote(+el.dataset.note);};
+  });
+}
+function openNote(i){
+  const w=HOLY_WRITEUPS[i], body=(typeof HOLY_ARTICLES!=="undefined"&&HOLY_ARTICLES[w.article])||"<p>Article body missing.</p>";
+  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">${w.index} // ${w.track} · AUTHORIZED LAB / EDUCATIONAL</div>
+  <h3 style="font-size:28px;margin:8px 0 4px">${w.title}</h3>
+  <p style="color:var(--muted);font-size:14px">${w.summary}</p>${body}
+  <br><button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+}
+function renderQuotes(){
+  $("#quotes").innerHTML=HOLY_QUOTES.length?HOLY_QUOTES.map(q=>`
+    <figure class="quote reveal" style="margin:0"><p>"${q.quote}"</p>
+    <cite>— ${q.name} · ${q.role}, ${q.org}</cite></figure>`).join(""):
+    `<div class="quote-await reveal">◇ AWAITING FIRST RECOMMENDATION<br>Supervised Khalifa's work? Your words — with your permission — belong here.<br>Contact: ${HOLY_SOCIALS.emailLabel}</div>`;
+}
 function renderMind(){
   $("#mind").innerHTML=HOLY_MINDSET.map((t,i)=>`<div class="${i===6?"hl":""}">${t}</div>`).join("");
 }
 
 /* ---------- modals ---------- */
+/* interactive quizzes — spot-the-vuln + security quiz */
+const QUIZ_VULN=[
+ {code:'query = "SELECT * FROM users WHERE id = \'" + user_input + "\'";',
+  q:"What vulnerability is this?",opts:["SQL Injection","Cross-Site Scripting","IDOR","CSRF"],a:0,
+  exp:"Untrusted input is concatenated straight into SQL. Parameterize queries — never build them with string glue."},
+ {code:'commentBox.innerHTML = userComment; // render instantly, no sanitization',
+  q:"What vulnerability is this?",opts:["SQL Injection","Cross-Site Scripting","IDOR","CSRF"],a:1,
+  exp:"Attacker HTML/JS lands in a live DOM sink. Use textContent or sanitize — innerHTML with user data is a loaded gun."},
+ {code:'GET /api/invoices/1024   →   change to /1025, no ownership check, data leaks',
+  q:"What vulnerability is this?",opts:["SQL Injection","XSS","IDOR / BOLA","CSRF"],a:2,
+  exp:"Object reference with no authorization check. Verify ownership server-side on every object access."}
+];
+const QUIZ_SEC=[
+ {q:"Which CIA-triad property guarantees data is unaltered?",opts:["Confidentiality","Integrity","Availability","Authenticity"],a:1,exp:"Integrity = unaltered. Hashes and signatures enforce it."},
+ {q:"First move on any new device or account?",opts:["Install themes","Change default credentials","Disable logging","Share access"],a:1,exp:"Defaults are public knowledge. Change them before anything else."},
+ {q:"What does Nmap -sV do?",opts:["OS detection","Port knocking","Service/version detection","Packet crafting"],a:2,exp:"-sV probes open ports to fingerprint service names and versions."},
+ {q:"Least privilege means…",opts:["Everyone gets admin","Minimum access to function","No passwords needed","Log everything"],a:1,exp:"Only the access required — nothing more. Shrinks blast radius."},
+ {q:"Burp Repeater is for…",opts:["Auto-scanning","Manual request modification","Password cracking","Traffic shaping"],a:1,exp:"Craft, tweak and resend requests by hand. Understanding beats automation."},
+ {q:"Phishing is primarily…",opts:["A firewall flaw","Social engineering","A malware family","A routing attack"],a:1,exp:"It hacks the human, not the machine. Verify sender, hover links."}
+];
+let quiz={set:null,i:0,score:0};
+function quizRank(pct,top){
+  if(pct>=1) return top;
+  if(pct>=0.66) return quiz.set===QUIZ_VULN?"SHARP EYE":"OPERATOR";
+  if(pct>=0.33) return quiz.set===QUIZ_VULN?"KEEP PRACTICING":"ANALYST TRAINEE";
+  return "CURIOUS NEWBIE — keep learning";
+}
+function quizStart(set){quiz={set:set,i:0,score:0};quizRender();}
+function quizRender(){
+  const box=document.getElementById("quizBox"); if(!box) return;
+  const Q=quiz.set[quiz.i];
+  if(!Q){const pct=quiz.score/quiz.set.length;
+    if(pct>=1) unlockAch("researcher","SECURITY RESEARCHER");
+    box.innerHTML=`<div class="qprog">FINAL SCORE</div><div class="qscore">${quiz.score} / ${quiz.set.length}</div>
+    <div class="qrank">RANK: ${quizRank(pct,"RED TEAM MATERIAL")}</div>
+    <div class="btnrow" style="margin-top:16px"><button class="btn btn-p" id="qretry">RETRY →</button></div>`;
+    document.getElementById("qretry").onclick=()=>quizStart(quiz.set); return;}
+  box.innerHTML=`<div class="qprog">QUESTION ${quiz.i+1} / ${quiz.set.length} · SCORE ${quiz.score}</div>
+  ${Q.code?`<pre class="qcode">${Q.code}</pre>`:""}
+  <h4 class="qq">${Q.q}</h4>
+  <div class="qopts">${Q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div>
+  <div class="qexp" hidden></div>`;
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const ok=+b.dataset.i===Q.a;
+    box.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===Q.a)x.classList.add("ok");});
+    if(!ok) b.classList.add("no"); else quiz.score++;
+    const ex=box.querySelector(".qexp"); ex.hidden=false;
+    ex.innerHTML=`<b>${ok?"✓ CORRECT":"✗ NOT QUITE"}</b> — ${Q.exp}<br><br><button class="btn btn-p" id="qnext">${quiz.i+1>=quiz.set.length?"SEE SCORE":"NEXT →"}</button>`;
+    document.getElementById("qnext").onclick=()=>{quiz.i++;quizRender();};
+    box.querySelector(".qprog").textContent=`QUESTION ${quiz.i+1} / ${quiz.set.length} · SCORE ${quiz.score}`;
+  });
+}
 function openModal(html){ $("#sheet").innerHTML=html; $("#modal").classList.add("open"); document.body.style.overflow="hidden"; }
 function closeModal(){ $("#modal").classList.remove("open"); document.body.style.overflow=""; }
 function openOps(i){
@@ -119,7 +197,7 @@ function openResume(){
     <div class="mono" style="font-size:11px;letter-spacing:.2em;color:#A01025">HOLY // SECURITY PROFILE — DIGITAL RESUME (SIMULATION)</div>
     <h2>${HOLY_PROFILE.name}</h2><div class="mono" style="font-size:12px">${HOLY_PROFILE.realName} — working as ${HOLY_PROFILE.name}</div><div class="mono" style="font-size:12px">${HOLY_PROFILE.identity}</div>
     <p><em>"${HOLY_PROFILE.slogan}"</em><br>${HOLY_PROFILE.aboutSupport}</p>
-    <h4>PROFILE</h4><p>Focus: ${HOLY_PROFILE.focus}<br>Specialization: ${HOLY_PROFILE.specialization}<br>Interests: ${HOLY_PROFILE.interests.join(", ")}<br>Mode: ${HOLY_PROFILE.modes.join(" · ")}</p>
+    <h4>PROFILE</h4><p>Focus: ${HOLY_PROFILE.focus}<br>Specialization: ${HOLY_PROFILE.specialization}<br>Interests: ${HOLY_PROFILE.interests.join(", ")}<br>Mode: ${HOLY_PROFILE.modes.join(" · ")}<br>Open to: ${HOLY_PROFILE.openTo.join(", ")}</p>
     <h4>CERTIFICATIONS</h4><p>${certs}</p>
     <h4>TECHNICAL ARSENAL</h4><p>${ars}</p>
     <h4>EXPERIENCE</h4><p>${exp}</p>
@@ -138,10 +216,17 @@ function tout(html){ const b=$("#tout"); b.insertAdjacentHTML("beforeend",html);
 function runCmd(raw){
   const cmd=raw.trim(); if(!cmd) return;
   hist.push(cmd); hi=hist.length;
+  try{const arr=JSON.parse(localStorage.getItem("holy_cmds")||"[]");
+    const base=cmd.split(/\s+/)[0].toLowerCase();
+    if(base&&!arr.includes(base)){arr.push(base);
+      try{localStorage.setItem("holy_cmds",JSON.stringify(arr))}catch(e){}}
+    unlockAch("term","TERMINAL ACCESS");
+    if(arr.length>=5) unlockAch("recon","RECON COMPLETE");
+  }catch(e){}
   tout(`<div class="term-line"><span class="prompt">$</span> ${escapeHtml(cmd)}</div>`);
   const c=cmd.toLowerCase();
   const out=(t)=>tout(`<div class="term-line" style="color:#9fb3c8">${t}</div>`);
-  if(c==="help") out("commands: whoami · about · skills · certs · experience · projects · arsenal · status · contact · seals · clear · sudo curiosity · sudo security<br><span style='color:var(--muted)'>whispers: the giant name likes attention ×3 · the midnight door keeps count</span>");
+  if(c==="help") out("commands: whoami · about · skills · certs · experience · projects · arsenal · status · contact · seals · achievements · flag · clear · sudo curiosity · sudo security<br><span style='color:var(--muted)'>whispers: the giant name likes attention ×3 · the midnight door keeps count · a flag sleeps in the page source</span>");
   else if(c==="whoami") out("HOLY<br>CYBERSECURITY<br>PENETRATION TESTING<br>SECURITY RESEARCH");
   else if(c==="about") out(escapeHtml(HOLY_PROFILE.heroSupport));
   else if(c==="skills") out(HOLY_ARSENAL.map(g=>g.category+": "+g.items.map(x=>x[0]).join(", ")).join("<br><br>"));
@@ -171,6 +256,27 @@ function runCmd(raw){
       out("Seals shattered. The midnight door forgets you.");}
     else{const s=seals(), n=["e1","e2","e3","e4"].filter(k=>s[k]).length;
       out(`MIDNIGHT SEALS: ${"■".repeat(n)}${"□".repeat(4-n)} (${n}/4)<br>The midnight door opens only for the thorough.`);}
+  }
+/* terminal achievements */
+function getAch(){try{return JSON.parse(localStorage.getItem("holy_ach")||"{}")}catch(e){return{}}}
+function unlockAch(k,label){const a=getAch(); if(a[k]) return; a[k]=1;
+  try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
+  toast("🏅 ACHIEVEMENT — "+label);}
+const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
+  else if(c==="achievements"||c==="badges"){const a=getAch();
+    out(Object.keys(ACH_LABELS).map(k=>`${a[k]?"✓":"□"} ${ACH_LABELS[k]}`).join("<br>")+
+    "<br><span style='color:var(--muted)'>Use the terminal. Find the flag. Go midnight.</span>");
+  }
+  else if(c==="flag"){out("Usage: flag FLAG{...} — 5 flags sleep across this site (source files included).");}
+  else if(c.startsWith("flag ")){const v=cmd.slice(5).trim();
+    if(FLAGS[v]!==undefined){
+      const f=foundFlags();
+      if(!f.includes(v)){f.push(v);try{localStorage.setItem("holy_flags",JSON.stringify(f))}catch(e){}}
+      unlockAch("first","FIRST FLAG");
+      if(f.length>=5) unlockAch("flagc","FLAG CAPTURED");
+      if(FLAGS[v]==="vault"){try{localStorage.setItem("holy_vault","1")}catch(e){}}
+      out(`◉ FLAG ACCEPTED (${f.length}/5)${FLAGS[v]==="vault"?' — the vault is open: <a href="vault.html" style="color:var(--accent)">vault.html ↗</a>':" — keep hunting."}`);
+    } else out("✗ Wrong flag. Dig deeper — page sources included.");
   }
   else if(c.startsWith("sudo")) out("sudo: this is a simulated terminal. Try 'sudo curiosity'.");
   else out(`command not found: ${escapeHtml(cmd)} — try 'help'`);
@@ -284,6 +390,41 @@ function hackPrank(){
   p.addEventListener("click",kill); setTimeout(kill,7000);
 }
 
+/* engagement workflow + document previews */
+function openWorkflow(){
+  const steps=[
+    ["01 CONTACT","You describe the need — scope guess, timeline, concerns."],
+    ["02 SCOPING","Targets, exclusions, timing and constraints agreed in writing."],
+    ["03 AUTHORIZATION","Signed rules of engagement. No signature, no test. Ever."],
+    ["04 TESTING","Methodical work inside the authorized scope only."],
+    ["05 REPORTING","Severity-ranked findings with evidence + remediation."],
+    ["06 RETEST","Fixes verified within the agreed window."],
+    ["07 INVOICE","Billed against the engagement and authorization refs."],
+  ];
+  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">ENGAGEMENT WORKFLOW // AUTHORIZATION IS NEVER OPTIONAL</div>
+  <h3 style="font-size:28px;margin:8px 0">How an Engagement Runs</h3>
+  ${steps.map(s=>`<div class="kv"><b>${s[0]}</b><span>${s[1]}</span></div>`).join("")}
+  <br><button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+}
+function openSample(){
+  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">SAMPLE // ALL FINDINGS FICTIONAL — LAB.LOCAL</div>
+  <h3 style="font-size:28px;margin:8px 0">Pentest Report Sample</h3>
+  <div class="article"><table><tr><th>ID</th><th>Finding (example)</th><th>Severity</th></tr>
+  <tr><td>F-01</td><td>Missing security headers</td><td>Low</td></tr>
+  <tr><td>F-02</td><td>Verbose error messages</td><td>Medium</td></tr>
+  <tr><td>F-03</td><td>Weak lab password policy</td><td>High</td></tr></table>
+  <p>Each finding ships with observation, impact, remediation and evidence. Full structure — scope, ROE, executive summary, methodology — is in the downloadable file.</p></div>
+  <div class="btnrow"><a class="btn btn-p" href="assets/pentest-report-sample.md" download>⤓ DOWNLOAD FULL .MD</a>
+  <button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button></div>`);
+}
+function openInvoice(){
+  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">TEMPLATE // BLANK — FILL BEFORE USE</div>
+  <h3 style="font-size:28px;margin:8px 0">Invoice Template</h3>
+  <div class="article"><p>Sections: bill-to, engagement + authorization refs, testing period, line items, totals, payment terms, retest window. Every value is a <code>[BRACKETED]</code> placeholder — nothing filled, nothing implied.</p></div>
+  <div class="btnrow"><a class="btn btn-p" href="assets/invoice-template.md" download>⤓ DOWNLOAD .MD</a>
+  <button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button></div>`);
+}
+
 /* low dread-drone: deep thump loop for scary sequences */
 function thump(dur){const iv=setInterval(()=>tone(52,.35,"sine",.09),480);setTimeout(()=>clearInterval(iv),dur);}
 /* OPERATION MIDNIGHT — the ultimate egg: blackout boot → golden HOLY MODE */
@@ -331,7 +472,7 @@ function finale(){
   },lastLine+1350);
   setTimeout(()=>{
     f.classList.add("out"); setTimeout(()=>f.remove(),500);
-    document.body.classList.add("gold");
+    document.body.classList.add("gold"); unlockAch("root","ROOT ACCESS");
     toast("◉ HOLY MODE — golden clearance, 20s");
     embers(20000);
     const pill=document.createElement("div"); pill.className="gold-pill";
@@ -410,7 +551,7 @@ const PAL=[
   ["About","Who is Holy","#about"],["Credentials","Certification roadmap","#credentials"],
   ["Experience","Industry exposure","#experience"],["Arsenal","Skill matrix","#arsenal"],
   ["Operations","Pentest methodology","#operations"],["SOC","Operations center","#soc"],
-  ["Lab","Case studies","#lab"],["Research","Currently exploring","#research"],
+  ["Lab","Case studies","#lab"],["Notes","Field write-ups","#notes"],["Reports","Samples & workflow","#reports"],["Toolkit","Browser utilities","#toolkit"],["Challenge","Daily + mini-CTF","#challenge"],["Research","Currently exploring","#research"],
   ["Terminal","Interactive console","#terminal"],["Contact","Let's talk","#contact"],
 ];
 let palSel=0;
@@ -459,7 +600,8 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(e.key==="Escape") introDone(); });
   } else { document.body.classList.add("ready"); }
 
-  renderCerts(); renderRoad(); renderExp(); renderArsenal(); renderOps(); renderLabs(); renderResearch(); renderMind();
+  renderCerts(); renderRoad(); renderExp(); renderArsenal(); renderOps(); renderLabs(); renderResearch(); renderMind(); renderNotes(); renderQuotes();
+  $$(".avail-fill").forEach(el=>el.textContent=HOLY_PROFILE.openTo.join(" · "));
   $("#year").textContent=new Date().getFullYear();
   $("#ghBtn").href=HOLY_SOCIALS.github; $("#liBtn").href=HOLY_SOCIALS.linkedin; $("#mailBtn").href=HOLY_SOCIALS.email;
   $("#ghBtn2").href=HOLY_SOCIALS.github; $("#liBtn2").href=HOLY_SOCIALS.linkedin;
@@ -469,7 +611,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $$(".reveal,.rstep,.mind div").forEach(el=>io.observe(el));
   // re-observe dynamically added
   const io2=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vis");io2.unobserve(e.target);}}),{threshold:.1});
-  $$("#credGrid .reveal,#arsGrid .reveal,#opsGrid .reveal,#labGrid .reveal,#resGrid .reveal,#expList .reveal").forEach(el=>io2.observe(el));
+  $$("#credGrid .reveal,#arsGrid .reveal,#opsGrid .reveal,#labGrid .reveal,#resGrid .reveal,#expList .reveal,#notesGrid .reveal,#quotes .reveal").forEach(el=>io2.observe(el));
 
   // nav active
   const secs=["home","about","credentials","experience","arsenal","lab","research","contact"];
@@ -573,6 +715,52 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   // palette
   $("#palBtn").onclick=openPal;
+
+  // language + pgp
+  let initLang="en"; try{initLang=localStorage.getItem("holy_lang")||"en"}catch(e){}
+  applyLang(initLang);
+  $("#langBtn").onclick=()=>applyLang(holyLang==="ar"?"en":"ar");
+  renderPgp();
+  $("#repView").onclick=openSample; $("#wfOpen").onclick=openWorkflow; $("#invView").onclick=openInvoice;
+  const tV=$("#tabVuln"), tS=$("#tabSec");
+  const tL=document.createElement("button");
+  tL.className="btn btn-g"; tL.textContent="VULN LAB";
+  const paintTabs=which=>{tV.className="btn "+(which==="vuln"?"btn-p":"btn-g");
+    tS.className="btn "+(which==="sec"?"btn-p":"btn-g");
+    tL.className="btn "+(which==="lab"?"btn-p":"btn-g");};
+  tV.onclick=()=>{paintTabs("vuln");quizStart(QUIZ_VULN);};
+  tS.onclick=()=>{paintTabs("sec");quizStart(QUIZ_SEC);};
+  tL.onclick=()=>{paintTabs("lab");renderVulnLab();};
+  document.querySelector("#quiz .btnrow").appendChild(tL);
+  quizStart(QUIZ_VULN);
+  $$("#toolTabs .btn").forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));
+  renderTool("hash"); renderDaily(); renderCtf();
+  $("#vcfBtn").onclick=downloadVcf;
+  $("#recBtn").onclick=()=>setRecruiter(true);
+  $("#recExit").onclick=()=>setRecruiter(false);
+  let rec="0"; try{rec=localStorage.getItem("holy_rec")||"0"}catch(e){}
+  if(rec==="1") document.body.classList.add("recruiter");
+  $("#pgpCopy").onclick=copyPgp;
+  $("#pgpShow").onclick=()=>{
+    const el=document.getElementById("pgpKey"), hid=el.hidden;
+    el.hidden=!hid;
+    document.getElementById("pgpShow").textContent=hid?"HIDE PUBLIC KEY":"VIEW PUBLIC KEY";
+    if(hid) el.scrollIntoView({behavior:"smooth",block:"nearest"});
+  };
+  $("#pgpDl").onclick=()=>{
+    const t=(typeof HOLY_PGP!=="undefined")?HOLY_PGP.trim():""; if(!t) return;
+    const b=new Blob([t],{type:"text/plain"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+    a.download="HVoid9-protonme-publickey.asc"; a.click();
+    unlockAch("pgp","PGP VERIFIED");
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    toast("Public key downloaded.");
+  };
+  $("#pgpFpBtn").onclick=()=>{
+    const fp=(typeof HOLY_PGP_FP!=="undefined")?HOLY_PGP_FP:"";
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(fp).then(()=>toast("Fingerprint copied — verify before trusting."));}
+    else toast(fp);
+  };
   $("#palInput").addEventListener("input",e=>{palSel=0;palList(e.target.value);});
   $("#palInput").addEventListener("keydown",e=>{
     const items=$$("#palList button");
@@ -615,4 +803,250 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(!reduced) setInterval(()=>{const p=$("#hPackets"); if(p)p.textContent=(parseInt(p.textContent.replace(/,/g,""))+Math.floor(Math.random()*23)).toLocaleString();},2000);
 });
 function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2600); }
+
+/* Arabic chrome — technical body copy stays English by design */
+/* ---- flags (5 hidden) + toolkit + vuln lab + daily + mini-ctf + vcf + recruiter ---- */
+const FLAGS={"FLAG{H0LY_v4ult_hunt3r}":"vault","FLAG{CSS_sp3ctre}":null,"FLAG{c0nf1g_r34d3r}":null,"FLAG{404_gh0st}":null,"FLAG{d1scl0sur3_p34c3}":null};
+function foundFlags(){try{return JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){return[]}}
+
+const VULNLAB=[
+ {t:"Cross-Site Scripting (XSS)",v:"Untrusted input lands in innerHTML with no encoding.",c:"Attacker markup executes in the victim's session.",i:"Session theft, defacement, actions performed as the victim.",f:"Output-encode by context; prefer textContent; enforce Content-Security-Policy."},
+ {t:"SQL Injection (SQLi)",v:"User input concatenated directly into SQL strings.",c:"Crafted input alters query logic or stacks commands.",i:"Data theft, authentication bypass, sometimes RCE.",f:"Parameterized queries; least-privilege database accounts."},
+ {t:"Insecure Direct Object Reference (IDOR)",v:"Object IDs accepted with no ownership check.",c:"Swap IDs to reach other users' objects.",i:"Exposure or modification of someone else's data.",f:"Server-side authorization on every single object access."},
+ {t:"Cross-Site Request Forgery (CSRF)",v:"State-changing requests without anti-CSRF tokens.",c:"Victim's browser fires forged requests carrying cookies.",i:"Unwanted actions executed as the victim.",f:"POST + per-session tokens, SameSite cookies, re-auth for sensitive acts."},
+ {t:"Authentication Flaws",v:"No rate limiting, verbose errors, weak lockout.",c:"Credential stuffing plus user enumeration at scale.",i:"Account takeover, one inbox at a time.",f:"Rate limits, generic errors, MFA, breach-corpus password checks."}
+];
+function renderVulnLab(){
+  const box=document.getElementById("quizBox"); if(!box) return;
+  box.innerHTML=`<div class="qprog">CONCEPT LAB // READ-ONLY — AUTHORIZED LABS ONLY</div>`+
+  VULNLAB.map(v=>`<div class="card" style="margin-bottom:12px"><h4 class="qq" style="margin-top:0">${v.t}</h4>
+  <div class="kv"><b>VULNERABILITY</b><span>${v.v}</span></div>
+  <div class="kv"><b>EXPLOIT CONCEPT</b><span>${v.c}</span></div>
+  <div class="kv"><b>IMPACT</b><span>${v.i}</span></div>
+  <div class="kv"><b>FIX</b><span>${v.f}</span></div></div>`).join("");
+}
+
+function toolOut(t){const o=document.getElementById("toolOut"); if(o) o.textContent=t;}
+async function doHash(alg){
+  const v=(document.getElementById("tin")||{}).value||"";
+  try{const b=await crypto.subtle.digest(alg,new TextEncoder().encode(v));
+    toolOut([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""));
+  }catch(e){toolOut("Hashing unavailable in this browser context.");}
+}
+function b64u(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return decodeURIComponent(escape(atob(s)));}
+function renderTool(name){
+  const box=document.getElementById("toolBox"); if(!box) return;
+  $$("#toolTabs .btn").forEach(b=>{b.className="btn "+(b.dataset.tool===name?"btn-p":"btn-g");});
+  if(name==="hash") box.innerHTML=`<div class="tlab">INPUT TEXT</div>
+    <input class="tfield" id="tin" placeholder="type here…" autocomplete="off">
+    <div class="btnrow"><button class="btn btn-p" onclick="doHash('SHA-256')">SHA-256</button>
+    <button class="btn btn-g" onclick="doHash('SHA-512')">SHA-512</button>
+    <button class="btn btn-g" onclick="doHash('SHA-1')">SHA-1</button></div>
+    <div class="tout2" id="toolOut">hash appears here — computed locally</div>`;
+  if(name==="b64") box.innerHTML=`<div class="tlab">TEXT / BASE64</div>
+    <textarea class="tfield" id="tin2" placeholder="paste here…"></textarea>
+    <div class="btnrow"><button class="btn btn-p" id="bEnc">ENCODE →</button>
+    <button class="btn btn-g" id="bDec">DECODE →</button></div>
+    <div class="tout2" id="toolOut">result appears here</div>`;
+  if(name==="url") box.innerHTML=`<div class="tlab">TEXT / URL-ENCODED</div>
+    <textarea class="tfield" id="tin2" placeholder="paste here…"></textarea>
+    <div class="btnrow"><button class="btn btn-p" id="bEnc">ENCODE →</button>
+    <button class="btn btn-g" id="bDec">DECODE →</button></div>
+    <div class="tout2" id="toolOut">result appears here</div>`;
+  if(name==="jwt") box.innerHTML=`<div class="tlab">PASTE JWT (decoded locally, never sent)</div>
+    <textarea class="tfield" id="tin2" placeholder="eyJhbGciOi…"></textarea>
+    <div class="btnrow"><button class="btn btn-p" id="bGo">INSPECT →</button></div>
+    <div class="tout2" id="toolOut">header + payload appear here</div>`;
+  if(name==="time") box.innerHTML=`<div class="tlab">UNIX TIMESTAMP (SECONDS)</div>
+    <input class="tfield" id="tinE" placeholder="1700000000" inputmode="numeric">
+    <div class="tlab">ISO DATETIME</div>
+    <input class="tfield" id="tinI" placeholder="2025-01-01T00:00:00Z">
+    <div class="btnrow"><button class="btn btn-p" id="bE2I">EPOCH → ISO</button>
+    <button class="btn btn-g" id="bI2E">ISO → EPOCH</button>
+    <button class="btn btn-t" id="bNow">NOW</button></div>
+    <div class="tout2" id="toolOut">converted value appears here</div>`;
+  if(name==="regex") box.innerHTML=`<div class="tlab">PATTERN</div>
+    <input class="tfield" id="tinP" placeholder="FLAG\\{[a-z]+_[0-9]+\\}">
+    <div class="tlab">FLAGS (default g)</div>
+    <input class="tfield" id="tinF" placeholder="g" autocomplete="off">
+    <div class="tlab">TEST STRING</div>
+    <textarea class="tfield" id="tin2" placeholder="paste text…"></textarea>
+    <div class="btnrow"><button class="btn btn-p" id="bGo">TEST →</button></div>
+    <div class="tout2" id="toolOut">matches appear here</div>`;
+  const enc=document.getElementById("bEnc"), dec=document.getElementById("bDec"),
+        go=document.getElementById("bGo"), inp=document.getElementById("tin2");
+  if(enc) enc.onclick=()=>{
+    const v=inp.value;
+    try{toolOut(name==="b64"?btoa(unescape(encodeURIComponent(v))):encodeURIComponent(v));}
+    catch(e){toolOut("Cannot encode this input.");}};
+  if(dec) dec.onclick=()=>{
+    const v=inp.value.trim();
+    try{toolOut(name==="b64"?decodeURIComponent(escape(atob(v))):decodeURIComponent(v));}
+    catch(e){toolOut("Invalid "+(name==="b64"?"Base64":"URL-encoded")+" input.");}};
+  if(go&&name==="jwt") go.onclick=()=>{
+    try{const p=inp.value.trim().split(".");
+      if(p.length!==3) throw 0;
+      toolOut("HEADER:\n"+JSON.stringify(JSON.parse(b64u(p[0])),null,2)+
+        "\n\nPAYLOAD:\n"+JSON.stringify(JSON.parse(b64u(p[1])),null,2)+
+        "\n\nSIGNATURE: present ("+p[2].length+" chars) — verify server-side, never trust client-side.");
+    }catch(e){toolOut("Invalid JWT — need header.payload.signature");}};
+  if(go&&name==="regex") go.onclick=()=>{
+    const p=document.getElementById("tinP").value, fl=document.getElementById("tinF").value||"g";
+    try{const m=[...inp.value.matchAll(new RegExp(p,fl))].slice(0,20);
+      toolOut(m.length?("MATCHES: "+m.length+"\n"+m.map(x=>x[0]).join("\n")):"NO MATCH");
+    }catch(e){toolOut("Invalid pattern: "+e.message);}};
+  const e2i=document.getElementById("bE2I"), i2e=document.getElementById("bI2E"), now=document.getElementById("bNow");
+  if(e2i) e2i.onclick=()=>{const v=parseInt(document.getElementById("tinE").value,10);
+    toolOut(isNaN(v)?"Enter a numeric epoch.":new Date(v*1000).toISOString());};
+  if(i2e) i2e.onclick=()=>{const v=Date.parse(document.getElementById("tinI").value.trim());
+    toolOut(isNaN(v)?"Enter a parseable datetime.":String(Math.floor(v/1000)));};
+  if(now) now.onclick=()=>{const s=Math.floor(Date.now()/1000);
+    document.getElementById("tinE").value=s;
+    document.getElementById("tinI").value=new Date(s*1000).toISOString();
+    toolOut("NOW → "+s);};
+}
+
+const DAILY=[
+ {q:"Salting stored passwords mainly defeats…",opts:["Phishing","Rainbow-table attacks","DDoS","XSS"],a:1,exp:"Unique salts make precomputed hash tables useless."},
+ {q:"HTTPS protects traffic against…",opts:["Endpoint malware","Eavesdropping in transit","Weak passwords","Malicious admins"],a:1,exp:"TLS encrypts the pipe — not the endpoints."},
+ {q:"Strongest MFA factor?",opts:["SMS code","Email link","Hardware security key","Security question"],a:2,exp:"Phishing-resistant hardware keys beat codes and questions."},
+ {q:"Nmap -sn performs…",opts:["Port scan","Host discovery","OS detection","Exploitation"],a:1,exp:"-sn finds live hosts without port-scanning."},
+ {q:"X-Frame-Options mitigates…",opts:["SQLi","Clickjacking","CSRF","RCE"],a:1,exp:"It stops your pages being framed by attackers."},
+ {q:"A password manager's main win?",opts:["Faster typing","Unique passwords everywhere","Free VPN","Antivirus"],a:1,exp:"Unique + long per site. Reuse is the real vulnerability."},
+ {q:"A JWT signature guarantees…",opts:["Encryption","Integrity + authenticity","Anonymity","Availability"],a:1,exp:"It proves untampered + signed — payload itself isn't secret."},
+ {q:"Clear least-privilege violation?",opts:["Shared admin account","MFA enforced","Logging enabled","Patched servers"],a:0,exp:"Shared all-powerful accounts destroy accountability."},
+ {q:"Wireshark shows you…",opts:["Source code","Packets on the wire","Passwords in vaults","CPU temps"],a:1,exp:"Packet-level truth of what the network carries."},
+ {q:"SMS 2FA codes are weak to…",opts:["SIM swapping","Long passwords","Firewalls","Updates"],a:0,exp:"Number port-outs bypass SMS codes. Prefer app/hardware factors."}
+];
+function renderDaily(){
+  const box=document.getElementById("dailyBox"); if(!box) return;
+  const day=Math.floor(Date.now()/864e5), Q=DAILY[day%DAILY.length];
+  let st={}; try{st=JSON.parse(localStorage.getItem("holy_daily")||"{}")}catch(e){}
+  const streak=st.streak||0;
+  if(st.day===day){
+    box.innerHTML=`<div class="qprog">TODAY'S CHALLENGE — ANSWERED</div>
+    <p style="color:var(--muted);font-size:14px">${st.ok?"✓ Solved. Sharp.":"✗ Missed — the answer was: <b style='color:var(--text)'>"+Q.opts[Q.a]+"</b>"}</p>
+    <div class="qrank">STREAK: ${streak} 🔥 · NEW ONE TOMORROW</div>`; return;}
+  box.innerHTML=`<div class="qprog">TODAY'S CHALLENGE · STREAK ${streak} 🔥</div>
+  <h4 class="qq">${Q.q}</h4>
+  <div class="qopts">${Q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div>
+  <div class="qexp" hidden></div>`;
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const ok=+b.dataset.i===Q.a;
+    box.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===Q.a)x.classList.add("ok");});
+    if(!ok) b.classList.add("no");
+    const ns=ok?((st.day===day-1)?streak+1:1):0;
+    try{localStorage.setItem("holy_daily",JSON.stringify({day:day,streak:ns}))}catch(e){}
+    const ex=box.querySelector(".qexp"); ex.hidden=false;
+    ex.innerHTML=`<b>${ok?"✓ CORRECT":"✗ NOT QUITE"}</b> — ${Q.exp}<br><span class="qrank">STREAK: ${ns} 🔥</span>`;
+  });
+}
+
+const CTF_STEPS=[
+ {t:"Exhibit A — the token",body:`Intercepted: <code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoicmVjcnVpdCIsInJvbGUiOiJhZG1pbiIsImN0ZiI6MX0.xxx</code><br>Paste it into the JWT tool above. What is the <b>role</b>?`,answers:["admin"],hint:"Decode the middle segment."},
+ {t:"Exhibit B — the encoding",body:`Recovered string: <code>%46%4C%41%47%7Burl_m4st3r%7D</code><br>Decode it (URL tool). Enter the flag:`,answers:["flag{url_m4st3r}"],hint:"%46 is F, %7B is { …"},
+ {t:"Exhibit C — the pattern",body:`Which string matches <code>^FLAG\\{[a-z]+_[0-9]+\\}$</code>?`,opts:["FLAG{abc_123}","FLAG{ABC_123}","flag{abc_123}","FLAG{abc}"],answers:["FLAG{abc_123}"],hint:"Lowercase letters, underscore, digits."}
+];
+let ctf={i:0};
+function renderCtf(){
+  const box=document.getElementById("ctfBox"); if(!box) return;
+  const S=CTF_STEPS[ctf.i];
+  if(!S){box.innerHTML=`<div class="qprog">MINI-CTF COMPLETE</div>
+    <div class="qscore">3 / 3</div><div class="qrank">RANK: RECRUITER-GRADE INSTINCTS</div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn btn-g" id="ctfAgain">REPLAY →</button></div>`;
+    document.getElementById("ctfAgain").onclick=()=>{ctf={i:0};renderCtf();};
+    toast("◉ MINI-CTF COMPLETE"); return;}
+  box.innerHTML=`<div class="qprog">STEP ${ctf.i+1} / ${CTF_STEPS.length}</div>
+  <h4 class="qq">${S.t}</h4><p style="color:#c6cfd8;font-size:14px">${S.body}</p>
+  ${S.opts?`<div class="qopts">${S.opts.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}</div>`
+    :`<input class="tfield" id="ctfIn" placeholder="your answer…" autocomplete="off" spellcheck="false">
+      <div class="btnrow" style="margin-top:10px"><button class="btn btn-p" id="ctfGo">SUBMIT →</button></div>`}
+  <div class="qexp" hidden></div>`;
+  const good=()=>{ctf.i++;renderCtf();};
+  const bad=(el)=>{const ex=box.querySelector(".qexp");ex.hidden=false;
+    ex.innerHTML=`<b>✗ Not quite.</b> Hint: ${S.hint}`;};
+  if(S.opts){box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    (S.answers.includes(b.dataset.v)?good:bad)();});}
+  else{document.getElementById("ctfGo").onclick=()=>{
+    const v=document.getElementById("ctfIn").value.trim().toLowerCase();
+    (S.answers.includes(v)?good:bad)();};}
+}
+
+function downloadVcf(){
+  const v=["BEGIN:VCARD","VERSION:3.0","N:Khalifa;Holy;;;","FN:Holy (Khalifa)",
+  "TITLE:Cybersecurity Specialist","EMAIL;TYPE=INTERNET:HVoid9@proton.me",
+  "URL:https://github.com/theholykhalifa","URL:https://theholykhalifa.github.io/Khalifa-Portoflio/",
+  "NOTE:Think like an attacker. Build like a defender.","END:VCARD"].join("\n");
+  const b=new Blob([v],{type:"text/vcard"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+  a.download="holy-contact.vcf"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast("Contact card downloaded.");
+}
+function setRecruiter(on){
+  document.body.classList.toggle("recruiter",on);
+  try{localStorage.setItem("holy_rec",on?"1":"0")}catch(e){}
+  if(on){scrollTo({top:0,behavior:"smooth"});toast("◉ RECRUITER VIEW — clean profile");}
+}
+let holyLang="en";
+const I18N_MAP=[
+ ["header .kicker","kicker",1],["header .hero-sub","heroSub",1],["header p.lead","heroLead",1],
+ [".hero a[href='#lab']","enterLab",0],[".hero a[href='#credentials']","viewCreds",0],
+ ["#termBtn","openTerm",0],["#resumeBtn","resume",0],["#resumeBtn2","resume",0],["#palBtn","palette",0],
+ [".avail span:nth-child(2)","avail",0],["#mailBtn","mailBtn",0],
+ ["#cform button[type=submit]","contactBtn",0],
+ ["#about .sec-label","secAbout",0],["#about h2.head","headAbout",1],
+ ["#credentials .sec-label","secCreds",0],["#credentials h2.head","headCreds",1],
+ ["#experience .sec-label","secExp",0],["#experience h2.head","headExp",1],
+ ["#arsenal .sec-label","secArs",0],["#arsenal h2.head","headArs",1],
+ ["#operations .sec-label","secOps",0],["#operations h2.head","headOps",1],
+ ["#soc .sec-label","secSoc",0],
+ ["#lab .sec-label","secLab",0],["#lab h2.head","headLab",1],
+ ["#notes .sec-label","secNotes",0],["#notes h2.head","headNotes",1],
+ ["#research .sec-label","secRes",0],["#research h2.head","headRes",1],
+ ["#terminal .sec-label","secTerm",0],["#terminal h2.head","headTerm",1],
+ ["#contact .sec-label","secContact",0],["#contact h2.head","headContact",1]
+];
+const I18N_PH=[["cname","cName"],["cemail","cEmail"],["cmsg","cMsg"],["tinput","tInput"]];
+function applyLang(l){
+  holyLang=(l==="ar")?"ar":"en";
+  try{localStorage.setItem("holy_lang",holyLang)}catch(e){}
+  document.documentElement.lang=holyLang;
+  document.documentElement.dir=holyLang==="ar"?"rtl":"ltr";
+  $$(".links a,.mmenu a.big").forEach(a=>{
+    if(!a.dataset.orig) a.dataset.orig=a.innerHTML;
+    if(holyLang==="ar"){const f=a.querySelector("em,small");
+      a.innerHTML=(f?f.outerHTML:"")+(NAV_AR[a.getAttribute("href")]||"");}
+    else a.innerHTML=a.dataset.orig;
+  });
+  I18N_MAP.forEach(([sel,key,isHTML])=>{
+    const el=document.querySelector(sel); if(!el) return;
+    if(el.dataset.orig===undefined) el.dataset.orig=isHTML?el.innerHTML:el.textContent;
+    if(holyLang==="ar"){ if(isHTML) el.innerHTML=HOLY_I18N[key]; else el.textContent=HOLY_I18N[key]; }
+    else{ if(isHTML) el.innerHTML=el.dataset.orig; else el.textContent=el.dataset.orig; }
+  });
+  I18N_PH.forEach(([id,key])=>{
+    const el=document.getElementById(id); if(!el) return;
+    if(el.dataset.orig===undefined) el.dataset.orig=el.placeholder;
+    el.placeholder=holyLang==="ar"?HOLY_I18N[key]:el.dataset.orig;
+  });
+  const lb=document.getElementById("langBtn"); if(lb) lb.textContent=holyLang==="ar"?"EN":"عربي";
+}
+
+/* PGP public key block + copy */
+function renderPgp(){
+  const el=document.getElementById("pgpKey"); if(!el) return;
+  const b=document.getElementById("pgpCopy");
+  const fp=document.getElementById("pgpFp");
+  if(fp&&typeof HOLY_PGP_FP!=="undefined") fp.textContent=HOLY_PGP_FP;
+  if(typeof HOLY_PGP!=="undefined"&&HOLY_PGP.trim()){el.textContent=HOLY_PGP.trim();b.disabled=false;b.style.opacity="";}
+  else{el.textContent="PUBLIC KEY PUBLISHING SOON — config.js → HOLY_PGP";b.disabled=true;b.style.opacity=".45";}
+}
+function copyPgp(){
+  const t=(typeof HOLY_PGP!=="undefined")?HOLY_PGP.trim():"";
+  if(!t) return;
+  const done=()=>{unlockAch("pgp","PGP VERIFIED");toast("Public key copied.");};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(()=>toast("Copy failed — select manually."));}
+  else{const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}ta.remove();}
+}
 })();

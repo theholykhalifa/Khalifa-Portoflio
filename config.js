@@ -365,7 +365,7 @@ const HOLY_ADMIN = { user: "HolyV", passHash: "6bc6d71d9e02944298f347c59e5fcb96c
 /* Supabase (optional cloud accounts + leaderboard).
    1) supabase.com → New project (free)  2) SQL Editor → run SUPABASE_SETUP.md
    3) Project Settings → API → paste URL + anon key here, push. */
-const HOLY_SUPABASE = { url: "https://clicgiyhobsuvnbngwel.supabase.co", key: "sb_publishable_EwkiYz3DUAk4GCfaW8uU8A_CdzaZoK5" };
+const HOLY_SUPABASE = { url: "https://clicgiyhobsuvbnngwel.supabase.co", key: "sb_publishable_EwkiYz3DUAk4GCfaW8uU8A_CdzaZoK5" };
 
 /* PGP fingerprint — displayed + copied exactly as given. */
 const HOLY_PGP_FP = "689B D5F7 560E A3E6 B246 EE16 588B 7097 6549 7307";

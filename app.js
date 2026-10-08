@@ -112,7 +112,13 @@ const QUIZ_VULN=[
   exp:"Attacker HTML/JS lands in a live DOM sink. Use textContent or sanitize — innerHTML with user data is a loaded gun."},
  {code:'GET /api/invoices/1024   →   change to /1025, no ownership check, data leaks',
   q:"What vulnerability is this?",opts:["SQL Injection","XSS","IDOR / BOLA","CSRF"],a:2,
-  exp:"Object reference with no authorization check. Verify ownership server-side on every object access."}
+  exp:"Object reference with no authorization check. Verify ownership server-side on every object access."},
+ {code:'<img src="https://bank.local/transfer?to=attacker&amt=1000">  <!-- hidden on evil page -->',
+  q:"What vulnerability is this?",opts:["SQL Injection","XSS","IDOR","CSRF"],a:3,
+  exp:"Victim's browser fires a state-changing GET carrying cookies. Per-session tokens plus SameSite cookies stop it."},
+ {code:'if (!userExists) return "User not found";\nelse if (!validPass) return "Wrong password";',
+  q:"What flaw is this?",opts:["User Enumeration","SQL Injection","XSS","CSRF"],a:0,
+  exp:"Different errors reveal valid usernames. One generic message for both cases — always."}
 ];
 const QUIZ_SEC=[
  {q:"Which CIA-triad property guarantees data is unaltered?",opts:["Confidentiality","Integrity","Availability","Authenticity"],a:1,exp:"Integrity = unaltered. Hashes and signatures enforce it."},
@@ -120,7 +126,11 @@ const QUIZ_SEC=[
  {q:"What does Nmap -sV do?",opts:["OS detection","Port knocking","Service/version detection","Packet crafting"],a:2,exp:"-sV probes open ports to fingerprint service names and versions."},
  {q:"Least privilege means…",opts:["Everyone gets admin","Minimum access to function","No passwords needed","Log everything"],a:1,exp:"Only the access required — nothing more. Shrinks blast radius."},
  {q:"Burp Repeater is for…",opts:["Auto-scanning","Manual request modification","Password cracking","Traffic shaping"],a:1,exp:"Craft, tweak and resend requests by hand. Understanding beats automation."},
- {q:"Phishing is primarily…",opts:["A firewall flaw","Social engineering","A malware family","A routing attack"],a:1,exp:"It hacks the human, not the machine. Verify sender, hover links."}
+ {q:"Phishing is primarily…",opts:["A firewall flaw","Social engineering","A malware family","A routing attack"],a:1,exp:"It hacks the human, not the machine. Verify sender, hover links."},
+ {q:"First action on a suspected breach?",opts:["Pull every plug","Isolate and contain the system","Delete suspicious files","Wait and watch"],a:1,exp:"Contain first — stop the spread, preserve evidence."},
+ {q:"Burp Suite's core job?",opts:["Crack Wi-Fi","Intercept and inspect web traffic","Scan ports","Mine crypto"],a:1,exp:"A proxy between browser and app: see it, touch it, test it."},
+ {q:"Reused passwords fall to…",opts:["Phishing","Credential stuffing","DDoS","XSS"],a:1,exp:"One leak becomes every account. Unique passwords only."},
+ {q:"Public Wi-Fi's real danger?",opts:["Eavesdropping / MITM","Faster speeds","Better privacy","Nothing much"],a:0,exp:"Open airwaves invite snoopers. VPN on untrusted nets."}
 ];
 let quiz={set:null,i:0,score:0};
 function quizRank(pct,top){
@@ -135,8 +145,12 @@ function quizRender(){
   const Q=quiz.set[quiz.i];
   if(!Q){const pct=quiz.score/quiz.set.length;
     if(pct>=1) unlockAch("researcher","SECURITY RESEARCHER");
+    try{const b=JSON.parse(localStorage.getItem("holy_best")||"{}");
+      const k=quiz.set===QUIZ_VULN?"vuln":"sec";
+      if((b[k]||0)<quiz.score){b[k]=quiz.score;localStorage.setItem("holy_best",JSON.stringify(b));}
+    }catch(e){}
     box.innerHTML=`<div class="qprog">FINAL SCORE</div><div class="qscore">${quiz.score} / ${quiz.set.length}</div>
-    <div class="qrank">RANK: ${quizRank(pct,"RED TEAM MATERIAL")}</div>
+    <div class="qrank">RANK: ${quizRank(pct,quiz.set===QUIZ_VULN?"EAGLE EYE":"RED TEAM MATERIAL")}</div>
     <div class="btnrow" style="margin-top:16px"><button class="btn btn-p" id="qretry">RETRY →</button></div>`;
     document.getElementById("qretry").onclick=()=>quizStart(quiz.set); return;}
   box.innerHTML=`<div class="qprog">QUESTION ${quiz.i+1} / ${quiz.set.length} · SCORE ${quiz.score}</div>
@@ -262,6 +276,10 @@ function runCmd(raw){
     out(Object.keys(ACH_LABELS).map(k=>`${a[k]?"✓":"□"} ${ACH_LABELS[k]}`).join("<br>")+
     "<br><span style='color:var(--muted)'>Use the terminal. Find the flag. Go midnight.</span>");
   }
+  else if(c==="profile"){const p=getProfile();const a=getAch();
+    out(p?`OPERATIVE: ${escapeHtml(p.callsign)}<br>BADGES: ${Object.keys(ACH_LABELS).filter(k=>a[k]).length}/${Object.keys(ACH_LABELS).length} (local record)`
+      :"No operative — set a callsign in the #dashboard section.");
+  }
   else if(c==="flag"){out("Usage: flag FLAG{...} — 5 flags sleep across this site (source files included).");}
   else if(c.startsWith("flag ")){const v=cmd.slice(5).trim();
     if(FLAGS[v]!==undefined){
@@ -287,7 +305,8 @@ function setSeal(k){const s=seals(); if(s[k]) return; s[k]=1;
 function getAch(){try{return JSON.parse(localStorage.getItem("holy_ach")||"{}")}catch(e){return{}}}
 function unlockAch(k,label){const a=getAch(); if(a[k]) return; a[k]=1;
   try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
-  toast("🏅 ACHIEVEMENT — "+label);}
+  toast("🏅 ACHIEVEMENT — "+label);
+  try{renderTrophies();}catch(e){}}
 const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
 
 /* RED TEAM MODE — 12s site-wide alert pulse (simulation) */
@@ -552,7 +571,7 @@ const PAL=[
   ["About","Who is Holy","#about"],["Credentials","Certification roadmap","#credentials"],
   ["Experience","Industry exposure","#experience"],["Arsenal","Skill matrix","#arsenal"],
   ["Operations","Pentest methodology","#operations"],["SOC","Operations center","#soc"],
-  ["Lab","Case studies","#lab"],["Notes","Field write-ups","#notes"],["Reports","Samples & workflow","#reports"],["Toolkit","Browser utilities","#toolkit"],["Challenge","Daily + mini-CTF","#challenge"],["Research","Currently exploring","#research"],
+  ["Lab","Case studies","#lab"],["Notes","Field write-ups","#notes"],["Reports","Samples & workflow","#reports"],["Toolkit","Browser utilities","#toolkit"],["Challenge","Daily + mini-CTF","#challenge"],["Dashboard","Your record","#dashboard"],["Research","Currently exploring","#research"],
   ["Terminal","Interactive console","#terminal"],["Contact","Let's talk","#contact"],
 ];
 let palSel=0;
@@ -735,7 +754,25 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.querySelector("#quiz .btnrow").appendChild(tL);
   quizStart(QUIZ_VULN);
   $$("#toolTabs .btn").forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));
-  renderTool("hash"); renderDaily(); renderCtf();
+  renderTool("hash"); renderDaily(); renderCtf(); renderTrophies(); renderDashboard();
+  $("#callsignBtn").onclick=()=>{
+    const v=document.getElementById("callsignIn").value.replace(/[<>&"]/g,"").trim().slice(0,24);
+    if(!v){toast("Pick a callsign first.");return;}
+    try{localStorage.setItem("holy_profile",JSON.stringify({callsign:v,since:Date.now()}))}catch(e){}
+    document.getElementById("callsignIn").value="";
+    renderDashboard(); toast("◉ OPERATIVE "+v+" ENLISTED");
+  };
+  $("#dashExport").onclick=()=>{
+    const d={};["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily"].forEach(k=>{try{d[k]=JSON.parse(localStorage.getItem(k)||"{}")}catch(e){}});
+    const b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="holy-record.json";a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000); toast("Record exported.");
+  };
+  $("#dashReset").onclick=()=>{
+    if(!confirm("Wipe this browser's service record?"))return;
+    ["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily","holy_vault"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+    renderDashboard(); renderTrophies(); toast("Record wiped. Fresh start.");
+  };
   $("#vcfBtn").onclick=downloadVcf;
   $("#recBtn").onclick=()=>setRecruiter(true);
   $("#recExit").onclick=()=>setRecruiter(false);
@@ -917,7 +954,11 @@ const DAILY=[
  {q:"A JWT signature guarantees…",opts:["Encryption","Integrity + authenticity","Anonymity","Availability"],a:1,exp:"It proves untampered + signed — payload itself isn't secret."},
  {q:"Clear least-privilege violation?",opts:["Shared admin account","MFA enforced","Logging enabled","Patched servers"],a:0,exp:"Shared all-powerful accounts destroy accountability."},
  {q:"Wireshark shows you…",opts:["Source code","Packets on the wire","Passwords in vaults","CPU temps"],a:1,exp:"Packet-level truth of what the network carries."},
- {q:"SMS 2FA codes are weak to…",opts:["SIM swapping","Long passwords","Firewalls","Updates"],a:0,exp:"Number port-outs bypass SMS codes. Prefer app/hardware factors."}
+ {q:"DNS over HTTPS mainly protects…",opts:["Queries from snooping","Against phishing","From malware","From updates"],a:0,exp:"It encrypts your lookups — snoopers can't read them."},
+ {q:"A VPN primarily gives you…",opts:["An encrypted tunnel to its server","Built-in antivirus","Faster internet","Anonymity from everyone"],a:0,exp:"Encrypted pipe to the VPN server — trust shifts, doesn't vanish."},
+ {q:"Best ransomware defense?",opts:["Pay quickly","Offline tested backups","Longer passwords","Hide the server"],a:1,exp:"Tested, offline backups turn disaster into inconvenience."},
+ {q:"Unpatched services are dangerous because…",opts:["They run slowly","Known exploits are public","They use RAM","They log too much"],a:1,exp:"Public exploits + scanner bots. Patch windows are race windows."},
+ {q:"Pretexting targets…",opts:["Firewalls","Humans, with a story","Routers","Databases"],a:1,exp:"A convincing scenario beats a firewall. Verify identities."}
 ];
 function renderDaily(){
   const box=document.getElementById("dailyBox"); if(!box) return;
@@ -973,6 +1014,32 @@ function renderCtf(){
     (S.answers.includes(v)?good:bad)();};}
 }
 
+function renderTrophies(){
+  const el=document.getElementById("trophyCase"); if(!el) return;
+  const a=getAch();
+  el.innerHTML=Object.keys(ACH_LABELS).map(k=>`<div class="trophy ${a[k]?"won":""}">${a[k]?"◉":"○"} ${ACH_LABELS[k]}</div>`).join("");
+}
+/* operative dashboard — local profile + service record */
+function getProfile(){try{return JSON.parse(localStorage.getItem("holy_profile")||"null")}catch(e){return null}}
+function renderDashboard(){
+  const p=document.getElementById("dashProfile"); if(!p) return;
+  const prof=getProfile(), a=getAch(), s=seals(), f=foundFlags();
+  let best={}, st={}, vault="LOCKED";
+  try{best=JSON.parse(localStorage.getItem("holy_best")||"{}")}catch(e){}
+  try{st=JSON.parse(localStorage.getItem("holy_daily")||"{}")}catch(e){}
+  try{vault=localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){}
+  document.getElementById("callsignRow").style.display=prof?"none":"";
+  p.innerHTML=prof
+    ?`<div style="font-size:26px;font-weight:900">◉ ${escapeHtml(prof.callsign)}</div><div class="mono" style="font-size:11px;color:var(--muted)">LOCAL OPERATIVE · THIS BROWSER ONLY</div>`
+    :`<div class="mono" style="font-size:12px;color:var(--muted)">No operative yet — pick a callsign to open your record.</div>`;
+  document.getElementById("dashStats").innerHTML=
+   `<div class="kv"><b>BADGES</b><span>${Object.keys(ACH_LABELS).filter(k=>a[k]).length} / ${Object.keys(ACH_LABELS).length}</span></div>
+    <div class="kv"><b>SEALS</b><span>${["e1","e2","e3","e4"].filter(k=>s[k]).length} / 4</span></div>
+    <div class="kv"><b>FLAGS</b><span>${f.length} / 5</span></div>
+    <div class="kv"><b>QUIZ BEST</b><span>vuln ${best.vuln||0} / 5 · sec ${best.sec||0} / 10</span></div>
+    <div class="kv"><b>STREAK</b><span>${st.streak||0} 🔥</span></div>
+    <div class="kv"><b>VAULT</b><span>${vault}</span></div>`;
+}
 function downloadVcf(){
   const v=["BEGIN:VCARD","VERSION:3.0","N:Khalifa;Holy;;;","FN:Holy (Khalifa)",
   "TITLE:Cybersecurity Specialist","EMAIL;TYPE=INTERNET:HVoid9@proton.me",

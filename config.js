@@ -358,6 +358,10 @@ OH48IE3EeGbkzBwK
 =VrZp
 -----END PGP PUBLIC KEY BLOCK-----`;
 
+/* Admin gate — LOCAL DEMO ONLY. The password is stored as a hash,
+   but any client-side gate is bypassable: this controls demo data
+   in one browser, never real access. Needs a backend to be real. */
+const HOLY_ADMIN = { user: "HolyV", passHash: "6bc6d71d9e02944298f347c59e5fcb96c2f22ce7d49e504472aabc4e0de9063c" };
 /* PGP fingerprint — displayed + copied exactly as given. */
 const HOLY_PGP_FP = "689B D5F7 560E A3E6 B246 EE16 588B 7097 6549 7307";
 

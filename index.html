@@ -356,6 +356,33 @@
   <div class="lab-grid">
     <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">DAILY CHALLENGE</div><div id="dailyBox" style="margin-top:10px"></div></div>
     <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">MINI-CTF // ~5 MINUTES</div><div id="ctfBox" style="margin-top:10px"></div></div>
+    <div class="card reveal" style="grid-column:1/-1"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">ACHIEVEMENTS // TROPHY CASE</div><div id="trophyCase" style="margin-top:10px"></div>
+    <p class="mono" style="font-size:11px;color:var(--muted)">Earn them: terminal `achievements` shows progress. Flags, quizzes, midnight and PGP all count.</p></div>
+  </div>
+</div></section>
+
+<!-- DASHBOARD -->
+<section id="dashboard"><div class="wrap">
+  <div class="sec-label">OPERATIVE DASHBOARD // THIS BROWSER ONLY</div>
+  <h2 class="head">YOUR<br>SERVICE RECORD</h2>
+  <p class="sub">Local operative profile — badges, seals, flags and scores stored <b>only in this browser</b>. No server, no real account; a new browser starts fresh.</p>
+  <div class="lab-grid">
+    <div class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">OPERATIVE</div>
+      <div id="dashProfile" style="margin-top:10px"></div>
+      <div id="callsignRow" style="margin-top:12px">
+        <input class="tfield" id="callsignIn" placeholder="callsign… (e.g. ghost)" maxlength="24" autocomplete="off" spellcheck="false">
+        <div class="btnrow" style="margin-top:10px"><button class="btn btn-p" id="callsignBtn">ENLIST →</button></div>
+      </div>
+    </div>
+    <div class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">RECORD</div>
+      <div id="dashStats" style="margin-top:10px"></div>
+      <div class="btnrow" style="margin-top:12px">
+        <button class="btn btn-g" id="dashExport">EXPORT JSON</button>
+        <button class="btn btn-t" id="dashReset">RESET RECORD</button>
+      </div>
+    </div>
   </div>
 </div></section>
 
@@ -412,7 +439,8 @@
     NO PART OF THIS SITE, ITS DESIGN, OR ITS CONTENT MAY BE COPIED, REPRODUCED, OR USED IN ANY FORM WITHOUT EXPLICIT WRITTEN PERMISSION.<br>
     SIMULATION LABELS MARK FICTIONAL UI · AUTHORIZED TESTING ONLY.<br>
     <span style="color:var(--accent2)">LEGEND: AN 8+2 CODE FROM 1986 OPENS RED DOORS.</span><br>
-    THE GROUND YOU STAND ON REMEMBERS — KNOCK THRICE.
+    THE GROUND YOU STAND ON REMEMBERS — KNOCK THRICE.<br>
+    <a href="admin.html" style="text-decoration:none;color:#3a4653">ADMIN →</a>
   </div>
 </div></footer>
 

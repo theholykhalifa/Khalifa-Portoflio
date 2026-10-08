@@ -364,6 +364,10 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .qexp{margin-top:14px;font-size:14px;color:#c6cfd8;border-left:2px solid var(--accent);padding-left:12px}
 .qscore{font-size:clamp(26px,5vw,40px);font-weight:900;margin:6px 0}
 .qrank{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--accent2)}
+/* trophy case */
+#trophyCase{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+#trophyCase .trophy{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--muted)}
+#trophyCase .trophy.won{border-color:rgba(255,176,32,.55);color:#FFD88A;background:rgba(255,176,32,.06)}
 /* toolkit + challenge */
 .tfield{width:100%;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:13px;margin:8px 0}
 textarea.tfield{min-height:90px;resize:vertical}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADMIN // HOLY</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#05070A;color:#F5F7FA;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.7}
+.wrap{max-width:820px;margin:0 auto;padding:64px 24px 90px}
+.k{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.22em;color:#FFB020;border:1px solid rgba(255,176,32,.4);display:inline-block;padding:7px 14px;border-radius:6px;margin-bottom:20px}
+h1{font-size:clamp(32px,6vw,54px);letter-spacing:-.03em;margin:0 0 8px;font-weight:900}
+.sub{color:#7C8794;max-width:64ch;font-size:14.5px}
+.card{background:#10161D;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px;margin:16px 0}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+input{background:#0a0e13;border:1px solid rgba(255,255,255,.14);border-radius:10px;color:#F5F7FA;padding:12px 14px;font-family:ui-monospace,monospace;font-size:14px;width:100%;margin:6px 0}
+input:focus{outline:1px solid #FFB020}
+button{background:#FFB020;color:#0a0800;border:none;border-radius:10px;padding:12px 20px;font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.08em;font-weight:800;cursor:pointer;margin:6px 8px 6px 0}
+button.ghost{background:none;border:1px solid rgba(255,255,255,.2);color:#F5F7FA}
+button.danger{background:#FF3B30;color:#fff}
+label.row{display:flex;gap:10px;align-items:center;font-family:ui-monospace,monospace;font-size:13px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+label.row input{width:auto;margin:0}
+.err{color:#FF3B30;font-family:ui-monospace,monospace;font-size:12.5px;min-height:20px}
+.ok{color:#00ffa3;font-family:ui-monospace,monospace;font-size:12.5px;min-height:20px}
+.warn{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.4);border-radius:10px;padding:14px;font-size:13.5px;color:#FFD88A;margin:18px 0}
+a{color:#FFD88A}
+pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px;font-size:11.5px;overflow-x:auto;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="k">HOLY // LOCAL ADMIN — DEMO CONTROL</span>
+  <h1>Admin</h1>
+  <div class="warn">⚠ This panel controls <b>demo data in this browser only</b> (badges, seals, flags). The gate is a client-side check — anyone with devtools can walk around it. Real access control needs a server. Never reuse this password anywhere.</div>
+  <div id="loginBox" class="card">
+    <div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">OPERATOR LOGIN</div>
+    <input id="aUser" placeholder="username" autocomplete="username">
+    <input id="aPass" type="password" placeholder="password" autocomplete="current-password">
+    <button id="aGo">AUTHENTICATE →</button>
+    <div class="err" id="aErr"></div>
+  </div>
+  <div id="panel" hidden>
+    <div class="card"><div class="mono" id="whoLine" style="font-size:12px"></div>
+      <button class="ghost" id="aOut">LOGOUT</button></div>
+    <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">BADGES — GRANT / REVOKE</div><div id="badgeList"></div>
+      <button id="bApply">APPLY BADGES</button></div>
+    <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">MIDNIGHT SEALS</div><div id="sealList"></div>
+      <button id="sApply">APPLY SEALS</button>
+      <button class="ghost" id="vOpen">UNLOCK VAULT</button>
+      <button class="ghost" id="vLock">RELOCK VAULT</button></div>
+    <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">RECORD</div>
+      <div class="ok" id="statLine"></div>
+      <button id="xExport">EXPORT JSON</button>
+      <button class="ghost" id="xQuiz">RESET QUIZ SCORES</button>
+      <button class="danger" id="xNuke">NUKE ALL LOCAL DATA</button></div>
+  </div>
+  <p><a href="index.html">← BACK TO THE SITE</a></p>
+</div>
+<script src="config.js"></script>
+<script>
+var BADGES={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
+var SEALS={e1:"Egg 1 — HOLY ×3",e2:"Egg 2 — Red Team",e3:"Egg 3 — Breach",e4:"Egg 4 — Prank"};
+function store(k,v){if(v===undefined){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return{}}}try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+async function sha(s){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+function authed(){try{return sessionStorage.getItem("holy_admin")==="1"}catch(e){return false}}
+function show(){var on=authed();
+  document.getElementById("loginBox").hidden=on;
+  document.getElementById("panel").hidden=!on;
+  if(on) render();}
+function render(){
+  var a=store("holy_ach"), s=store("holy_seals");
+  document.getElementById("whoLine").textContent="◉ LOGGED IN AS "+HOLY_ADMIN.user+" (this browser session)";
+  document.getElementById("badgeList").innerHTML=Object.keys(BADGES).map(function(k){
+    return "<label class='row'><input type='checkbox' data-b='"+k+"'"+(a[k]?" checked":"")+"> "+BADGES[k]+"</label>"}).join("");
+  document.getElementById("sealList").innerHTML=Object.keys(SEALS).map(function(k){
+    return "<label class='row'><input type='checkbox' data-s='"+k+"'"+(s[k]?" checked":"")+"> "+SEALS[k]+"</label>"}).join("");
+  var f=[];try{f=JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){}
+  var best=store("holy_best");
+  document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(best.vuln||0)+"/5 · sec "+(best.sec||0)+"/10 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
+}
+document.getElementById("aGo").onclick=function(){
+  var u=document.getElementById("aUser").value.trim(), p=document.getElementById("aPass").value;
+  sha(p).then(function(h){
+    if(u===HOLY_ADMIN.user&&h===HOLY_ADMIN.passHash){try{sessionStorage.setItem("holy_admin","1")}catch(e){}show();}
+    else{document.getElementById("aErr").textContent="✗ ACCESS DENIED";}
+  }).catch(function(){document.getElementById("aErr").textContent="✗ Crypto unavailable in this browser.";});
+};
+document.getElementById("aOut").onclick=function(){try{sessionStorage.removeItem("holy_admin")}catch(e){}show();};
+document.getElementById("bApply").onclick=function(){
+  var a={};document.querySelectorAll("#badgeList input").forEach(function(c){if(c.checked)a[c.dataset.b]=1;});
+  store("holy_ach",a);render();};
+document.getElementById("sApply").onclick=function(){
+  var s={};document.querySelectorAll("#sealList input").forEach(function(c){if(c.checked)s[c.dataset.s]=1;});
+  store("holy_seals",s);render();};
+document.getElementById("vOpen").onclick=function(){try{localStorage.setItem("holy_vault","1")}catch(e){}render();};
+document.getElementById("vLock").onclick=function(){try{localStorage.removeItem("holy_vault")}catch(e){}render();};
+document.getElementById("xQuiz").onclick=function(){store("holy_best",{});try{localStorage.removeItem("holy_daily")}catch(e){}render();};
+document.getElementById("xExport").onclick=function(){
+  var d={};["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily"].forEach(function(k){d[k]=store(k);});
+  var b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});var a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download="holy-record.json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},2000);};
+document.getElementById("xNuke").onclick=function(){
+  if(!confirm("Wipe ALL local demo data in this browser?"))return;
+  ["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily","holy_vault","holy_rec"].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});
+  render();};
+show();
+</script>
+</body>
+</html>

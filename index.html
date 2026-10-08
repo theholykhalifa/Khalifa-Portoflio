@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HOLY // Cybersecurity | Penetration Testing &amp; Security Research</title>
+<meta name="description" content="Personal cybersecurity portfolio of Holy — focused on penetration testing, network security, web application security, red teaming and security research.">
+<meta name="author" content="HOLY">
+<meta name="theme-color" content="#05070A">
+<meta property="og:title" content="HOLY // Cybersecurity | Penetration Testing & Security Research">
+<meta property="og:description" content="Think like an attacker. Build like a defender. Personal security profile of Holy — pentesting, network security, red teaming, research.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="favicon.svg">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- ENTRY SEQUENCE -->
+<div class="intro" id="intro" role="dialog" aria-label="Entry sequence">
+  <div class="intro-box">
+    <div class="mono intro-k">HOLY // SECURE ENTRY — SIMULATION</div>
+    <div class="intro-log" id="introLog" aria-live="polite"></div>
+    <div class="intro-bar"><i id="introBar"></i></div>
+    <form class="intro-login" id="introForm" hidden>
+      <label for="introIn">CLEARANCE CODE <span>(anything works — it's theater)</span></label>
+      <div class="intro-row"><span class="prompt">$</span><input id="introIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type code + ENTER"><button type="submit">AUTHENTICATE →</button></div>
+    </form>
+    <div class="intro-grant" id="introGrant" hidden>✓ ACCESS GRANTED</div>
+    <div class="intro-wel" id="introWel" hidden>WELCOME TO<br><b>KHALIFA PORTFOLIO</b></div>
+    <button class="intro-skip" id="introSkip">SKIP INTRO →</button>
+  </div>
+</div>
+<a class="skip" href="#about">Skip to content</a>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<!-- NAV -->
+<nav class="nav" aria-label="Primary">
+  <div class="nav-in">
+    <a class="brand" href="#home">HOLY <b>//</b> <span>SEC</span></a>
+    <div class="links" role="navigation">
+      <a href="#home"><em>01</em>HOME</a>
+      <a href="#about"><em>02</em>ABOUT</a>
+      <a href="#credentials"><em>03</em>CREDENTIALS</a>
+      <a href="#experience"><em>04</em>EXPERIENCE</a>
+      <a href="#arsenal"><em>05</em>ARSENAL</a>
+      <a href="#lab"><em>06</em>LAB</a>
+      <a href="#research"><em>07</em>RESEARCH</a>
+      <a href="#contact"><em>08</em>CONTACT</a>
+    </div>
+    <div class="status" title="Simulated interface element"><span class="dot"></span>SYSTEM ONLINE</div>
+    <button class="burger" id="burger" aria-label="Open menu">☰</button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mmenu" id="mmenu" role="dialog" aria-label="Menu">
+  <div class="mmenu-top">
+    <span class="mono" style="letter-spacing:.2em;font-size:12px;color:var(--accent)">HOLY // NAV</span>
+    <button class="xbtn" id="mclose" aria-label="Close menu">✕</button>
+  </div>
+  <div style="height:20px"></div>
+  <a class="big" href="#home"><small>01</small>HOME</a>
+  <a class="big" href="#about"><small>02</small>ABOUT</a>
+  <a class="big" href="#credentials"><small>03</small>CREDENTIALS</a>
+  <a class="big" href="#experience"><small>04</small>EXPERIENCE</a>
+  <a class="big" href="#arsenal"><small>05</small>ARSENAL</a>
+  <a class="big" href="#lab"><small>06</small>LAB</a>
+  <a class="big" href="#research"><small>07</small>RESEARCH</a>
+  <a class="big" href="#contact"><small>08</small>CONTACT</a>
+  <div class="mono" style="margin-top:24px;font-size:11px;color:var(--muted)">● SYSTEM ONLINE (SIMULATION)</div>
+</div>
+
+<!-- HERO -->
+<header class="hero wrap" id="home">
+  <div class="hero-grid">
+    <div>
+      <span class="kicker">CYBERSECURITY // PERSONAL SECURITY PROFILE</span>
+      <h1 class="giant">HO<span class="outline">LY</span></h1>
+      <div class="hero-sub">I DON'T JUST USE SYSTEMS.<br>I LEARN<br><span class="cy">HOW THEY FAIL.</span></div>
+      <p class="lead">Cybersecurity-focused professional exploring <b style="color:var(--text)">offensive security, penetration testing, network defense, web application security</b> and red-team operations.</p>
+      <div class="btnrow">
+        <a class="btn btn-p" href="#lab">ENTER THE LAB →</a>
+        <a class="btn btn-g" href="#credentials">VIEW CREDENTIALS</a>
+        <a class="btn btn-t" href="#terminal" id="termBtn">$ OPEN TERMINAL</a>
+      </div>
+      <p class="ethics">AUTHORIZED TESTING ONLY — everything here is practiced against owned, lab, or intentionally vulnerable environments. Simulation labels mark fictional UI metrics, never live operations.</p>
+      <div class="btnrow" style="margin-top:14px">
+        <button class="btn btn-g" id="resumeBtn">⤓ DOWNLOAD SECURITY PROFILE</button>
+        <button class="btn btn-t" id="palBtn">⌘K COMMAND PALETTE</button>
+      </div>
+    </div>
+    <div class="tele" role="img" aria-label="Simulated security telemetry panel">
+      <div class="tele-head"><h3>HOLY // SECURITY TELEMETRY</h3><span class="sim">● SIMULATION</span></div>
+      <div class="tele-grid">
+        <div class="tcell"><small>SYSTEM</small><strong class="ok">ONLINE</strong></div>
+        <div class="tcell"><small>NETWORK</small><strong class="ok">SECURE</strong></div>
+        <div class="tcell"><small>LAB</small><strong class="cy">ACTIVE</strong></div>
+        <div class="tcell"><small>RESEARCH</small><strong class="cy">ACTIVE</strong></div>
+        <div class="tcell"><small>THREAT LEVEL</small><strong>LOW</strong></div>
+        <div class="tcell"><small>ENDPOINTS</small><strong>08</strong></div>
+      </div>
+      <div class="tele-metrics">
+        <div class="tcell"><small>EVENTS</small><strong>24</strong></div>
+        <div class="tcell"><small>PACKETS</small><strong class="cy" id="hPackets">12,842</strong></div>
+        <div class="tcell"><small>ALERTS</small><strong style="color:var(--warn)">02</strong></div>
+      </div>
+      <div class="spark"><canvas class="chart" id="spark1" aria-hidden="true"></canvas></div>
+      <div class="tele-foot"><span>SIMULATION / DEMONSTRATION — fictional UI</span><span class="mono" id="clock">--:--:--</span></div>
+      <div class="tele-foot" style="border-top:1px solid var(--line2)"><span>SCOPE: <b style="color:var(--accent2)">AUTHORIZED LAB ONLY</b> · ROE: OWNED TARGETS</span><span>ROE ✓</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker" aria-hidden="true"><span class="ticker-in" id="ticker"></span></div>
+
+<main>
+<!-- ABOUT -->
+<section id="about"><div class="wrap">
+  <div class="sec-label">01 // WHO IS HOLY?</div>
+  <h2 class="head">SECURITY IS<br>A MINDSET.</h2>
+  <p class="sub">Curiosity, discipline and continuous learning. Holy studies how systems break — reconnaissance, enumeration, privilege escalation, web flaws, Active Directory paths — then learns how to harden them: architecture, logging, least privilege, documentation. Practical experimentation over theory, always in authorized environments, always written down.</p>
+  <figure class="op-photo reveal">
+    <svg viewBox="0 0 1200 640" role="img" aria-label="Red-lit security workstation illustration drawn in code">
+      <defs>
+        <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0d0709"/><stop offset="1" stop-color="#05070a"/>
+        </linearGradient>
+        <radialGradient id="rg" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#ff3355" stop-opacity=".26"/><stop offset="1" stop-color="#ff3355" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="scr" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0c1218"/><stop offset="1" stop-color="#070b0f"/>
+        </linearGradient>
+        <clipPath id="mclip"><rect x="848" y="252" width="272" height="172"/></clipPath>
+        <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#ff3355" opacity=".28"/></pattern>
+      </defs>
+      <rect width="1200" height="640" fill="url(#room)"/>
+      <ellipse class="pulseGlow" cx="990" cy="330" rx="270" ry="230" fill="url(#rg)"/>
+      <rect x="752" y="60" width="26" height="420" rx="13" fill="#ff3355" opacity=".16"/>
+      <rect class="pulseGlow" x="758" y="60" width="14" height="420" rx="7" fill="#ff3355"/>
+      <g>
+        <rect x="40" y="300" width="150" height="200" fill="#080b0e" stroke="#1a222b"/>
+        <rect x="56" y="320" width="40" height="8" fill="#ff3355" opacity=".7"/><rect x="104" y="320" width="40" height="8" fill="#ff3355" opacity=".3"/>
+        <rect x="56" y="340" width="70" height="8" fill="#ff3355" opacity=".4"/><rect x="134" y="340" width="10" height="8" fill="#00ffa3" opacity=".8"/>
+        <rect x="56" y="360" width="30" height="8" fill="#ff3355" opacity=".6"/><rect x="94" y="360" width="50" height="8" fill="#ff3355" opacity=".25"/>
+        <rect x="56" y="380" width="60" height="8" fill="#ff3355" opacity=".5"/><rect x="124" y="380" width="20" height="8" fill="#ff3355" opacity=".7"/>
+        <rect x="56" y="400" width="44" height="8" fill="#ff3355" opacity=".35"/><rect x="108" y="400" width="36" height="8" fill="#ff3355" opacity=".6"/>
+      </g>
+      <text x="80" y="140" font-size="120" font-weight="900" fill="#ff3355" font-family="Inter,sans-serif">H</text>
+      <rect x="80" y="86" width="60" height="5" fill="#ff3355" opacity=".6"/><rect x="120" y="112" width="44" height="5" fill="#ff3355" opacity=".35"/>
+      <text x="84" y="192" font-size="28" letter-spacing="8" fill="#ff3355" font-family="monospace">HOLY</text>
+      <text x="84" y="224" font-size="19" letter-spacing="4" fill="#8b95a1" font-family="monospace">PENTESTER</text>
+      <text x="84" y="250" font-size="19" letter-spacing="4" fill="#8b95a1" font-family="monospace">RED TEAMER</text>
+      <text x="84" y="276" font-size="19" letter-spacing="4" fill="#8b95a1" font-family="monospace">SECURITY RESEARCHER</text>
+      <text x="884" y="92" font-size="22" letter-spacing="6" fill="#8b95a1" font-family="monospace">THINK LIKE</text>
+      <text x="884" y="124" font-size="22" letter-spacing="6" fill="#8b95a1" font-family="monospace">AN ATTACKER.</text>
+      <text x="884" y="156" font-size="22" letter-spacing="6" fill="#8b95a1" font-family="monospace">BUILD LIKE</text>
+      <text x="884" y="188" font-size="22" letter-spacing="6" fill="#8b95a1" font-family="monospace">A DEFENDER.</text>
+      <rect x="886" y="204" width="70" height="4" fill="#ff3355"/>
+      <g class="flicker">
+        <rect x="840" y="244" width="288" height="196" rx="8" fill="#0b0e11" stroke="#1c242d"/>
+        <rect x="848" y="252" width="272" height="172" fill="url(#scr)"/>
+        <rect x="848" y="252" width="272" height="12" fill="#ff3355" opacity=".8"/>
+        <circle cx="880" cy="300" r="3" fill="#ff3355"/><circle cx="900" cy="292" r="3" fill="#ff3355" opacity=".7"/><circle cx="920" cy="300" r="3" fill="#ff3355" opacity=".5"/><circle cx="912" cy="316" r="3" fill="#ff3355" opacity=".8"/><circle cx="892" cy="322" r="3" fill="#ff3355" opacity=".6"/>
+        <polyline points="848,380 880,364 912,370 944,348 976,354 1008,336 1040,340 1080,326 1120,330" fill="none" stroke="#ff3355" stroke-width="2" opacity=".85"/>
+        <rect x="856" y="392" width="150" height="5" fill="#ff3355" opacity=".5"/><rect x="856" y="402" width="110" height="5" fill="#ff3355" opacity=".3"/><rect x="856" y="412" width="130" height="5" fill="#ff3355" opacity=".45"/>
+        <rect class="sweep" x="848" y="252" width="60" height="172" fill="#ff3355" opacity=".09" clip-path="url(#mclip)"/>
+        <rect x="600" y="380" width="200" height="130" rx="6" fill="#0b0e11" stroke="#1c242d"/>
+        <rect x="606" y="386" width="188" height="118" fill="url(#scr)"/>
+        <rect x="614" y="398" width="120" height="5" fill="#ff3355" opacity=".55"/><rect x="614" y="410" width="90" height="5" fill="#ff3355" opacity=".3"/><rect x="614" y="422" width="105" height="5" fill="#ff3355" opacity=".45"/><rect x="614" y="434" width="70" height="5" fill="#ff3355" opacity=".3"/>
+        <polyline points="614,486 640,474 666,478 692,466 718,470 744,460 770,464" fill="none" stroke="#ff3355" stroke-width="2" opacity=".8"/>
+      </g>
+      <polygon points="590,510 810,510 830,540 570,540" fill="#0b0e11" stroke="#1c242d"/>
+      <rect x="0" y="520" width="1200" height="120" fill="#0a0c0e"/>
+      <rect x="0" y="520" width="1200" height="2" fill="#ff3355" opacity=".45"/>
+      <g class="flicker">
+        <rect x="320" y="230" width="260" height="220" rx="8" fill="#0b0e11" stroke="#1c242d"/>
+        <rect x="328" y="238" width="244" height="196" fill="url(#scr)"/>
+        <rect x="328" y="238" width="244" height="196" fill="url(#dots)"/>
+        <rect x="328" y="238" width="244" height="12" fill="#ff3355" opacity=".8"/>
+        <path d="M360 380 C400 340 440 360 470 320 C500 285 530 300 548 270" stroke="#ff3355" stroke-width="2" fill="none" opacity=".7"/>
+        <path d="M360 380 C420 400 480 390 548 360" stroke="#ff3355" stroke-width="1.5" fill="none" opacity=".4"/>
+        <circle class="pulseGlow" cx="360" cy="380" r="6" fill="#ff3355"/>
+        <circle class="pulseGlow" cx="470" cy="320" r="6" fill="#ff3355"/>
+        <circle class="pulseGlow" cx="548" cy="270" r="6" fill="#ff3355"/>
+        <circle cx="470" cy="320" r="11" fill="none" stroke="#ff3355" opacity=".5"/>
+        <text x="336" y="428" font-size="11" letter-spacing="2" fill="#8b95a1" font-family="monospace">LIVE MAP // SIMULATION</text>
+      </g>
+      <rect x="372" y="548" width="200" height="24" rx="4" fill="#0b0e11" stroke="#1c242d"/>
+      <rect x="372" y="548" width="200" height="3" fill="#ff3355" opacity=".6"/>
+      <rect x="384" y="558" width="176" height="3" fill="#232c35"/><rect x="384" y="564" width="120" height="3" fill="#232c35"/>
+      <g transform="rotate(-8 1010 580)">
+        <rect x="940" y="540" width="150" height="90" rx="4" fill="#0b0e11" stroke="#232c35"/>
+        <text x="952" y="564" font-size="13" letter-spacing="2" fill="#ff3355" font-family="monospace">→ RECON</text>
+        <text x="952" y="582" font-size="13" letter-spacing="2" fill="#ff3355" font-family="monospace">→ EXPLOIT</text>
+        <text x="952" y="600" font-size="13" letter-spacing="2" fill="#ff3355" font-family="monospace">→ ESCALATE</text>
+      </g>
+      <text x="60" y="584" font-size="22" fill="#ff3355" font-family="monospace">root@holy:~#</text>
+      <text x="60" y="614" font-size="20" fill="#8b95a1" font-family="monospace">›  Security is a process.</text>
+      <rect class="blink" x="392" y="596" width="12" height="22" fill="#ff3355"/>
+    </svg>
+    <figcaption><span>OPERATOR // KHALIFA — WORKING AS HOLY</span><span>DRAWN LIVE IN CODE // ZERO IMAGE FILES</span></figcaption>
+  </figure>
+  <div class="about-grid">
+    <div class="card reveal">
+      <div class="mono" style="font-size:11px;letter-spacing:.2em;color:var(--accent)">PROFILE // KHALIFA · WORKING AS HOLY</div>
+      <p style="color:#c6cfd8">My name is <b style="color:var(--text)">Khalifa</b>, and I do security work under the name <b style="color:var(--text)">HOLY</b>. I'm a cybersecurity specialist in the making — drawn to the uncomfortable questions: <em>how does this break, who can get in, and how do we stop them?</em></p>
+      <p style="color:#c6cfd8">My path runs from the ground up: networking foundations with <b>CCNA</b>, security fundamentals with <b>Security+</b>, then practical penetration testing through <b>eJPT</b> and <b>PNPT</b> — reinforced by IT/Security internships at <b>Hassan Allam, Microsoft, Kaspersky and Huawei</b>, plus a home lab where I break and harden my own systems. Now I'm pushing toward red-team operations (<b>CRTO</b>) and advanced web exploitation (<b>OSWE</b>).</p>
+      <p style="color:#c6cfd8">How I work: <b>curiosity first, discipline always</b> — authorized targets only, every test documented, every finding paired with a fix. I don't collect tools; I build judgment. <span class="mono" style="font-size:12.5px;color:var(--accent2)">Think like an attacker. Build like a defender.</span></p>
+      <div class="tags">
+        <span class="tag hot">Pentesting</span><span class="tag hot">Red Teaming</span><span class="tag hot">Web Security</span>
+        <span class="tag">Network Security</span><span class="tag">Linux</span><span class="tag">Windows</span>
+        <span class="tag">Active Directory</span><span class="tag">Recon</span><span class="tag">Enumeration</span>
+        <span class="tag">Privesc</span><span class="tag">Hardening</span><span class="tag">Research</span>
+      </div>
+      <p class="mono" style="font-size:12px;color:var(--muted)">Principles: curiosity · discipline · continuous learning · practical labs · responsible testing · documentation.</p>
+    </div>
+    <div class="idcard reveal">
+      <div class="mono" style="font-size:10.5px;letter-spacing:.22em;color:var(--accent)">IDENTITY CARD // SIMULATION</div>
+      <h3>HOLY</h3>
+      <div class="mono" style="font-size:11.5px;color:var(--muted);letter-spacing:.06em">Khalifa — operating as HOLY</div>
+      <div class="idrow"><small>OPERATOR</small><span>Khalifa (work name: HOLY)</span></div>
+      <div class="idrow"><small>FOCUS</small><span>Cybersecurity</span></div>
+      <div class="idrow"><small>SPECIALIZATION</small><span>Offensive Security</span></div>
+      <div class="idrow"><small>INTERESTS</small><span>Pentesting · Red Teaming · Web Security · Network Security</span></div>
+      <div class="idrow"><small>CURRENT MODE</small><span class="modeline"><span class="mode">LEARN</span><span class="mode">BUILD</span><span class="mode">TEST</span><span class="mode">DOCUMENT</span></span></div>
+      <div class="idrow"><small>SLOGAN</small><span class="mono" style="font-size:12px;color:var(--accent2)">THINK LIKE AN ATTACKER. BUILD LIKE A DEFENDER.</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- CREDENTIALS -->
+<section id="credentials" style="background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)"><div class="wrap">
+  <div class="sec-label">02 // SECURITY CREDENTIALS</div>
+  <h2 class="head">THE CERTIFICATION<br>ROADMAP</h2>
+  <p class="sub">Honest by design. Edit each status in <span class="mono" style="color:var(--accent2)">config.js → HOLY_CERTS</span> (VERIFIED / IN PROGRESS / PLANNED / SOON). No certificate numbers, scores, dates or badges are shown until they are real. Legend: ✓ VERIFIED · ◐ IN PROGRESS · ⚡ SOON · → PLANNED.</p>
+  <div class="cred-grid" id="credGrid"></div>
+  <h3 class="mono reveal" style="margin:56px 0 8px;font-size:12px;letter-spacing:.22em;color:var(--accent)">PROGRESSION // SCROLL TO ANIMATE</h3>
+  <div class="road" id="road"></div>
+</div></section>
+
+<!-- EXPERIENCE -->
+<section id="experience"><div class="wrap">
+  <div class="sec-label">03 // EXPERIENCE</div>
+  <h2 class="head">INDUSTRY EXPOSURE</h2>
+  <p class="sub">Every entry renders from <span class="mono" style="color:var(--accent2)">config.js → HOLY_EXPERIENCE</span>. Types: INTERNSHIP · TRAINING · PROGRAM · WORK EXPERIENCE · INDUSTRY EXPOSURE · TARGET · PLANNED. Nothing here claims employment unless its type and status say so — update only when confirmed.</p>
+  <div class="tl" id="expList"></div>
+</div></section>
+
+<!-- ARSENAL -->
+<section id="arsenal" style="background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)"><div class="wrap">
+  <div class="sec-label">04 // THE ARSENAL</div>
+  <h2 class="head">SKILL MATRIX</h2>
+  <p class="sub">No mastery claims. Every skill carries a proficiency label — EXPLORING · LEARNING · PRACTICING · WORKING KNOWLEDGE · ADVANCED — editable in <span class="mono" style="color:var(--accent2)">config.js → HOLY_ARSENAL</span>.</p>
+  <div class="legend"><span>◇ EXPLORING</span><span>◈ LEARNING</span><span style="color:var(--warn)">◐ PRACTICING</span><span style="color:var(--accent2)">● WORKING KNOWLEDGE</span><span style="color:#00ffa3">◆ ADVANCED</span></div>
+  <div class="ars-grid" id="arsGrid"></div>
+</div></section>
+
+<!-- OPERATIONS -->
+<section id="operations"><div class="wrap">
+  <div class="sec-label">05 // SECURITY OPERATIONS</div>
+  <h2 class="head">HOW A TEST<br>IS RUN</h2>
+  <p class="sub">Click any stage. Each opens objective, tools, key questions, methodology, output and defensive consideration. <em>All testing demonstrated through this portfolio is performed only against authorized, owned, intentionally vulnerable, or controlled environments.</em></p>
+  <div class="ops-grid" id="opsGrid"></div>
+</div></section>
+
+<!-- SOC -->
+<section id="soc" style="background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)"><div class="wrap">
+  <div class="sec-label">SOC // SECURITY OPERATIONS CENTER</div>
+  <h2 class="head">HOLY // SOC</h2>
+  <p class="sub"><span class="sim" style="font-size:10px">● SIMULATION MODE</span> — fictional dashboard for interface demonstration. Not real-time security operations. <span class="mono" style="font-size:11px;color:var(--accent2)">Rumor: the alerts panel is restless.</span></p>
+  <div class="soc reveal">
+    <div class="soc-head"><h3>HOLY // SECURITY OPERATIONS CENTER</h3><span class="sim">● SIMULATION</span></div>
+    <div class="soc-grid">
+      <div class="scell"><small>THREAT LEVEL</small><strong style="color:#00ffa3">LOW</strong></div>
+      <div class="scell"><small>NETWORK</small><strong style="color:#00ffa3">SECURE</strong></div>
+      <div class="scell"><small>LAB</small><strong style="color:var(--accent)">ONLINE</strong></div>
+      <div class="scell"><small>ENDPOINTS</small><strong>08</strong></div>
+      <div class="scell"><small>SERVICES</small><strong>14</strong></div>
+      <div class="scell"><small>EVENTS</small><strong>24</strong></div>
+      <div class="scell" id="alertCell"><small>ALERTS</small><strong style="color:var(--warn)">02</strong></div>
+      <div class="scell"><small>PACKETS</small><strong style="color:var(--accent)" id="mPackets">12,842</strong></div>
+    </div>
+    <div class="soc-panels">
+      <div class="spanel">
+        <div class="mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px">TRAFFIC // SIMULATED</div>
+        <canvas class="chart" id="spark2" style="height:120px"></canvas>
+        <div class="mono" style="font-size:10.5px;color:var(--muted);margin-top:10px">Quick commands:
+          <button class="btn btn-t" style="padding:6px 10px;font-size:10px" data-cmd="status">status</button>
+          <button class="btn btn-t" style="padding:6px 10px;font-size:10px" data-cmd="certs">certs</button>
+          <button class="btn btn-t" style="padding:6px 10px;font-size:10px" data-cmd="whoami">whoami</button>
+        </div>
+      </div>
+      <div class="spanel">
+        <div class="mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px">EVENT LOG // SIMULATED</div>
+        <div class="log" id="socLog">
+          <div><b>12:41:25</b><span class="lv-OK">[OK]</span> Event contained <span style="color:#3a4653">(simulated)</span></div>
+          <div><b>12:41:20</b><span class="lv-INFO">[INFO]</span> Request analyzed <span style="color:#3a4653">(simulated)</span></div>
+          <div><b>12:41:16</b><span class="lv-WARN">[WARN]</span> Simulated suspicious request <span style="color:#3a4653">(simulated)</span></div>
+          <div><b>12:41:09</b><span class="lv-INFO">[INFO]</span> Network baseline established <span style="color:#3a4653">(simulated)</span></div>
+          <div><b>12:41:02</b><span class="lv-INFO">[INFO]</span> Lab environment initialized <span style="color:#3a4653">(simulated)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- LAB -->
+<section id="lab"><div class="wrap">
+  <div class="sec-label">06 // THE LAB</div>
+  <h2 class="head">AUTHORIZED<br>EXPERIMENTS</h2>
+  <p class="sub">Each card opens a full case study: objective, environment, tools, methodology, challenge, approach, result, lessons, improvements. Every lab carries an <b>AUTHORIZED LAB / EDUCATIONAL ENVIRONMENT</b> badge.</p>
+  <div class="lab-grid" id="labGrid"></div>
+</div></section>
+
+<!-- RESEARCH -->
+<section id="research" style="background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)"><div class="wrap">
+  <div class="sec-label">07 // SECURITY RESEARCH</div>
+  <h2 class="head">CURRENTLY<br>EXPLORING</h2>
+  <p class="sub">A living board. Stages: LEARNING · DEEP DIVE · EXPERIMENT · DOCUMENTED. Edit in <span class="mono" style="color:var(--accent2)">config.js → HOLY_RESEARCH</span>.</p>
+  <div class="res-grid" id="resGrid"></div>
+</div></section>
+
+<!-- MINDSET -->
+<section><div class="wrap mind" id="mind"></div></section>
+
+<!-- TERMINAL -->
+<section id="terminal" style="padding-top:0"><div class="wrap">
+  <div class="sec-label">$ // INTERACTIVE TERMINAL</div>
+  <h2 class="head">ASK THE<br>MACHINE</h2>
+  <p class="sub">Fully simulated — never executes real shell commands. Try <span class="mono" style="color:var(--accent2)">help · whoami · certs · status · sudo curiosity</span>. Works with mobile keyboards, history (↑↓) and Tab autocomplete.</p>
+  <div class="term reveal">
+    <div class="term-bar"><span class="td" style="background:#FF5F57"></span><span class="td" style="background:#FEBC2E"></span><span class="td" style="background:#28C840"></span><span class="mono" style="margin-left:8px;font-size:11px;color:var(--muted)">holy@sec:~ — simulation</span></div>
+    <div class="term-body">
+      <div id="tout" aria-live="polite"></div>
+      <form class="term-in" id="termForm">
+        <span class="prompt">$</span>
+        <input id="tinput" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal input" placeholder="type 'help'…">
+        <span class="cursor" aria-hidden="true"></span>
+      </form>
+    </div>
+  </div>
+  <div class="btnrow"><button class="btn btn-g" id="resumeBtn2">⤓ DOWNLOAD SECURITY PROFILE</button></div>
+</div></section>
+
+<!-- CONTACT -->
+<section id="contact" style="background:var(--bg2);border-top:1px solid var(--line2)"><div class="wrap">
+  <div class="sec-label">08 // CONTACT</div>
+  <h2 class="head">LET'S BUILD<br>SOMETHING SECURE.</h2>
+  <p class="sub">Whether it's security research, a technical project, a cybersecurity discussion, or an authorized testing environment — let's talk. Links are placeholders in <span class="mono" style="color:var(--accent2)">config.js → HOLY_SOCIALS</span>.</p>
+  <div class="contact-grid">
+    <form class="cform reveal" id="cform">
+      <input id="cname" required placeholder="Your name" aria-label="Your name">
+      <input id="cemail" required type="email" placeholder="Your email" aria-label="Your email">
+      <textarea id="cmsg" required rows="5" placeholder="Tell Holy about your project, research or opportunity…" aria-label="Message"></textarea>
+      <button class="btn btn-p" type="submit">CONTACT HOLY →</button>
+    </form>
+    <div class="card reveal">
+      <div class="mono" style="font-size:11px;letter-spacing:.18em;color:var(--accent)">DIRECT CHANNELS</div>
+      <div class="btnrow" style="margin-top:16px">
+        <a class="btn btn-p" id="mailBtn" href="mailto:hello@example.com">EMAIL HOLY</a>
+        <a class="btn btn-g" id="ghBtn" href="https://github.com/" target="_blank" rel="noopener">GITHUB ↗</a>
+        <a class="btn btn-g" id="liBtn" href="https://www.linkedin.com/" target="_blank" rel="noopener">LINKEDIN ↗</a>
+      </div>
+      <p class="mono" style="font-size:11.5px;color:var(--muted);margin-top:18px">STATUS: <span style="color:#00ffa3">● OPEN TO OPPORTUNITIES</span><br>RESPONSE: research · projects · authorized labs · discussion<br>PRESS ⌘/CTRL + K TO NAVIGATE LIKE AN OPERATOR.</p>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap foot-grid">
+  <div>
+    <div class="mono" id="footBrand" style="color:var(--text);letter-spacing:.14em">HOLY //</div>
+    <div class="mono" style="font-size:11px;margin-top:8px;line-height:2">CYBERSECURITY · PENETRATION TESTING<br>NETWORK SECURITY · RED TEAMING · SECURITY RESEARCH</div>
+    <div class="mono" style="font-size:11px;color:var(--accent);margin-top:8px">THINK LIKE AN ATTACKER. BUILD LIKE A DEFENDER.</div>
+  </div>
+  <div class="mono" style="font-size:11px;line-height:2;text-align:right">
+    <a id="ghBtn2" href="https://github.com/" target="_blank" rel="noopener" style="text-decoration:none">GITHUB ↗</a> ·
+    <a id="liBtn2" href="https://www.linkedin.com/" target="_blank" rel="noopener" style="text-decoration:none">LINKEDIN ↗</a><br>
+    © <span id="year">2026</span> KHALIFA (HOLY) — ALL RIGHTS RESERVED.<br>
+    NO PART OF THIS SITE, ITS DESIGN, OR ITS CONTENT MAY BE COPIED, REPRODUCED, OR USED IN ANY FORM WITHOUT EXPLICIT WRITTEN PERMISSION.<br>
+    SIMULATION LABELS MARK FICTIONAL UI · AUTHORIZED TESTING ONLY.<br>
+    <span style="color:var(--accent2)">LEGEND: AN 8+2 CODE FROM 1986 OPENS RED DOORS.</span><br>
+    THE GROUND YOU STAND ON REMEMBERS — KNOCK THRICE.
+  </div>
+</div></footer>
+
+<!-- MODAL -->
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="sheet">
+  <div style="display:flex;justify-content:flex-end"><button class="xbtn" id="mclose2">✕ CLOSE</button></div>
+  <div id="sheet"></div>
+</div></div>
+
+<!-- COMMAND PALETTE -->
+<div class="pal" id="pal"><div class="pal-box">
+  <input id="palInput" placeholder="Type a command… (about, lab, terminal…)" aria-label="Command palette">
+  <div class="pal-list" id="palList"></div>
+  <div class="mono" style="padding:10px 18px;font-size:10px;color:var(--muted);border-top:1px solid var(--line2)">HOLY // COMMAND PALETTE — ↑↓ NAVIGATE · ENTER OPEN · ESC CLOSE</div>
+</div></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);
+setInterval(()=>{document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);},1000);
+</script>
+</body>
+</html>

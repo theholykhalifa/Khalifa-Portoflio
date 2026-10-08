@@ -15,9 +15,11 @@ const AVATARS = [
  { name: "WARDEN", pal: { Y: "#FFB020", R: "#FF3355", K: "#0a0d12", S: "#3a4653" }, rows: [
   "....RR....", "...RRRR...", "..YYYYYY..", ".YYYYYYYY.", ".YYKYYKYY.",
   ".YYYYYYYY.", "..YYYYYY..", "..YSYYYS..", ".YYYYYYYY.", "YYYYYYYYYY"] },
+ { name: "OWNER", admin: true, img: "assets/owner-face.png" },
 ];
 function avatarSVG(i, size) {
   const a = AVATARS[i] || AVATARS[0];
+  if (a.img) return `<img class="avimg" src="${a.img}" alt="${a.name} avatar">`;
   let r = "";
   a.rows.forEach((row, y) => {
     [...row].forEach((ch, x) => {

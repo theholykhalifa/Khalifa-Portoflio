@@ -94,10 +94,40 @@ const ACHN={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",reco
 function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600);}
 function getP(){try{return JSON.parse(localStorage.getItem("holy_profile")||"null")}catch(e){return null}}
 function num(o){return (o&&typeof o==="object")?{best:o.best||0,plays:o.plays||0,sum:o.sum||0}:{best:o||0,plays:0,sum:0};}
+const RESERVED=["holy","holysec","khalifa","administrator","admin","root","system","moderator","mod","official","support","security","owner"];
 let newAv=0;
+let SBC=null;
+async function sbClient(){
+  try{
+    if(typeof HOLY_SUPABASE==="undefined"||!HOLY_SUPABASE.url) return null;
+    if(typeof supabase==="undefined"){
+      await new Promise(res=>{const s=document.createElement("script");
+        s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js";
+        s.onload=()=>res(); s.onerror=()=>res(); document.head.appendChild(s);});
+      if(typeof supabase==="undefined") return null;
+    }
+    if(!SBC) SBC=supabase.createClient(HOLY_SUPABASE.url,HOLY_SUPABASE.key);
+    return SBC;
+  }catch(e){return null}
+}
+async function nameTaken(v){
+  try{
+    const c=await sbClient(); if(!c) return null;
+    const r=await c.from("profiles").select("id").ilike("callsign",v).limit(1);
+    if(r.error) return null;
+    return r.data&&r.data.length>0;
+  }catch(e){return null}
+}
+function isAdmin(){try{return sessionStorage.getItem("holy_admin")==="1"}catch(e){return false}}
 function paintPicker(el,sel,fn){
-  el.innerHTML=AVATARS.map((a,i)=>`<button class="avpick ${i===sel?"sel":""}" data-i="${i}">${avatarSVG(i,72)}<small>${a.name}</small></button>`).join("");
-  el.querySelectorAll(".avpick").forEach(b=>b.onclick=()=>fn(+b.dataset.i));
+  const adm=isAdmin();
+  el.innerHTML=AVATARS.map((a,i)=>{
+    const locked=a.admin&&!adm;
+    return `<button class="avpick ${i===sel?"sel":""}" data-i="${i}">${avatarSVG(i,72)}<small>${locked?"🔒 "+a.name:a.name}</small></button>`;}).join("");
+  el.querySelectorAll(".avpick").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;
+    if(AVATARS[i].admin&&!isAdmin()){toast("OWNER hero unlocks with an admin session.");return;}
+    fn(i);});
 }
 function render(){
   const p=getP();
@@ -130,9 +160,14 @@ function render(){
   $("#pfBadges").innerHTML=ACH.map(k=>`${a[k]?"◉":"○"} ${ACHN[k]}`).join("<br>");
   cloud();
 }
-$("#enlistBtn").onclick=()=>{
+$("#enlistBtn").onclick=async ()=>{
   const v=$("#newName").value.replace(/[<>&"]/g,"").trim().slice(0,20);
   if(!/^[A-Za-z0-9_-]{2,20}$/.test(v)){toast("2-20 chars: letters, numbers, _ -");return;}
+  if(RESERVED.includes(v.toLowerCase())){toast("That callsign is reserved.");return;}
+  if(AVATARS[newAv].admin&&!isAdmin()){toast("OWNER hero needs an admin session.");return;}
+  toast("Checking availability…");
+  const taken=await nameTaken(v);
+  if(taken===true){toast("Taken — choose another operative name.");return;}
   try{localStorage.setItem("holy_profile",JSON.stringify({callsign:v,avatar:newAv,since:Date.now()}))}catch(e){}
   render(); toast("◉ OPERATIVE "+v+" ENLISTED — welcome.");
 };

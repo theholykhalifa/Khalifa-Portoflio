@@ -427,6 +427,10 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .avpick:hover{border-color:var(--accent)}
 .avpick.sel{border-color:var(--accent);box-shadow:0 0 22px rgba(255,51,85,.3)}
 .avpick.sel small{color:var(--accent2)}
+.avpick.locked{opacity:.55;filter:grayscale(.8)}
+.avimg{width:100%;height:100%;object-fit:cover;display:block}
+.pavatar .avimg{border-radius:50%}
+.avpick .avimg{width:72px;height:72px;margin:0 auto;border-radius:12px}
 /* packet defender */
 #gameCv{width:100%;height:auto;border:1px solid var(--line2);border-radius:12px;background:#04070b;touch-action:none;cursor:crosshair}
 #gameCv.hit{animation:gameHit .3s}

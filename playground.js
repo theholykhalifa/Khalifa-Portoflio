@@ -641,6 +641,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#callsignBtn").onclick=()=>{
     const v=document.getElementById("callsignIn").value.replace(/[<>&"]/g,"").trim().slice(0,24);
     if(!v){toast("Pick a callsign first.");return;}
+    if(["holy","holysec","khalifa","administrator","admin","root","system","moderator","official","support","security","owner"].includes(v.toLowerCase())){toast("That callsign is reserved.");return;}
     try{localStorage.setItem("holy_profile",JSON.stringify({callsign:v,since:Date.now()}))}catch(e){}
     document.getElementById("callsignIn").value="";
     renderDashboard(); toast("◉ OPERATIVE "+v+" ENLISTED");

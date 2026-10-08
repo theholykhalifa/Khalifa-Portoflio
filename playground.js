@@ -88,7 +88,19 @@ const QUIZ_VULN=[
   exp:"Executable uploads become shells. Validate server-side, rename, store outside webroot, strip exec."},
  {code:'500: "SQLSTATE password=secret conn=db01"  // shown to users',
   q:"What flaw is this?",opts:["Information Disclosure","XSS","IDOR","CSRF"],a:0,
-  exp:"Stack traces arm attackers. Generic errors outside, details in logs only."}
+  exp:"Stack traces arm attackers. Generic errors outside, details in logs only."},
+ {code:'user.update(req.body)  // body smuggles role:"admin"',
+  q:"What vulnerability is this?",opts:["Mass Assignment","XSS","SQL Injection","CSRF"],a:0,
+  exp:"Raw input bound to models flips protected fields. Allowlist assignable attributes."},
+ {code:'db.users.find({user: u, pass: p})  // p = {"$ne": null}',
+  q:"What vulnerability is this?",opts:["NoSQL Injection","XSS","IDOR","CSRF"],a:0,
+  exp:"Operators smuggle logic into queries. Validate types, never pass raw objects."},
+ {code:'pickle.loads(session_cookie)  // trusted? never.',
+  q:"What vulnerability is this?",opts:["Insecure Deserialization","XSS","CSRF","IDOR"],a:0,
+  exp:"Deserializing attacker data runs code. Sign it — or avoid native formats."},
+ {code:'el.innerHTML = "<b>" + location.hash.slice(1) + "</b>"  // hash-fed',
+  q:"What vulnerability is this?",opts:["DOM XSS","SQL Injection","IDOR","CSRF"],a:0,
+  exp:"Client-side sink fed by the URL. Encode output, never innerHTML location data."}
 ];
 const QUIZ_SEC=[
  {q:"Which CIA-triad property guarantees data is unaltered?",opts:["Confidentiality","Integrity","Availability","Authenticity"],a:1,exp:"Integrity = unaltered. Hashes and signatures enforce it."},
@@ -108,7 +120,11 @@ const QUIZ_SEC=[
  {q:"What does a VPN hide from your ISP?",opts:["Destinations and content","Your OS","Your passwords","Nothing"],a:0,exp:"The tunnel shifts visibility from ISP to VPN provider."},
  {q:"Passwords should be stored…",opts:["Plaintext for recovery","Reversibly encrypted","Hashed with salt (bcrypt/argon2)","Inside cookies"],a:2,exp:"One-way salted hashing — breaches leak puzzles, not keys."},
  {q:"Tailgating means…",opts:["Fast driving","Following someone through a secure door","Email spam","Wi-Fi theft"],a:1,exp:"Physical breach, zero exploit needed. Challenge strangers politely."},
- {q:"Security is whose job?",opts:["Only the SOC","Everyone touching the system","The firewall vendor","Nobody"],a:1,exp:"Culture beats tooling. Every commit, every click."}
+ {q:"Security is whose job?",opts:["Only the SOC","Everyone touching the system","The firewall vendor","Nobody"],a:1,exp:"Culture beats tooling. Every commit, every click."},
+ {q:"Download pages list hashes so you can…",opts:["Look technical","Verify file integrity","Get support","Unlock premium"],a:1,exp:"Compare before you run it. Mismatched hash — delete it."},
+ {q:"Covering the laptop camera helps against…",opts:["Hackers","Spyware peeking","Slow Wi-Fi","Overheating"],a:1,exp:"Cheap privacy. Malware can't see through tape."},
+ {q:"Work laptop on hotel guest Wi-Fi?",opts:["Fine, it's Wi-Fi","Avoid it or VPN up","Faster actually","Required"],a:1,exp:"Shared airwaves, unknown neighbors. VPN or hotspot."},
+ {q:"Sharing your screen? First…",opts:["Open everything","Hide sensitive tabs and notifications","Turn volume up","Share faster"],a:1,exp:"Audiences remember secrets. Declutter before you broadcast."}
 ];
 let quiz={set:null,i:0,score:0};
 function quizRank(pct,top){
@@ -117,21 +133,26 @@ function quizRank(pct,top){
   if(pct>=0.33) return quiz.set===QUIZ_VULN?"KEEP PRACTICING":"ANALYST TRAINEE";
   return "CURIOUS NEWBIE — keep learning";
 }
-function quizStart(set){quiz={set:set,i:0,score:0};quizRender();}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function bestOf(b,k){const v=b[k];return (v&&typeof v==="object")?{best:v.best||0,plays:v.plays||0,sum:v.sum||0}:{best:v||0,plays:0,sum:0};}
+function quizStart(set,game){quiz={game:game||(set===QUIZ_VULN?"vuln":"sec"),
+  set:shuffle(set.map(q=>{const ord=shuffle(q.opts.map((o,i)=>i));return{...q,opts:ord.map(i=>q.opts[i]),a:ord.indexOf(q.a)};})),
+  i:0,score:0};quizRender();}
 function quizRender(){
   const box=document.getElementById("quizBox"); if(!box) return;
   const Q=quiz.set[quiz.i];
   if(!Q){const pct=quiz.score/quiz.set.length;
     if(pct>=1) unlockAch("researcher","SECURITY RESEARCHER");
-    submitScore(quiz.set===QUIZ_VULN?"vuln":"sec",quiz.score,quiz.set.length);
+    submitScore(quiz.game,quiz.score,quiz.set.length);
     try{const b=JSON.parse(localStorage.getItem("holy_best")||"{}");
-      const k=quiz.set===QUIZ_VULN?"vuln":"sec";
-      if((b[k]||0)<quiz.score){b[k]=quiz.score;localStorage.setItem("holy_best",JSON.stringify(b));}
+      const cur=bestOf(b,quiz.game); cur.plays++;
+      if(quiz.score>cur.best)cur.best=quiz.score; cur.sum+=quiz.score;
+      b[quiz.game]=cur; localStorage.setItem("holy_best",JSON.stringify(b));
     }catch(e){}
     box.innerHTML=`<div class="qprog">FINAL SCORE</div><div class="qscore">${quiz.score} / ${quiz.set.length}</div>
-    <div class="qrank">RANK: ${quizRank(pct,quiz.set===QUIZ_VULN?"EAGLE EYE":"RED TEAM MATERIAL")}</div>
+    <div class="qrank">RANK: ${quizRank(pct,quiz.game==="vuln"?"EAGLE EYE":"RED TEAM MATERIAL")}</div>
     <div class="btnrow" style="margin-top:16px"><button class="btn btn-p" id="qretry">RETRY →</button></div>`;
-    document.getElementById("qretry").onclick=()=>quizStart(quiz.set); return;}
+    document.getElementById("qretry").onclick=()=>quizStart(quiz.set,quiz.game); return;}
   box.innerHTML=`<div class="qprog">QUESTION ${quiz.i+1} / ${quiz.set.length} · SCORE ${quiz.score}</div>
   ${Q.code?`<pre class="qcode">${Q.code}</pre>`:""}
   <h4 class="qq">${Q.q}</h4>
@@ -160,7 +181,9 @@ const VULNLAB=[
  {t:"XML External Entities (XXE)",v:"XML parsers resolving external entities.",c:"Malicious XML reads server files or pivots internally.",i:"File disclosure, internal network probing.",f:"Disable DTDs and external entities; use hardened parsers."},
  {t:"Open Redirect",v:"Redirect destinations never validated.",c:"Victims trust your domain, land on an evil twin.",i:"Credential phishing wearing your logo.",f:"Allowlist URLs or use indirect reference maps."},
  {t:"Path Traversal",v:"User input joined into filesystem paths.",c:"Dot-dot sequences escape the web root.",i:"Arbitrary file read, config and secret theft.",f:"Canonicalize paths, strict allowlists, jail the process."},
- {t:"Unrestricted File Upload",v:"Uploads saved with attacker-controlled names, executable.",c:"Upload a web shell, then visit its URL.",i:"Remote code execution on the server.",f:"Validate type server-side, randomize names, store outside webroot."}
+ {t:"Unrestricted File Upload",v:"Uploads saved with attacker-controlled names, executable.",c:"Upload a web shell, then visit its URL.",i:"Remote code execution on the server.",f:"Validate type server-side, randomize names, store outside webroot."},
+ {t:"Mass Assignment",v:"Raw request bodies bound straight to data models.",c:"Extra fields like role overwrite protected attributes.",i:"Privilege escalation via a signup form.",f:"Allowlist assignable fields; guard sensitive attributes server-side."},
+ {t:"Insecure Deserialization",v:"Untrusted bytes fed to native deserializers.",c:"Crafted objects execute during parsing.",i:"Remote code execution.",f:"Avoid native formats for input; sign and verify when unavoidable."}
 ];
 function renderVulnLab(){
   const box=document.getElementById("quizBox"); if(!box) return;
@@ -280,11 +303,17 @@ const DAILY=[
  {q:"App-based 2FA beats SMS because…",opts:["Prettier","Immune to SIM swapping","Faster","Free"],a:1,exp:"No number to port out. Secrets stay on your device."},
  {q:"Malware is…",opts:["Broken hardware","Malicious software","Slow internet","Old files"],a:1,exp:"Code with hostile intent. Least privilege limits its blast radius."},
  {q:"Posting your boarding pass leaks…",opts:["Nothing","Barcodes with PII and booking refs","Seat comfort","Flight snacks"],a:1,exp:"Barcodes decode to names, numbers, itineraries. Keep them private."},
- {q:"Unsubscribe link in obvious spam?",opts:["Click it","Don't — it confirms your address","Forward to all","Reply angrily"],a:1,exp:"Clicks tell spammers you're real. Delete and report instead."}
+ {q:"Unsubscribe link in obvious spam?",opts:["Click it","Don't — it confirms your address","Forward to all","Reply angrily"],a:1,exp:"Clicks tell spammers you're real. Delete and report instead."},
+ {q:"Updates asking for a reboot?",opts:["Later, forever","Reboot — patches need it","Delete them","Ignore"],a:1,exp:"Many fixes activate at boot. Pending reboot, pending vulnerable."},
+ {q:"Bluetooth always-on in public?",opts:["Harmless","Tracking + Bluejacking surface","Boosts signal","Saves battery"],a:1,exp:"Silent pairing requests and trackers. Off when unused."},
+ {q:"Password spraying means…",opts:["Water-cooling","One password across many accounts","Fast typing","Long passwords"],a:1,exp:"Dodges lockouts by spreading guesses. MFA plus monitoring stop it."},
+ {q:"QR code on a random flyer?",opts:["Scan it","Could be quishing — verify first","Tasty","Always safe"],a:1,exp:"QR hides the URL. Preview before you open."}
 ];
 function renderDaily(){
   const box=document.getElementById("dailyBox"); if(!box) return;
-  const day=Math.floor(Date.now()/864e5), Q=DAILY[day%DAILY.length];
+  const day=Math.floor(Date.now()/864e5);
+  const _Q=DAILY[day%DAILY.length], _ord=shuffle([0,1,2,3]);
+  const Q={..._Q,opts:_ord.map(i=>_Q.opts[i]),a:_ord.indexOf(_Q.a)};
   let st={}; try{st=JSON.parse(localStorage.getItem("holy_daily")||"{}")}catch(e){}
   const streak=st.streak||0;
   if(st.day===day){
@@ -323,7 +352,7 @@ function renderCtf(){
     toast("◉ MINI-CTF COMPLETE"); return;}
   box.innerHTML=`<div class="qprog">STEP ${ctf.i+1} / ${CTF_STEPS.length}</div>
   <h4 class="qq">${S.t}</h4><p style="color:#c6cfd8;font-size:14px">${S.body}</p>
-  ${S.opts?`<div class="qopts">${S.opts.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}</div>`
+  ${S.opts?`<div class="qopts">${shuffle(S.opts.slice()).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}</div>`
     :`<input class="tfield" id="ctfIn" placeholder="your answer…" autocomplete="off" spellcheck="false">
       <div class="btnrow" style="margin-top:10px"><button class="btn btn-p" id="ctfGo">SUBMIT →</button></div>`}
   <div class="qexp" hidden></div>`;
@@ -350,7 +379,7 @@ function holyProgress(){
   const a=getAch(), f=foundFlags(); let best={}, mid=0;
   try{best=JSON.parse(localStorage.getItem("holy_best")||"{}")}catch(e){}
   try{mid=localStorage.getItem("holy_midnight")==="1"?1:0}catch(e){}
-  const parts=[["FLAGS",f.length,5],["QUIZZES",((best.vuln||0)>=QUIZ_VULN.length?1:0)+((best.sec||0)>=QUIZ_SEC.length?1:0),2],["MIDNIGHT",mid,1],["PGP",a.pgp?1:0,1]];
+  const parts=[["FLAGS",f.length,5],["QUIZZES",(bestOf(best,"vuln").best>=QUIZ_VULN.length?1:0)+(bestOf(best,"sec").best>=QUIZ_SEC.length?1:0),2],["MIDNIGHT",mid,1],["PGP",a.pgp?1:0,1]];
   const got=parts.reduce((x,p)=>x+Math.min(p[1],p[2]),0), need=parts.reduce((x,p)=>x+p[2],0);
   return `<div class="holybar">👑 HOLY BADGE PROGRESS: ${got}/${need} — `+parts.map(p=>`${p[0]} ${Math.min(p[1],p[2])}/${p[2]}`).join(" · ")+`</div>`;
 }
@@ -378,7 +407,7 @@ function renderDashboard(){
    `<div class="kv"><b>BADGES</b><span>${Object.keys(ACH_LABELS).filter(k=>a[k]).length} / ${Object.keys(ACH_LABELS).length}</span></div>
     <div class="kv"><b>SEALS</b><span>${["e1","e2","e3","e4"].filter(k=>s[k]).length} / 4</span></div>
     <div class="kv"><b>FLAGS</b><span>${f.length} / 5</span></div>
-    <div class="kv"><b>QUIZ BEST</b><span>vuln ${best.vuln||0} / 14 · sec ${best.sec||0} / 22</span></div>
+    <div class="kv"><b>QUIZ BEST</b><span>vuln ${bestOf(best,"vuln").best} / 18 · sec ${bestOf(best,"sec").best} / 26</span></div>
     <div class="kv"><b>STREAK</b><span>${st.streak||0} 🔥</span></div>
     <div class="kv"><b>VAULT</b><span>${vault}</span></div>`;
 }
@@ -467,23 +496,111 @@ async function renderPersonal(){
       <div class="kv"><b>CLOUD BADGES</b><span>${(ac.data||[]).length} synced</span></div>`;
   }catch(e){box.textContent="Board unreadable — check connection.";}
 }
+/* operative file — personal performance tab */
+function renderProfile(){
+  const box=document.getElementById("quizBox"); if(!box) return;
+  const prof=getProfile(); let best={}, st={}, f=[];
+  try{best=JSON.parse(localStorage.getItem("holy_best")||"{}")}catch(e){}
+  try{st=JSON.parse(localStorage.getItem("holy_daily")||"{}")}catch(e){}
+  try{f=JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){}
+  const a=getAch(), nb=Object.keys(ACH_LABELS).filter(k=>a[k]).length;
+  const v=bestOf(best,"vuln"), s=bestOf(best,"sec");
+  const avg=x=>x.plays?((x.sum/x.plays).toFixed(1)+" avg"):"—";
+  box.innerHTML=`<div class="qprog">OPERATIVE FILE // ${(prof?escapeHtml(prof.callsign):"UNLISTED").toUpperCase()}</div>
+  <div class="kv"><b>VULN RECORD</b><span>${v.plays} plays · best ${v.best}/${QUIZ_VULN.length} · ${avg(v)}</span></div>
+  <div class="kv"><b>SEC RECORD</b><span>${s.plays} plays · best ${s.best}/${QUIZ_SEC.length} · ${avg(s)}</span></div>
+  <div class="kv"><b>DAILY STREAK</b><span>${st.streak||0} 🔥</span></div>
+  <div class="kv"><b>FLAGS</b><span>${f.length} / 5</span></div>
+  <div class="kv"><b>BADGES</b><span>${nb} / ${Object.keys(ACH_LABELS).length}</span></div>
+  <div class="kv"><b>PACKET BEST</b><span>${gameBest()}</span></div>
+  <p class="mono" style="font-size:11px;color:var(--muted)">Full record lives in the dashboard below. Cloud bests sync when logged in.</p>`;
+}
+/* packet defender — 2d arcade */
+let G=null;
+function gameBest(){try{return parseInt(localStorage.getItem("holy_packet_best")||"0",10)||0}catch(e){return 0}}
+function gameHud(over){
+  const el=document.getElementById("gameHud"); if(!el||!G) return;
+  el.textContent=`SCORE ${G.score} · LIVES ${G.lives} · BEST ${G.best}${over?" — BREACHED. RETRY.":""}`;
+}
+function toggleGame(){
+  const cv=document.getElementById("gameCv"); if(!cv) return;
+  if(!G){G={cv:cv,ctx:cv.getContext("2d"),W:cv.width,H:cv.height,run:false,score:0,lives:3,best:gameBest(),items:[],px:320,dir:0,t:0};}
+  const btn=document.getElementById("gameBtn");
+  if(G.run){G.run=false;btn.textContent="RESUME →";return;}
+  if(G.lives<=0){G.score=0;G.lives=3;G.items=[];}
+  G.run=true;btn.textContent="PAUSE";gameHud(false);
+  requestAnimationFrame(gameTick);
+}
+function gameTick(){
+  if(!G||!G.run) return;
+  const ctx=G.ctx,W=G.W,H=G.H; G.t++;
+  ctx.fillStyle="#04070b";ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="rgba(255,51,85,.12)";ctx.lineWidth=1;
+  for(let x=0;x<W;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  if(G.t%42===0){const r=Math.random();
+    G.items.push({x:20+Math.random()*(W-40),y:-16,k:r<.68?"ok":(r<.93?"bad":"gold"),v:1.4+Math.random()*1.2+G.score/900});}
+  G.px=Math.max(30,Math.min(W-30,G.px+(G.dir||0)*5));
+  ctx.fillStyle="#FF3355";ctx.fillRect(G.px-34,H-16,68,10);
+  ctx.fillStyle="rgba(255,51,85,.35)";ctx.fillRect(G.px-34,H-26,68,4);
+  G.items=G.items.filter(p=>{
+    p.y+=p.v;
+    const caught=p.y>H-26&&p.y<H-4&&Math.abs(p.x-G.px)<38;
+    if(caught){
+      if(p.k==="ok")G.score+=10;
+      else if(p.k==="gold")G.score+=50;
+      else{G.lives--;
+        const cv=document.getElementById("gameCv");
+        cv.classList.remove("hit");void cv.offsetWidth;cv.classList.add("hit");}
+      gameHud(false);return false;
+    }
+    if(p.y>H+20)return false;
+    ctx.fillStyle=p.k==="ok"?"#00ffa3":(p.k==="gold"?"#FFB020":"#FF3B30");
+    ctx.fillRect(p.x-7,p.y-7,14,14);
+    ctx.fillStyle="#04070b";ctx.font="9px monospace";ctx.textAlign="center";
+    ctx.fillText(p.k==="ok"?"01":(p.k==="gold"?"◉":"×"),p.x,p.y+3);
+    return true;
+  });
+  if(G.lives<=0){G.run=false;
+    if(G.score>G.best){G.best=G.score;try{localStorage.setItem("holy_packet_best",G.best)}catch(e){}toast("◉ NEW PACKET RECORD — "+G.best);}
+    document.getElementById("gameBtn").textContent="RETRY →";gameHud(true);}
+  requestAnimationFrame(gameTick);
+}
+function gameInput(){
+  const cv=document.getElementById("gameCv"); if(!cv||cv.dataset.wired) return;
+  cv.dataset.wired="1";
+  const move=e=>{if(!G)return;const r=cv.getBoundingClientRect();
+    const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    G.px=Math.max(30,Math.min(G.W-30,x/G.W*640));};
+  cv.addEventListener("mousemove",move);
+  cv.addEventListener("touchmove",e=>{e.preventDefault();move(e);},{passive:false});
+  addEventListener("keydown",e=>{
+    if(!G||!G.run)return;
+    const t=document.activeElement;
+    if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"))return;
+    if(e.key==="ArrowLeft")G.dir=-1; if(e.key==="ArrowRight")G.dir=1;});
+  addEventListener("keyup",()=>{if(G)G.dir=0;});
+}
 document.addEventListener("DOMContentLoaded",()=>{
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vis");io.unobserve(e.target);}}),{threshold:.12});
   $$(".reveal").forEach(el=>io.observe(el));
   $("#burger").onclick=()=>$("#mmenu").classList.add("open");
   $("#mclose").onclick=()=>$("#mmenu").classList.remove("open");
   $$("#mmenu a.big").forEach(a=>a.onclick=()=>$("#mmenu").classList.remove("open"));
-  const tV=$("#tabVuln"), tS=$("#tabSec"), tL=$("#tabLab");
+  const tV=$("#tabVuln"), tS=$("#tabSec"), tL=$("#tabLab"), tP=$("#tabProfile");
   const paint=which=>{tV.className="btn "+(which==="vuln"?"btn-p":"btn-g");
     tS.className="btn "+(which==="sec"?"btn-p":"btn-g");
-    tL.className="btn "+(which==="lab"?"btn-p":"btn-g");};
-  tV.onclick=()=>{paint("vuln");quizStart(QUIZ_VULN);};
-  tS.onclick=()=>{paint("sec");quizStart(QUIZ_SEC);};
+    tL.className="btn "+(which==="lab"?"btn-p":"btn-g");
+    tP.className="btn "+(which==="prof"?"btn-p":"btn-g");};
+  tV.onclick=()=>{paint("vuln");quizStart(QUIZ_VULN,"vuln");};
+  tS.onclick=()=>{paint("sec");quizStart(QUIZ_SEC,"sec");};
   tL.onclick=()=>{paint("lab");renderVulnLab();};
+  tP.onclick=()=>{paint("prof");renderProfile();};
   safe(()=>quizStart(QUIZ_VULN));
   safe(()=>{$$("#toolTabs .btn").forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));});
   safe(()=>renderTool("hash")); safe(()=>renderDaily()); safe(()=>renderCtf()); safe(()=>renderPersonal());
   safe(()=>renderTrophies()); safe(()=>renderDashboard());
+  safe(()=>{gameInput();const gb=document.getElementById("gameBtn");if(gb)gb.onclick=toggleGame;});
   safe(()=>sbInit());
   $("#boardSec").onclick=()=>loadBoard("sec");
   $("#boardVuln").onclick=()=>loadBoard("vuln");

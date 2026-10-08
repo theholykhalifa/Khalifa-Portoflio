@@ -410,6 +410,10 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .authbar button{background:var(--accent);color:#0a0507;border:none;border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.06em}
 .authbar button.ghost{background:none;border:1px solid var(--line2);color:var(--text)}
 .authbar [hidden]{display:none!important}
+/* packet defender */
+#gameCv{width:100%;height:auto;border:1px solid var(--line2);border-radius:12px;background:#04070b;touch-action:none;cursor:crosshair}
+#gameCv.hit{animation:gameHit .3s}
+@keyframes gameHit{50%{border-color:var(--crit);box-shadow:0 0 26px rgba(255,59,48,.5)}}
 /* toolkit + challenge */
 .tfield{width:100%;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:13px;margin:8px 0}
 textarea.tfield{min-height:90px;resize:vertical}

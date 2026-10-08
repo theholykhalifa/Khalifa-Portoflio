@@ -104,7 +104,7 @@ function render(){
     return "<label class='row'><input type='checkbox' data-s='"+k+"'"+(s[k]?" checked":"")+"> "+SEALS[k]+"</label>"}).join("");
   var f=[];try{f=JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){}
   var best=store("holy_best");
-  document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(best.vuln||0)+"/11 · sec "+(best.sec||0)+"/18 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
+  document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(function(){var v=best.vuln;return(v&&typeof v==="object")?v.best:(v||0)}())+"/14 · sec "+(function(){var v=best.sec;return(v&&typeof v==="object")?v.best:(v||0)}())+"/22 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
 }
 document.getElementById("aGo").onclick=function(){
   if(lockUntil>Date.now()){lockTick();return;}

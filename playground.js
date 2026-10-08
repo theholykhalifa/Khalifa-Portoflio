@@ -5,7 +5,16 @@
 const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>[...c.querySelectorAll(s)];
 function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function toast(t){const el=document.getElementById("toast");if(!el)return;el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600);}
-const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
+const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
+const BADGE_META={
+ term:{n:"TERMINAL ACCESS",d:"Ran your first terminal command. The rabbit hole opens.",i:"⌁",c:"b-term"},
+ first:{n:"FIRST FLAG",d:"Captured your first hidden flag. Hunter confirmed.",i:"⚑",c:"b-first"},
+ flagc:{n:"FLAG CAPTURED",d:"All 5 hidden flags. Nothing on this site hides from you.",i:"🏴",c:"b-flagc"},
+ recon:{n:"RECON COMPLETE",d:"Five distinct terminal commands. Enumeration discipline.",i:"◉",c:"b-recon"},
+ root:{n:"ROOT ACCESS",d:"Survived Operation Midnight and wore the gold.",i:"♛",c:"b-root"},
+ researcher:{n:"SECURITY RESEARCHER",d:"Perfect quiz score. Publish-worthy instincts.",i:"🎓",c:"b-res"},
+ pgp:{n:"PGP VERIFIED",d:"Copied or downloaded the PGP key. Encrypted and verified.",i:"🔐",c:"b-pgp"},
+ holy:{n:"HOLY BADGE",d:"ULTIMATE — all flags, perfect quizzes, midnight survived, PGP verified. The complete operator.",i:"👑",c:"b-holy"}};
 function getAch(){try{return JSON.parse(localStorage.getItem("holy_ach")||"{}")}catch(e){return{}}}
 function unlockAch(k,label){const a=getAch();if(a[k])return;a[k]=1;
   try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
@@ -47,7 +56,16 @@ const QUIZ_VULN=[
   exp:"Victims trust your domain and land on evil. Allowlist URLs or use indirect references."},
  {code:'if (token.alg === "none") skipVerify()  // client picks the algorithm',
   q:"What flaw is this?",opts:["Auth Bypass","XSS","CSRF","IDOR"],a:0,
-  exp:"Never let the client choose 'none'. Enforce the expected algorithm server-side."}
+  exp:"Never let the client choose 'none'. Enforce the expected algorithm server-side."},
+ {code:'readFile("/var/www/" + req.query.page)  // try: ../../etc/passwd',
+  q:"What vulnerability is this?",opts:["Path Traversal","XSS","CSRF","IDOR"],a:0,
+  exp:"Dot-dot sequences escape the web root. Canonicalize paths, allowlist, never concatenate."},
+ {code:'save(upload, "/uploads/" + upload.name)  // shell.php welcome',
+  q:"What vulnerability is this?",opts:["Unrestricted File Upload","XSS","SQL Injection","CSRF"],a:0,
+  exp:"Executable uploads become shells. Validate server-side, rename, store outside webroot, strip exec."},
+ {code:'500: "SQLSTATE password=secret conn=db01"  // shown to users',
+  q:"What flaw is this?",opts:["Information Disclosure","XSS","IDOR","CSRF"],a:0,
+  exp:"Stack traces arm attackers. Generic errors outside, details in logs only."}
 ];
 const QUIZ_SEC=[
  {q:"Which CIA-triad property guarantees data is unaltered?",opts:["Confidentiality","Integrity","Availability","Authenticity"],a:1,exp:"Integrity = unaltered. Hashes and signatures enforce it."},
@@ -63,7 +81,11 @@ const QUIZ_SEC=[
  {q:"Public Wi-Fi's real danger?",opts:["Eavesdropping / MITM","Faster speeds","Better privacy","Nothing much"],a:0,exp:"Open airwaves invite snoopers. VPN on untrusted nets."},
  {q:"A strong password starts at…",opts:["4 characters","8 characters","12+ unique characters","Your birthday"],a:2,exp:"Length beats complexity. 12+ unique, ideally in a manager."},
  {q:"Backup codes for 2FA exist to…",opts:["Share with friends","Recover access if factors are lost","Skip passwords","Speed up login"],a:1,exp:"Lost phone without backups means lost account. Store them offline."},
- {q:"Someone watching your screen is called…",opts:["Sniffing","Shoulder surfing","Pharming","Spoofing"],a:1,exp:"Privacy screens and awareness beat curious eyes."}
+ {q:"Someone watching your screen is called…",opts:["Sniffing","Shoulder surfing","Pharming","Spoofing"],a:1,exp:"Privacy screens and awareness beat curious eyes."},
+ {q:"What does a VPN hide from your ISP?",opts:["Destinations and content","Your OS","Your passwords","Nothing"],a:0,exp:"The tunnel shifts visibility from ISP to VPN provider."},
+ {q:"Passwords should be stored…",opts:["Plaintext for recovery","Reversibly encrypted","Hashed with salt (bcrypt/argon2)","Inside cookies"],a:2,exp:"One-way salted hashing — breaches leak puzzles, not keys."},
+ {q:"Tailgating means…",opts:["Fast driving","Following someone through a secure door","Email spam","Wi-Fi theft"],a:1,exp:"Physical breach, zero exploit needed. Challenge strangers politely."},
+ {q:"Security is whose job?",opts:["Only the SOC","Everyone touching the system","The firewall vendor","Nobody"],a:1,exp:"Culture beats tooling. Every commit, every click."}
 ];
 let quiz={set:null,i:0,score:0};
 function quizRank(pct,top){
@@ -113,7 +135,9 @@ const VULNLAB=[
  {t:"Security Misconfiguration",v:"Defaults, verbose banners, open debug endpoints left live.",c:"Attackers fingerprint and walk through open doors.",i:"Easy foothold with zero cleverness required.",f:"Harden baselines, strip banners, disable debug in production, review often."},
  {t:"Sensitive Data Exposure",v:"Secrets, keys or PII in repos, logs or URLs.",c:"Attackers harvest what you published yourself.",i:"Credential leaks, impersonation, full compromise.",f:"Vaults for secrets, redacted logs, pre-commit scanning, rotate on leak."},
  {t:"XML External Entities (XXE)",v:"XML parsers resolving external entities.",c:"Malicious XML reads server files or pivots internally.",i:"File disclosure, internal network probing.",f:"Disable DTDs and external entities; use hardened parsers."},
- {t:"Open Redirect",v:"Redirect destinations never validated.",c:"Victims trust your domain, land on an evil twin.",i:"Credential phishing wearing your logo.",f:"Allowlist URLs or use indirect reference maps."}
+ {t:"Open Redirect",v:"Redirect destinations never validated.",c:"Victims trust your domain, land on an evil twin.",i:"Credential phishing wearing your logo.",f:"Allowlist URLs or use indirect reference maps."},
+ {t:"Path Traversal",v:"User input joined into filesystem paths.",c:"Dot-dot sequences escape the web root.",i:"Arbitrary file read, config and secret theft.",f:"Canonicalize paths, strict allowlists, jail the process."},
+ {t:"Unrestricted File Upload",v:"Uploads saved with attacker-controlled names, executable.",c:"Upload a web shell, then visit its URL.",i:"Remote code execution on the server.",f:"Validate type server-side, randomize names, store outside webroot."}
 ];
 function renderVulnLab(){
   const box=document.getElementById("quizBox"); if(!box) return;
@@ -229,7 +253,11 @@ const DAILY=[
  {q:"Stepping away from your desk?",opts:["Lock it (Win+L)","Leave it open","Monitor off is enough","Trust coworkers"],a:0,exp:"Seconds unattended is all it takes. Lock, always."},
  {q:"Ransomware does what?",opts:["Speeds up the PC","Encrypts data for payment","Deletes cookies","Updates drivers"],a:1,exp:"Backups plus patching beat paying criminals."},
  {q:"A honeypot is…",opts:["Sweet malware","A decoy system that detects attackers","A firewall brand","A type of VPN"],a:1,exp:"Fake targets, real alerts."},
- {q:"The S in HTTPS stands for…",opts:["Speed","Secure (TLS)","Simple","Standard"],a:1,exp:"Encrypted HTTP — look for it before typing secrets."}
+ {q:"The S in HTTPS stands for…",opts:["Speed","Secure (TLS)","Simple","Standard"],a:1,exp:"Encrypted HTTP — look for it before typing secrets."},
+ {q:"App-based 2FA beats SMS because…",opts:["Prettier","Immune to SIM swapping","Faster","Free"],a:1,exp:"No number to port out. Secrets stay on your device."},
+ {q:"Malware is…",opts:["Broken hardware","Malicious software","Slow internet","Old files"],a:1,exp:"Code with hostile intent. Least privilege limits its blast radius."},
+ {q:"Posting your boarding pass leaks…",opts:["Nothing","Barcodes with PII and booking refs","Seat comfort","Flight snacks"],a:1,exp:"Barcodes decode to names, numbers, itineraries. Keep them private."},
+ {q:"Unsubscribe link in obvious spam?",opts:["Click it","Don't — it confirms your address","Forward to all","Reply angrily"],a:1,exp:"Clicks tell spammers you're real. Delete and report instead."}
 ];
 function renderDaily(){
   const box=document.getElementById("dailyBox"); if(!box) return;
@@ -288,9 +316,28 @@ function renderCtf(){
 
 /* ---------- trophies + dashboard ---------- */
 function renderTrophies(){
+  evaluateHoly();
   const el=document.getElementById("trophyCase"); if(!el) return;
   const a=getAch();
-  el.innerHTML=Object.keys(ACH_LABELS).map(k=>`<div class="trophy ${a[k]?"won":""}">${a[k]?"◉":"○"} ${ACH_LABELS[k]}</div>`).join("");
+  el.innerHTML='<div class="bgrid">'+Object.keys(BADGE_META).map(k=>{
+    const m=BADGE_META[k], won=!!a[k];
+    return `<div class="bcard ${m.c} ${won?"won":""}"><div class="bicon">${m.i}</div><div><b>${m.n}</b><p>${m.d}</p></div><span class="bstate">${won?"◉":"○"}</span></div>`;}).join("")+'</div>'+holyProgress();
+}
+function holyProgress(){
+  const a=getAch(), f=foundFlags(); let best={}, mid=0;
+  try{best=JSON.parse(localStorage.getItem("holy_best")||"{}")}catch(e){}
+  try{mid=localStorage.getItem("holy_midnight")==="1"?1:0}catch(e){}
+  const parts=[["FLAGS",f.length,5],["QUIZZES",((best.vuln||0)>=QUIZ_VULN.length?1:0)+((best.sec||0)>=QUIZ_SEC.length?1:0),2],["MIDNIGHT",mid,1],["PGP",a.pgp?1:0,1]];
+  const got=parts.reduce((x,p)=>x+Math.min(p[1],p[2]),0), need=parts.reduce((x,p)=>x+p[2],0);
+  return `<div class="holybar">👑 HOLY BADGE PROGRESS: ${got}/${need} — `+parts.map(p=>`${p[0]} ${Math.min(p[1],p[2])}/${p[2]}`).join(" · ")+`</div>`;
+}
+function evaluateHoly(){
+  const a=getAch(); if(a.holy) return;
+  const f=foundFlags(); let best={}, mid=false;
+  try{best=JSON.parse(localStorage.getItem("holy_best")||"{}")}catch(e){}
+  try{mid=localStorage.getItem("holy_midnight")==="1"}catch(e){}
+  if(f.length>=5&&(best.vuln||0)>=QUIZ_VULN.length&&(best.sec||0)>=QUIZ_SEC.length&&mid&&a.pgp){
+    unlockAch("holy","HOLY BADGE"); toast("👑 THE HOLY BADGE IS YOURS — complete operator.");}
 }
 function getProfile(){try{return JSON.parse(localStorage.getItem("holy_profile")||"null")}catch(e){return null}}
 function renderDashboard(){
@@ -308,7 +355,7 @@ function renderDashboard(){
    `<div class="kv"><b>BADGES</b><span>${Object.keys(ACH_LABELS).filter(k=>a[k]).length} / ${Object.keys(ACH_LABELS).length}</span></div>
     <div class="kv"><b>SEALS</b><span>${["e1","e2","e3","e4"].filter(k=>s[k]).length} / 4</span></div>
     <div class="kv"><b>FLAGS</b><span>${f.length} / 5</span></div>
-    <div class="kv"><b>QUIZ BEST</b><span>vuln ${best.vuln||0} / 11 · sec ${best.sec||0} / 18</span></div>
+    <div class="kv"><b>QUIZ BEST</b><span>vuln ${best.vuln||0} / 14 · sec ${best.sec||0} / 22</span></div>
     <div class="kv"><b>STREAK</b><span>${st.streak||0} 🔥</span></div>
     <div class="kv"><b>VAULT</b><span>${vault}</span></div>`;
 }

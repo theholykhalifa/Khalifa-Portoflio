@@ -241,7 +241,7 @@ function unlockAch(k,label){const a=getAch(); if(a[k]) return; a[k]=1;
   try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
   toast("🏅 ACHIEVEMENT — "+label);
   try{renderTrophies();}catch(e){}}
-const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
+const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
 
 /* RED TEAM MODE — 12s site-wide alert pulse (simulation) */
 let rtT=null;
@@ -427,6 +427,7 @@ function finale(){
   setTimeout(()=>{
     f.classList.add("out"); setTimeout(()=>f.remove(),500);
     document.body.classList.add("gold"); unlockAch("root","ROOT ACCESS");
+    try{localStorage.setItem("holy_midnight","1")}catch(e){}
     toast("◉ HOLY MODE — golden clearance, 20s");
     embers(20000);
     const pill=document.createElement("div"); pill.className="gold-pill";

@@ -40,6 +40,7 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
     <input id="aPass" type="password" placeholder="password" autocomplete="current-password">
     <button id="aGo">AUTHENTICATE →</button>
     <div class="err" id="aErr"></div>
+    <div id="lockPop" hidden style="border:1px solid var(--crit,#FF3B30);border-radius:10px;padding:14px;margin-top:10px;font-family:ui-monospace,monospace;font-size:12.5px">⛔ TOO MANY ATTEMPTS — cooling down <span id="lockT">60</span>s. Brute force noticed and logged (locally).</div>
   </div>
   <div id="panel" hidden>
     <div class="card"><div class="mono" id="whoLine" style="font-size:12px"></div>
@@ -56,7 +57,11 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
       <button class="ghost" id="xQuiz">RESET QUIZ SCORES</button>
       <button class="danger" id="xNuke">NUKE ALL LOCAL DATA</button>
       <input type="file" id="xFile" accept="application/json" style="margin-top:12px">
-      <button class="ghost" id="xImport">IMPORT RECORD JSON</button></div>
+      <button class="ghost" id="xImport">IMPORT RECORD JSON</button>
+      <div style="margin-top:12px" class="mono">QUIZ BESTS — SET MANUALLY</div>
+      <input id="bestV" placeholder="vuln best (0-14)" inputmode="numeric" style="max-width:220px">
+      <input id="bestS" placeholder="sec best (0-22)" inputmode="numeric" style="max-width:220px">
+      <button class="ghost" id="bestApply">SET BESTS</button></div>
   </div>
   <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">CLOUD DATABASE // READ LIVE</div>
     <div class="mono" id="cloudStatus" style="font-size:12px;margin:8px 0">CLOUD: …</div>
@@ -66,12 +71,23 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
     <div><button id="cRefresh">⟳ REFRESH</button></div>
     <p style="font-size:12.5px;color:#7C8794">Read-only with the public key: you can watch signups and scores live. Deleting or editing other users' rows needs the secret key on a server — never paste it here. Row-level security blocks it by design.</p>
   </div>
+  <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">BAN HAMMER // NEEDS DEPLOYED FUNCTION</div>
+    <p style="font-size:13px;color:#7C8794">Real bans run server-side. Deploy <span class="mono">supabase/functions/ban-user</span> (steps in SUPABASE_SETUP.md), paste its URL + the ADMIN_SECRET you set at deploy, then ban by user UUID.</p>
+    <input id="fnUrl" placeholder="https://xyz.supabase.co/functions/v1/ban-user">
+    <input id="fnSecret" type="password" placeholder="ADMIN_SECRET (deploy-time, never stored)">
+    <input id="banId" placeholder="user UUID (cloud feed / Table Editor → auth.users)">
+    <input id="banHrs" placeholder="hours (0 = permanent)" inputmode="numeric">
+    <input id="banWhy" placeholder="reason">
+    <button id="banGo" class="danger">BAN →</button>
+    <button id="unbanGo" class="ghost">UNBAN</button>
+    <div class="ok" id="banMsg"></div>
+  </div>
   <p><a href="index.html">← BACK TO THE SITE</a></p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script>
-var BADGES={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
+var BADGES={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
 var SEALS={e1:"Egg 1 — HOLY ×3",e2:"Egg 2 — Red Team",e3:"Egg 3 — Breach",e4:"Egg 4 — Prank"};
 function store(k,v){if(v===undefined){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return{}}}try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 async function sha(s){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
@@ -79,7 +95,7 @@ function authed(){try{return sessionStorage.getItem("holy_admin")==="1"}catch(e)
 function show(){var on=authed();
   document.getElementById("loginBox").hidden=on;
   document.getElementById("panel").hidden=!on;
-  if(on) render();}
+  if(on) render(); else lockTick();}
 function render(){
   var a=store("holy_ach"), s=store("holy_seals");
   document.getElementById("whoLine").textContent="◉ LOGGED IN AS "+HOLY_ADMIN.user+" (this browser session)";
@@ -92,12 +108,37 @@ function render(){
   document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(best.vuln||0)+"/11 · sec "+(best.sec||0)+"/18 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
 }
 document.getElementById("aGo").onclick=function(){
+  if(lockUntil>Date.now()){lockTick();return;}
   var u=document.getElementById("aUser").value.trim(), p=document.getElementById("aPass").value;
   sha(p).then(function(h){
-    if(u===HOLY_ADMIN.user&&h===HOLY_ADMIN.passHash){try{sessionStorage.setItem("holy_admin","1")}catch(e){}show();}
-    else{document.getElementById("aErr").textContent="✗ ACCESS DENIED";}
+    if(u===HOLY_ADMIN.user&&h===HOLY_ADMIN.passHash){
+      try{localStorage.setItem("holy_alock",JSON.stringify({fails:0,until:0}))}catch(e){}
+      try{sessionStorage.setItem("holy_admin","1")}catch(e){}show();}
+    else{
+      var lk=lockState(); lk.fails++;
+      if(lk.fails>=3){lk.until=Date.now()+60000;
+        document.getElementById("aErr").textContent="✗ ACCESS DENIED — 3 strikes. Cooling down 60s.";}
+      else{document.getElementById("aErr").textContent="✗ ACCESS DENIED — attempt "+lk.fails+"/3.";}
+      try{localStorage.setItem("holy_alock",JSON.stringify(lk))}catch(e){}
+      lockTick();
+    }
   }).catch(function(){document.getElementById("aErr").textContent="✗ Crypto unavailable in this browser.";});
 };
+var lockUntil=0, lockIv=null;
+function lockState(){try{return JSON.parse(localStorage.getItem("holy_alock")||'{"fails":0,"until":0}')}catch(e){return{fails:0,until:0}}}
+function lockTick(){
+  var lk=lockState(); lockUntil=lk.until;
+  var pop=document.getElementById("lockPop"), left=Math.ceil((lockUntil-Date.now())/1000);
+  ["aUser","aPass","aGo"].forEach(function(id){document.getElementById(id).disabled=left>0;});
+  if(left<=0){pop.hidden=true;if(lk.fails>=3){try{localStorage.setItem("holy_alock",JSON.stringify({fails:0,until:0}))}catch(e){}}
+    if(lockIv){clearInterval(lockIv);lockIv=null;}return;}
+  pop.hidden=false; document.getElementById("lockT").textContent=left;
+  if(lockIv) clearInterval(lockIv);
+  lockIv=setInterval(function(){
+    var l=Math.ceil((lockUntil-Date.now())/1000);
+    if(l<=0){lockTick();}else{document.getElementById("lockT").textContent=l;}
+  },500);
+}
 document.getElementById("aOut").onclick=function(){try{sessionStorage.removeItem("holy_admin")}catch(e){}show();};
 document.getElementById("bApply").onclick=function(){
   var a={};document.querySelectorAll("#badgeList input").forEach(function(c){if(c.checked)a[c.dataset.b]=1;});
@@ -148,6 +189,34 @@ document.getElementById("xImport").onclick=function(){
   }catch(e){toast2("Invalid record file.");}};
   rd.readAsText(f);
 };
+document.getElementById("bestApply").onclick=function(){
+  var v=parseInt(document.getElementById("bestV").value,10),
+      s=parseInt(document.getElementById("bestS").value,10);
+  var b=store("holy_best");
+  if(!isNaN(v)) b.vuln=Math.max(0,Math.min(14,v));
+  if(!isNaN(s)) b.sec=Math.max(0,Math.min(22,s));
+  store("holy_best",b); render(); toast2("Quiz bests set.");
+};
+async function banAct(action){
+  var msg=document.getElementById("banMsg");
+  var url=document.getElementById("fnUrl").value.trim(),
+      sec=document.getElementById("fnSecret").value,
+      id=document.getElementById("banId").value.trim();
+  if(!url||!sec||!id){msg.textContent="Need function URL + secret + user UUID.";return;}
+  msg.textContent="sending…";
+  try{
+    var r=await fetch(url,{method:"POST",
+      headers:{"Content-Type":"application/json","x-admin-secret":sec},
+      body:JSON.stringify({action:action,user_id:id,
+        hours:parseFloat(document.getElementById("banHrs").value)||0,
+        reason:document.getElementById("banWhy").value})});
+    var j=await r.json().catch(function(){return{}});
+    msg.textContent=r.ok?("◉ "+(j.result||"done")):("✗ "+(j.error||("HTTP "+r.status)));
+    cloudRefresh();
+  }catch(e){msg.textContent="✗ unreachable — function deployed? URL correct?";}
+}
+document.getElementById("banGo").onclick=function(){banAct("ban");};
+document.getElementById("unbanGo").onclick=function(){banAct("unban");};
 show();
 cloudRefresh();
 </script>

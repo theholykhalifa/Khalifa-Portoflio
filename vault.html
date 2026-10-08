@@ -39,7 +39,7 @@ function unlocked(){try{return localStorage.getItem("holy_vault")==="1"}catch(e)
 function trophies(){
   var a={},s={};try{a=JSON.parse(localStorage.getItem("holy_ach")||"{}")}catch(e){}
   try{s=JSON.parse(localStorage.getItem("holy_seals")||"{}")}catch(e){}
-  var L={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
+  var L={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
   var h=Object.keys(L).map(function(k){return (a[k]?"✓":"□")+" "+L[k]}).join("<br>");
   var n=["e1","e2","e3","e4"].filter(function(k){return s[k]}).length;
   return h+"<br>MIDNIGHT SEALS: "+"■".repeat(n)+"□".repeat(4-n)+" ("+n+"/4)";

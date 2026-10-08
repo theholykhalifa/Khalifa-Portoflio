@@ -368,6 +368,31 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 #trophyCase{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
 #trophyCase .trophy{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--muted)}
 #trophyCase .trophy.won{border-color:rgba(255,176,32,.55);color:#FFD88A;background:rgba(255,176,32,.06)}
+/* badge showcase — every badge its own look */
+#trophyCase .bgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.bcard{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line2);border-radius:12px;padding:14px;opacity:.45;filter:grayscale(1);position:relative;overflow:hidden;background:rgba(255,255,255,.015)}
+.bcard.won{opacity:1;filter:none}
+.bcard b{font-family:var(--mono);font-size:12px;letter-spacing:.1em;display:block}
+.bcard p{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.6}
+.bicon{font-size:26px;line-height:1.2}
+.bstate{position:absolute;top:10px;right:12px;font-size:13px;color:var(--muted)}
+.bcard.won .bstate{color:#00ffa3}
+.b-term.won{border-color:#8b95a1;animation:termp 3s ease-in-out infinite}
+@keyframes termp{50%{box-shadow:0 0 18px rgba(139,149,161,.35)}}
+.b-first.won{border-color:var(--accent);animation:flick2 6s infinite}
+@keyframes flick2{0%,93%,100%{opacity:1}94%{opacity:.55}95%{opacity:1}}
+.b-flagc.won{border-color:var(--accent);box-shadow:0 0 22px rgba(255,51,85,.25)}
+.b-recon.won{border-color:#00ffa3;animation:termp 2.4s ease-in-out infinite}
+.b-root.won{border-color:#FFB020;box-shadow:0 0 22px rgba(255,176,32,.3)}
+.b-res.won{border-color:#c792ea;animation:shim 4s linear infinite}
+@keyframes shim{0%,100%{box-shadow:-4px 0 14px rgba(199,146,234,0)}50%{box-shadow:4px 0 22px rgba(199,146,234,.45)}}
+.b-pgp.won{border-color:#7DEBFF;animation:tickB 3s ease-in-out infinite}
+.b-holy.won{border:2px solid transparent;background:linear-gradient(#10161D,#10161D) padding-box,conic-gradient(from var(--ba,0deg),#FFB020,#FF3355,#FFD88A,#FFB020) border-box;animation:holyfloat 3.5s ease-in-out infinite}
+@property --ba{syntax:"<angle>";initial-value:0deg;inherits:false}
+.b-holy.won{animation:holyfloat 3.5s ease-in-out infinite,holyspin 8s linear infinite}
+@keyframes holyspin{to{--ba:360deg}}
+@keyframes holyfloat{50%{transform:translateY(-4px)}}
+.holybar{margin-top:12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:#FFD88A;border:1px dashed rgba(255,176,32,.5);border-radius:10px;padding:10px 14px;line-height:1.9}
 /* compact cloud auth bar */
 .authbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line2);border-radius:12px;padding:10px 14px;background:rgba(255,255,255,.02);margin-bottom:8px}
 .authbar .mono{font-size:10.5px;letter-spacing:.12em;color:var(--accent2);white-space:nowrap}

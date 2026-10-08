@@ -71,6 +71,59 @@ Then the usual: `git add .` / `git commit -m "connect cloud"` / `git push`.
 - Supabase dashboard → **Table Editor → scores** → your rows appear
 - Leaderboard card lights up with real entries
 
+## 6. Banning (optional, real enforcement)
+
+Bans must run server-side — browsers can't be trusted with the secret key.
+
+**Step 1 — ban table + enforcement.** SQL Editor → New query → Run:
+
+```sql
+create table bans (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  reason text default '',
+  until timestamptz,
+  created_at timestamptz default now()
+);
+alter table bans enable row level security;
+-- No insert/update policies: only the secret key (server) can write.
+create policy "bans readable by all"
+  on bans for select to anon, authenticated using (true);
+
+-- Block banned users from posting scores:
+drop policy if exists "users insert own scores" on scores;
+create policy "users insert own scores, unbanned only"
+  on scores for insert to authenticated
+  with check (
+    auth.uid() = user_id
+    and not exists (
+      select 1 from bans
+      where bans.user_id = auth.uid()
+        and (bans.until is null or bans.until > now())
+    )
+  );
+```
+
+**Step 2 — deploy the function** (needs Supabase CLI + the secret key —
+run on your PC, never commit secrets):
+
+```powershell
+npm i -g supabase
+supabase login
+supabase link --project-ref xyzcompany   # your ref
+supabase secrets set ADMIN_SECRET="pick-a-long-random-string" --project-ref xyzcompany
+supabase functions deploy ban-user --project-ref xyzcompany
+```
+
+Function URL: `https://xyzcompany.supabase.co/functions/v1/ban-user`
+
+**Step 3 — use it.** Admin page → BAN HAMMER card → paste the function
+URL + the ADMIN_SECRET you set → user UUID → hours (0 = permanent) →
+BAN. UNBAN reverses it. The secret is typed per session, never stored.
+
+**Immediate alternative (no deploy):** Supabase dashboard → Table Editor
+→ `bans` → Insert row manually (user_id from auth.users, until or NULL).
+The RLS policy above enforces it instantly.
+
 ## Notes
 
 - RLS means: anyone can READ the board; only logged-in users can write

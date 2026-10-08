@@ -38,7 +38,16 @@ const QUIZ_VULN=[
   exp:"Missing flags invite theft and cross-site abuse. Secure + HttpOnly + SameSite, always on session cookies."},
  {code:'exec("ping " + host)  // host comes straight from the request',
   q:"What vulnerability is this?",opts:["Command Injection","XSS","CSRF","IDOR"],a:0,
-  exp:"Shell metacharacters break out. Never pass user input to a shell — use safe APIs."}
+  exp:"Shell metacharacters break out. Never pass user input to a shell — use safe APIs."},
+ {code:'parseXML(userXml)  // external entities left enabled',
+  q:"What vulnerability is this?",opts:["XXE","XSS","SQL Injection","CSRF"],a:0,
+  exp:"External entities read server files or pivot internally. Disable DTDs, use hardened parsers."},
+ {code:'redirect(req.query.next)  // destination never validated',
+  q:"What vulnerability is this?",opts:["Open Redirect","XSS","IDOR","SQL Injection"],a:0,
+  exp:"Victims trust your domain and land on evil. Allowlist URLs or use indirect references."},
+ {code:'if (token.alg === "none") skipVerify()  // client picks the algorithm',
+  q:"What flaw is this?",opts:["Auth Bypass","XSS","CSRF","IDOR"],a:0,
+  exp:"Never let the client choose 'none'. Enforce the expected algorithm server-side."}
 ];
 const QUIZ_SEC=[
  {q:"Which CIA-triad property guarantees data is unaltered?",opts:["Confidentiality","Integrity","Availability","Authenticity"],a:1,exp:"Integrity = unaltered. Hashes and signatures enforce it."},
@@ -102,7 +111,9 @@ const VULNLAB=[
  {t:"Authentication Flaws",v:"No rate limiting, verbose errors, weak lockout.",c:"Credential stuffing plus user enumeration at scale.",i:"Account takeover, one inbox at a time.",f:"Rate limits, generic errors, MFA, breach-corpus password checks."},
  {t:"Server-Side Request Forgery (SSRF)",v:"Server fetches arbitrary user-supplied URLs.",c:"Attacker pivots through the server into internal networks and cloud metadata.",i:"Internal service access, credential theft, cloud takeover.",f:"Allowlist destinations; block metadata/link-local IPs; no redirects to internal."},
  {t:"Security Misconfiguration",v:"Defaults, verbose banners, open debug endpoints left live.",c:"Attackers fingerprint and walk through open doors.",i:"Easy foothold with zero cleverness required.",f:"Harden baselines, strip banners, disable debug in production, review often."},
- {t:"Sensitive Data Exposure",v:"Secrets, keys or PII in repos, logs or URLs.",c:"Attackers harvest what you published yourself.",i:"Credential leaks, impersonation, full compromise.",f:"Vaults for secrets, redacted logs, pre-commit scanning, rotate on leak."}
+ {t:"Sensitive Data Exposure",v:"Secrets, keys or PII in repos, logs or URLs.",c:"Attackers harvest what you published yourself.",i:"Credential leaks, impersonation, full compromise.",f:"Vaults for secrets, redacted logs, pre-commit scanning, rotate on leak."},
+ {t:"XML External Entities (XXE)",v:"XML parsers resolving external entities.",c:"Malicious XML reads server files or pivots internally.",i:"File disclosure, internal network probing.",f:"Disable DTDs and external entities; use hardened parsers."},
+ {t:"Open Redirect",v:"Redirect destinations never validated.",c:"Victims trust your domain, land on an evil twin.",i:"Credential phishing wearing your logo.",f:"Allowlist URLs or use indirect reference maps."}
 ];
 function renderVulnLab(){
   const box=document.getElementById("quizBox"); if(!box) return;
@@ -214,7 +225,11 @@ const DAILY=[
  {q:"A VPN primarily gives you…",opts:["An encrypted tunnel to its server","Built-in antivirus","Faster internet","Anonymity from everyone"],a:0,exp:"Encrypted pipe to the VPN server — trust shifts, doesn't vanish."},
  {q:"Best ransomware defense?",opts:["Pay quickly","Offline tested backups","Longer passwords","Hide the server"],a:1,exp:"Tested, offline backups turn disaster into inconvenience."},
  {q:"Unpatched services are dangerous because…",opts:["They run slowly","Known exploits are public","They use RAM","They log too much"],a:1,exp:"Public exploits + scanner bots. Patch windows are race windows."},
- {q:"Pretexting targets…",opts:["Firewalls","Humans, with a story","Routers","Databases"],a:1,exp:"A convincing scenario beats a firewall. Verify identities."}
+ {q:"Pretexting targets…",opts:["Firewalls","Humans, with a story","Routers","Databases"],a:1,exp:"A convincing scenario beats a firewall. Verify identities."},
+ {q:"Stepping away from your desk?",opts:["Lock it (Win+L)","Leave it open","Monitor off is enough","Trust coworkers"],a:0,exp:"Seconds unattended is all it takes. Lock, always."},
+ {q:"Ransomware does what?",opts:["Speeds up the PC","Encrypts data for payment","Deletes cookies","Updates drivers"],a:1,exp:"Backups plus patching beat paying criminals."},
+ {q:"A honeypot is…",opts:["Sweet malware","A decoy system that detects attackers","A firewall brand","A type of VPN"],a:1,exp:"Fake targets, real alerts."},
+ {q:"The S in HTTPS stands for…",opts:["Speed","Secure (TLS)","Simple","Standard"],a:1,exp:"Encrypted HTTP — look for it before typing secrets."}
 ];
 function renderDaily(){
   const box=document.getElementById("dailyBox"); if(!box) return;
@@ -293,7 +308,7 @@ function renderDashboard(){
    `<div class="kv"><b>BADGES</b><span>${Object.keys(ACH_LABELS).filter(k=>a[k]).length} / ${Object.keys(ACH_LABELS).length}</span></div>
     <div class="kv"><b>SEALS</b><span>${["e1","e2","e3","e4"].filter(k=>s[k]).length} / 4</span></div>
     <div class="kv"><b>FLAGS</b><span>${f.length} / 5</span></div>
-    <div class="kv"><b>QUIZ BEST</b><span>vuln ${best.vuln||0} / 8 · sec ${best.sec||0} / 14</span></div>
+    <div class="kv"><b>QUIZ BEST</b><span>vuln ${best.vuln||0} / 11 · sec ${best.sec||0} / 18</span></div>
     <div class="kv"><b>STREAK</b><span>${st.streak||0} 🔥</span></div>
     <div class="kv"><b>VAULT</b><span>${vault}</span></div>`;
 }
@@ -302,8 +317,10 @@ function renderDashboard(){
 let SB=null, sbUser=null;
 function sbStatus(t){const el=document.getElementById("sbStatus");if(el)el.textContent="CLOUD: "+t;}
 async function sbInit(){
-  if(typeof HOLY_SUPABASE==="undefined"||!HOLY_SUPABASE.url||!HOLY_SUPABASE.key||typeof supabase==="undefined"){
+  if(typeof HOLY_SUPABASE==="undefined"||!HOLY_SUPABASE.url||!HOLY_SUPABASE.key){
     sbStatus("off — add project keys (config.js → HOLY_SUPABASE, see SUPABASE_SETUP.md).");return;}
+  if(typeof supabase==="undefined"){
+    sbStatus("library blocked — CDN unreachable (adblock/VPN?) — allow jsdelivr.");return;}
   try{
     SB=supabase.createClient(HOLY_SUPABASE.url,HOLY_SUPABASE.key);
     const {data}=await SB.auth.getSession();

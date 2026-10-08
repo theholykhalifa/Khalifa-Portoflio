@@ -54,10 +54,21 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
       <div class="ok" id="statLine"></div>
       <button id="xExport">EXPORT JSON</button>
       <button class="ghost" id="xQuiz">RESET QUIZ SCORES</button>
-      <button class="danger" id="xNuke">NUKE ALL LOCAL DATA</button></div>
+      <button class="danger" id="xNuke">NUKE ALL LOCAL DATA</button>
+      <input type="file" id="xFile" accept="application/json" style="margin-top:12px">
+      <button class="ghost" id="xImport">IMPORT RECORD JSON</button></div>
+  </div>
+  <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">CLOUD DATABASE // READ LIVE</div>
+    <div class="mono" id="cloudStatus" style="font-size:12px;margin:8px 0">CLOUD: …</div>
+    <div class="mono" id="cloudStats" style="font-size:12.5px;line-height:2"></div>
+    <div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A;margin-top:12px">LATEST SCORES</div>
+    <div class="mono" id="cloudFeed" style="font-size:12px;line-height:2"></div>
+    <div><button id="cRefresh">⟳ REFRESH</button></div>
+    <p style="font-size:12.5px;color:#7C8794">Read-only with the public key: you can watch signups and scores live. Deleting or editing other users' rows needs the secret key on a server — never paste it here. Row-level security blocks it by design.</p>
   </div>
   <p><a href="index.html">← BACK TO THE SITE</a></p>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script>
 var BADGES={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
@@ -78,7 +89,7 @@ function render(){
     return "<label class='row'><input type='checkbox' data-s='"+k+"'"+(s[k]?" checked":"")+"> "+SEALS[k]+"</label>"}).join("");
   var f=[];try{f=JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){}
   var best=store("holy_best");
-  document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(best.vuln||0)+"/8 · sec "+(best.sec||0)+"/14 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
+  document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(best.vuln||0)+"/11 · sec "+(best.sec||0)+"/18 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
 }
 document.getElementById("aGo").onclick=function(){
   var u=document.getElementById("aUser").value.trim(), p=document.getElementById("aPass").value;
@@ -105,7 +116,40 @@ document.getElementById("xNuke").onclick=function(){
   if(!confirm("Wipe ALL local demo data in this browser?"))return;
   ["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily","holy_vault","holy_rec"].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});
   render();};
+var SBN=null;
+async function cloudRefresh(){
+  var st=document.getElementById("cloudStatus"), stats=document.getElementById("cloudStats"), feed=document.getElementById("cloudFeed");
+  if(typeof HOLY_SUPABASE==="undefined"||!HOLY_SUPABASE.url||!HOLY_SUPABASE.key){
+    st.textContent="CLOUD: off — add project keys."; stats.textContent=""; feed.textContent=""; return;}
+  if(typeof supabase==="undefined"){
+    st.textContent="CLOUD: library blocked — allow jsdelivr CDN."; return;}
+  try{
+    if(!SBN) SBN=supabase.createClient(HOLY_SUPABASE.url,HOLY_SUPABASE.key);
+    st.textContent="CLOUD: connected — "+HOLY_SUPABASE.url;
+    var pc=await SBN.from("profiles").select("id",{count:"exact",head:true});
+    var sc=await SBN.from("scores").select("id",{count:"exact",head:true});
+    stats.textContent="operatives: "+(pc.count||0)+" · posted scores: "+(sc.count||0);
+    var r=await SBN.from("scores").select("callsign,game,score,total,created_at").order("created_at",{ascending:false}).limit(12);
+    if(r.error) throw r.error;
+    feed.innerHTML=r.data.length?r.data.map(function(x){
+      return new Date(x.created_at).toISOString().slice(5,16).replace("T"," ")+" · "+x.callsign+" · "+x.game+" "+x.score+"/"+x.total}).join("<br>"):"no scores yet.";
+  }catch(e){st.textContent="CLOUD ERROR: "+(e.message||"unreachable");}
+}
+function toast2(t){var s=document.getElementById("statLine"); if(s) s.textContent=t;}
+document.getElementById("cRefresh").onclick=cloudRefresh;
+document.getElementById("xImport").onclick=function(){
+  var f=document.getElementById("xFile").files[0]; if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){try{
+    var d=JSON.parse(rd.result);
+    ["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily"].forEach(function(k){
+      if(d[k]!==undefined) localStorage.setItem(k,JSON.stringify(d[k]));});
+    render(); toast2("Record imported.");
+  }catch(e){toast2("Invalid record file.");}};
+  rd.readAsText(f);
+};
 show();
+cloudRefresh();
 </script>
 </body>
 </html>

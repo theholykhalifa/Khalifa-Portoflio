@@ -393,6 +393,14 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 @keyframes holyspin{to{--ba:360deg}}
 @keyframes holyfloat{50%{transform:translateY(-4px)}}
 .holybar{margin-top:12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:#FFD88A;border:1px dashed rgba(255,176,32,.5);border-radius:10px;padding:10px 14px;line-height:1.9}
+/* badge svg icons + entrance */
+#trophyCase .bcard{animation:cardIn .45s backwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}}
+.bicon svg{width:30px;height:30px;display:block}
+.b-term .bicon{color:#9aa3af}.b-first .bicon{color:var(--accent)}
+.b-flagc .bicon{color:var(--accent)}.b-recon .bicon{color:#00ffa3}
+.b-root .bicon{color:#FFB020}.b-res .bicon{color:#c792ea}
+.b-pgp .bicon{color:#7DEBFF}.b-holy .bicon{color:#FFD88A}
 /* compact cloud auth bar */
 .authbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line2);border-radius:12px;padding:10px 14px;background:rgba(255,255,255,.02);margin-bottom:8px}
 .authbar .mono{font-size:10.5px;letter-spacing:.12em;color:var(--accent2);white-space:nowrap}

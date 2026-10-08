@@ -124,6 +124,28 @@ BAN. UNBAN reverses it. The secret is typed per session, never stored.
 → `bans` → Insert row manually (user_id from auth.users, until or NULL).
 The RLS policy above enforces it instantly.
 
+## 6. Achievements sync (one more table)
+
+SQL Editor → New query → Run:
+
+```sql
+create table achievements (
+  user_id uuid references auth.users(id) on delete cascade,
+  badge text not null,
+  earned_at timestamptz default now(),
+  primary key (user_id, badge)
+);
+alter table achievements enable row level security;
+create policy "achievements readable by all"
+  on achievements for select to anon, authenticated using (true);
+create policy "users insert own achievements"
+  on achievements for insert to authenticated with check (auth.uid() = user_id);
+create policy "users update own achievements"
+  on achievements for update to authenticated using (auth.uid() = user_id);
+```
+
+Badges earned while logged in now sync to the account automatically.
+
 ## Notes
 
 - RLS means: anyone can READ the board; only logged-in users can write

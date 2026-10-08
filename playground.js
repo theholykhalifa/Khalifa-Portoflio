@@ -23,18 +23,25 @@ function loadSbLib(){
 }
 const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
 const BADGE_META={
- term:{n:"TERMINAL ACCESS",d:"Ran your first terminal command. The rabbit hole opens.",i:"⌁",c:"b-term"},
- first:{n:"FIRST FLAG",d:"Captured your first hidden flag. Hunter confirmed.",i:"⚑",c:"b-first"},
- flagc:{n:"FLAG CAPTURED",d:"All 5 hidden flags. Nothing on this site hides from you.",i:"🏴",c:"b-flagc"},
- recon:{n:"RECON COMPLETE",d:"Five distinct terminal commands. Enumeration discipline.",i:"◉",c:"b-recon"},
- root:{n:"ROOT ACCESS",d:"Survived Operation Midnight and wore the gold.",i:"♛",c:"b-root"},
- researcher:{n:"SECURITY RESEARCHER",d:"Perfect quiz score. Publish-worthy instincts.",i:"🎓",c:"b-res"},
- pgp:{n:"PGP VERIFIED",d:"Copied or downloaded the PGP key. Encrypted and verified.",i:"🔐",c:"b-pgp"},
- holy:{n:"HOLY BADGE",d:"ULTIMATE — all flags, perfect quizzes, midnight survived, PGP verified. The complete operator.",i:"👑",c:"b-holy"}};
+ term:{n:"TERMINAL ACCESS",d:"Ran your first terminal command. The rabbit hole opens.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='16' rx='2'/><path d='M7 9l3 3-3 3M12 15h5'/></svg>",c:"b-term"},
+ first:{n:"FIRST FLAG",d:"Captured your first hidden flag. Hunter confirmed.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 21V4'/><path d='M5 4h12l-2 4 2 4H5'/></svg>",c:"b-first"},
+ flagc:{n:"FLAG CAPTURED",d:"All 5 hidden flags. Nothing on this site hides from you.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6z'/><path d='M9 12l2 2 4-4'/></svg>",c:"b-flagc"},
+ recon:{n:"RECON COMPLETE",d:"Five distinct terminal commands. Enumeration discipline.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='7'/><circle cx='12' cy='12' r='1.5' fill='currentColor'/><path d='M12 2v3M12 19v3M2 12h3M19 12h3'/></svg>",c:"b-recon"},
+ root:{n:"ROOT ACCESS",d:"Survived Operation Midnight and wore the gold.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 18l1.2-9L9 13l3-8 3 8 4.8-4L21 18z'/><path d='M4 21h16'/></svg>",c:"b-root"},
+ researcher:{n:"SECURITY RESEARCHER",d:"Perfect quiz score. Publish-worthy instincts.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 3h6M10 3v6l-5.2 9.4A2 2 0 006.6 21h10.8a2 2 0 001.8-2.6L14 9V3'/><path d='M7.5 15h9'/></svg>",c:"b-res"},
+ pgp:{n:"PGP VERIFIED",d:"Copied or downloaded the PGP key. Encrypted and verified.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><rect x='5' y='10' width='14' height='10' rx='2'/><path d='M8 10V7a4 4 0 018 0v3'/></svg>",c:"b-pgp"},
+ holy:{n:"HOLY BADGE",d:"ULTIMATE — all flags, perfect quizzes, midnight survived, PGP verified. The complete operator.",i:"<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 18l1.2-9L9 13l3-8 3 8 4.8-4L21 18z'/><path d='M4 21h16'/><circle cx='12' cy='10' r='1.4' fill='currentColor'/></svg>",c:"b-holy"}};
 function getAch(){try{return JSON.parse(localStorage.getItem("holy_ach")||"{}")}catch(e){return{}}}
 function unlockAch(k,label){const a=getAch();if(a[k])return;a[k]=1;
   try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
-  toast("🏅 ACHIEVEMENT — "+label);renderTrophies();}
+  toast("🏅 ACHIEVEMENT — "+label);renderTrophies();syncAch(k);}
+/* achievements → cloud (per-account sync, best-effort) */
+async function syncAch(k){
+  try{
+    if(!SB||!sbUser) return;
+    await SB.from("achievements").upsert({user_id:sbUser.id,badge:k},{onConflict:"user_id,badge"});
+  }catch(e){}
+}
 function seals(){try{return JSON.parse(localStorage.getItem("holy_seals")||"{}")}catch(e){return{}}}
 function foundFlags(){try{return JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){return[]}}
 
@@ -335,9 +342,9 @@ function renderTrophies(){
   evaluateHoly();
   const el=document.getElementById("trophyCase"); if(!el) return;
   const a=getAch();
-  el.innerHTML='<div class="bgrid">'+Object.keys(BADGE_META).map(k=>{
+  el.innerHTML='<div class="bgrid">'+Object.keys(BADGE_META).map((k,ix)=>{
     const m=BADGE_META[k], won=!!a[k];
-    return `<div class="bcard ${m.c} ${won?"won":""}"><div class="bicon">${m.i}</div><div><b>${m.n}</b><p>${m.d}</p></div><span class="bstate">${won?"◉":"○"}</span></div>`;}).join("")+'</div>'+holyProgress();
+    return `<div class="bcard ${m.c} ${won?"won":""}" style="animation-delay:${ix*70}ms"><div class="bicon">${m.i}</div><div><b>${m.n}</b><p>${m.d}</p></div><span class="bstate">${won?"◉":"○"}</span></div>`;}).join("")+'</div>'+holyProgress();
 }
 function holyProgress(){
   const a=getAch(), f=foundFlags(); let best={}, mid=0;
@@ -397,6 +404,7 @@ function sbPaint(){
   const on=!!sbUser;
   document.getElementById("sbForm").hidden=on;
   document.getElementById("sbOut").hidden=!on;
+  renderPersonal();}
   sbStatus(on?("online as "+(sbUser.user_metadata&&sbUser.user_metadata.callsign?sbUser.user_metadata.callsign:sbUser.email)):"logged out.");
 }
 async function sbCallsign(){
@@ -431,7 +439,34 @@ async function loadBoard(game){
   }catch(e){box.textContent="Board unreadable: "+(e.message||"check RLS policies");}
 }
 
-/* ---------- boot ---------- */
+/* personal board — the logged-in operative, from the cloud */
+async function renderPersonal(){
+  const box=document.getElementById("personalBox"); if(!box) return;
+  if(!SB||!sbUser){box.innerHTML="<span style='color:var(--muted)'>Log in above to see your board.</span>";return;}
+  box.textContent="Loading your record…";
+  try{
+    const call=await sbCallsign();
+    const prof=await SB.from("profiles").select("created_at").eq("id",sbUser.id).single();
+    const sc=await SB.from("scores").select("game,score,total").eq("user_id",sbUser.id);
+    const ac=await SB.from("achievements").select("badge").eq("user_id",sbUser.id);
+    let best={sec:0,vuln:0}, bt={sec:0,vuln:0};
+    (sc.data||[]).forEach(r=>{if(r.score>(best[r.game]||0)){best[r.game]=r.score;bt[r.game]=r.total;}});
+    let rank="—";
+    try{
+      const all=await SB.from("scores").select("user_id,score").eq("game","sec").limit(500);
+      const mx={}; (all.data||[]).forEach(r=>{mx[r.user_id]=Math.max(mx[r.user_id]||0,r.score);});
+      const mine=mx[sbUser.id]||0;
+      rank="#"+(Object.values(mx).filter(v=>v>mine).length+1)+" of "+Object.keys(mx).length;
+    }catch(e){}
+    box.innerHTML=
+     `<div class="kv"><b>OPERATIVE</b><span>${escapeHtml(call)}</span></div>
+      <div class="kv"><b>ENLISTED</b><span>${prof.data?new Date(prof.data.created_at).toISOString().slice(0,10):"—"}</span></div>
+      <div class="kv"><b>BEST SEC</b><span>${best.sec}/${bt.sec||QUIZ_SEC.length}</span></div>
+      <div class="kv"><b>BEST VULN</b><span>${best.vuln}/${bt.vuln||QUIZ_VULN.length}</span></div>
+      <div class="kv"><b>SEC RANK</b><span>${rank}</span></div>
+      <div class="kv"><b>CLOUD BADGES</b><span>${(ac.data||[]).length} synced</span></div>`;
+  }catch(e){box.textContent="Board unreadable — check connection.";}
+}
 document.addEventListener("DOMContentLoaded",()=>{
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vis");io.unobserve(e.target);}}),{threshold:.12});
   $$(".reveal").forEach(el=>io.observe(el));
@@ -447,7 +482,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   tL.onclick=()=>{paint("lab");renderVulnLab();};
   safe(()=>quizStart(QUIZ_VULN));
   safe(()=>{$$("#toolTabs .btn").forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));});
-  safe(()=>renderTool("hash")); safe(()=>renderDaily()); safe(()=>renderCtf());
+  safe(()=>renderTool("hash")); safe(()=>renderDaily()); safe(()=>renderCtf()); safe(()=>renderPersonal());
   safe(()=>renderTrophies()); safe(()=>renderDashboard());
   safe(()=>sbInit());
   $("#boardSec").onclick=()=>loadBoard("sec");

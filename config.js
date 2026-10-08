@@ -331,7 +331,7 @@ const HOLY_RESEARCH = [
 ];
 
 const HOLY_SOCIALS = {
-  github: "https://github.com/",
+  github: "https://github.com/theholykhalifa",
   linkedin: "https://www.linkedin.com/",
   email: "mailto:hello@example.com",
   emailLabel: "hello@example.com",

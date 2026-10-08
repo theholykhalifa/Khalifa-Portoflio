@@ -438,9 +438,27 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .pavatar .avimg{border-radius:50%}
 .avpick .avimg{width:72px;height:72px;margin:0 auto;border-radius:12px}
 /* packet defender */
-#gameCv{width:100%;height:auto;border:1px solid var(--line2);border-radius:12px;background:#04070b;touch-action:none;cursor:crosshair}
+#gameCv{width:100%;max-width:560px;margin:0 auto;display:block;height:auto;border:1px solid var(--line2);border-radius:12px;background:#04070b;touch-action:none;cursor:crosshair}
 #gameCv.hit{animation:gameHit .3s}
 @keyframes gameHit{50%{border-color:var(--crit);box-shadow:0 0 26px rgba(255,59,48,.5)}}
+/* compact live board + animated top 3 */
+.board-top{padding:14px 16px}
+.board-top .btnrow .btn{padding:8px 14px;font-size:11px}
+.board{display:grid}
+.brow{display:flex;gap:12px;align-items:baseline;font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:8px}
+.brow span:last-child{margin-left:auto;color:var(--muted)}
+.brow.r1,.brow.r2,.brow.r3{font-weight:800}
+.brow.r1 span,.brow.r2 span,.brow.r3 span{color:inherit}
+.brow.r1{background:linear-gradient(90deg,#FFB020,#FFF3C4,#FFB020);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 3.5s linear infinite}
+.brow.r2{background:linear-gradient(90deg,#9aa3af,#ffffff,#9aa3af);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 4s linear infinite}
+.brow.r3{background:linear-gradient(90deg,#cd7f32,#ffd9a8,#cd7f32);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 4.5s linear infinite}
+@keyframes sheen{to{background-position:220% center}}
+/* hero split + board avatars */
+.hero-split{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:start}
+@media(max-width:1020px){.hero-split{grid-template-columns:1fr}}
+.bav{display:inline-flex;width:22px;height:22px;border-radius:50%;overflow:hidden;vertical-align:-5px;background:#0a0e13;flex:none}
+.bav svg,.bav img{width:22px;height:22px;display:block;object-fit:cover}
+.brow{align-items:center}
 /* toolkit + challenge */
 .tfield{width:100%;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:13px;margin:8px 0}
 textarea.tfield{min-height:90px;resize:vertical}

@@ -461,10 +461,14 @@ async function loadBoard(game){
   if(!SB){box.textContent="Connect a cloud project to light up this board.";return;}
   box.textContent="Loading…";
   try{
-    const r=await SB.from("scores").select("callsign,score,total").eq("game",boardGame).order("score",{ascending:false}).limit(10);
+    const r=await SB.from("scores").select("user_id,callsign,score,total").eq("game",boardGame).order("score",{ascending:false}).limit(10);
     if(r.error) throw r.error;
     if(!r.data.length){box.textContent="No scores yet — be the first legend.";return;}
-    box.innerHTML=r.data.map((row,i)=>`<div>${String(i+1).padStart(2,"0")}. ${escapeHtml(row.callsign)} — ${row.score}/${row.total}</div>`).join("");
+    let avm={};
+    try{const pr=await SB.from("profiles").select("id,avatar");(pr.data||[]).forEach(x=>avm[x.id]=x.avatar||0);}catch(e){}
+    box.innerHTML=r.data.map((row,i)=>{
+      const cls=i===0?"r1":(i===1?"r2":(i===2?"r3":""));
+      return `<div class="brow ${cls}"><span>${String(i+1).padStart(2,"0")}</span><span class="bav">${avatarSVG(avm[row.user_id]||0,22)}</span><span>${escapeHtml(row.callsign)}</span><span>${row.score}/${row.total}</span></div>`;}).join("");
   }catch(e){box.textContent="Board unreadable: "+(e.message||"check RLS policies");}
 }
 
@@ -571,7 +575,7 @@ function gameInput(){
   cv.dataset.wired="1";
   const move=e=>{if(!G)return;const r=cv.getBoundingClientRect();
     const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-    G.px=Math.max(30,Math.min(G.W-30,x/G.W*640));};
+    G.px=Math.max(30,Math.min(G.W-30,x/r.width*G.W));};
   cv.addEventListener("mousemove",move);
   cv.addEventListener("touchmove",e=>{e.preventDefault();move(e);},{passive:false});
   addEventListener("keydown",e=>{
@@ -605,6 +609,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#boardSec").onclick=()=>loadBoard("sec");
   $("#boardVuln").onclick=()=>loadBoard("vuln");
   $("#boardGo").onclick=()=>loadBoard();
+function localAv(){try{const p=JSON.parse(localStorage.getItem("holy_profile")||"null");return (p&&p.avatar)||0}catch(e){return 0}}
   $("#sbUp").onclick=async ()=>{
     if(!SB){toast("Cloud off — add project keys first.");return;}
     const call=document.getElementById("sbCall").value.replace(/[<>&"]/g,"").trim().slice(0,20);
@@ -615,7 +620,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       const r=await SB.auth.signUp({email:em,password:pw,options:{data:{callsign:call}}});
       if(r.error) throw r.error;
       if(r.data.session){sbUser=r.data.session.user;
-        const up=await SB.from("profiles").upsert({id:sbUser.id,callsign:call});
+        const up=await SB.from("profiles").upsert({id:sbUser.id,callsign:call,avatar:localAv()});
         if(up.error) throw up.error;
         sbPaint(); toast("◉ ACCOUNT LIVE — welcome, "+call);
       } else {sbStatus("account created — confirm via inbox (or disable confirm-email), then LOG IN.");toast("Check your inbox, then log in.");}
@@ -627,6 +632,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       const r=await SB.auth.signInWithPassword({email:document.getElementById("sbEmail").value.trim(),password:document.getElementById("sbPass").value});
       if(r.error) throw r.error;
       sbUser=r.data.user; sbPaint(); loadBoard(); toast("◉ LOGGED IN");
+      try{await SB.from("profiles").update({avatar:localAv()}).eq("id",sbUser.id);}catch(e){}
     }catch(e){toast("Login failed: "+(e.message||"unknown"));}
   };
   $("#sbOut").onclick=async ()=>{if(SB) await SB.auth.signOut(); sbUser=null; sbPaint();};

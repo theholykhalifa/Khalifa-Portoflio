@@ -6,7 +6,10 @@ const RESERVED=["holy","holysec","khalifa","administrator","admin","root","syste
 const ACHN={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
 function toast(t){const el=document.getElementById("toast");if(!el)return;el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600);}
 function getP(){try{return JSON.parse(localStorage.getItem("holy_profile")||"null")}catch(e){return null}}
-function isAdmin(){try{return sessionStorage.getItem("holy_admin")==="1"}catch(e){return false}}
+function isAdmin(){try{
+  if(sessionStorage.getItem("holy_admin")==="1")return true;
+  return localStorage.getItem("holy_owner")==="1";
+}catch(e){return false}}
 function num(o){return (o&&typeof o==="object")?{best:o.best||0,plays:o.plays||0}:{best:o||0,plays:0};}
 let newAv=0, SBC=null;
 async function sbClient(){

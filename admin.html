@@ -26,6 +26,14 @@ label.row input{width:auto;margin:0}
 .ok{color:#00ffa3;font-family:ui-monospace,monospace;font-size:12.5px;min-height:20px}
 .warn{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.4);border-radius:10px;padding:14px;font-size:13.5px;color:#FFD88A;margin:18px 0}
 a{color:#FFD88A}
+/* admin tabs + overview */
+.tabbar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px;position:sticky;top:0;background:#05070A;padding:10px 0;z-index:5}
+.tabbar button{background:none;border:1px solid rgba(255,255,255,.16);color:#c6cfd8;border-radius:99px;padding:8px 16px;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.1em;cursor:pointer;margin:0}
+.tabbar button.on{background:#FFB020;border-color:#FFB020;color:#0a0800;font-weight:800}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stat{background:#0a0e13;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;text-align:center}
+.stat b{display:block;font-size:24px;color:#FFD88A}
+.stat span{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.16em;color:#7C8794}
 pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px;font-size:11.5px;overflow-x:auto;white-space:pre-wrap}
 </style>
 </head>
@@ -50,7 +58,8 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
     <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">MIDNIGHT SEALS</div><div id="sealList"></div>
       <button id="sApply">APPLY SEALS</button>
       <button class="ghost" id="vOpen">UNLOCK VAULT</button>
-      <button class="ghost" id="vLock">RELOCK VAULT</button></div>
+      <button class="ghost" id="vLock">RELOCK VAULT</button>
+      <button class="ghost" id="oUnlock">👑 UNLOCK OWNER HERO (THIS BROWSER)</button></div>
     <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">RECORD</div>
       <div class="ok" id="statLine"></div>
       <button id="xExport">EXPORT JSON</button>
@@ -81,6 +90,10 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
     <button id="banGo" class="danger">BAN →</button>
     <button id="unbanGo" class="ghost">UNBAN</button>
     <div class="ok" id="banMsg"></div>
+    <div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A;margin-top:14px">UUID LOOKUP BY CALLSIGN</div>
+    <input id="luCall" placeholder="callsign">
+    <div><button class="ghost" id="luGo">LOOKUP →</button> <button class="ghost" id="luCopy">COPY UUID → BAN FIELD</button></div>
+    <div class="ok" id="luOut"></div>
   </div>
   <p><a href="index.html">← BACK TO THE SITE</a></p>
 </div>
@@ -105,6 +118,16 @@ function render(){
   var f=[];try{f=JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){}
   var best=store("holy_best");
   document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(function(){var v=best.vuln;return(v&&typeof v==="object")?v.best:(v||0)}())+"/14 · sec "+(function(){var v=best.sec;return(v&&typeof v==="object")?v.best:(v||0)}())+"/22 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
+  var og=document.getElementById("ovGrid");
+  if(og){var aa=store("holy_ach"),ss=store("holy_seals");
+    var nb=Object.keys(BADGES).filter(function(k){return aa[k]}).length;
+    var ns=["e1","e2","e3","e4"].filter(function(k){return ss[k]}).length;
+    var vo="?",po="—";
+    try{vo=localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){}
+    try{var pp=JSON.parse(localStorage.getItem("holy_profile")||"{}");po=pp.callsign?("◉ "+pp.callsign):"— none —"}catch(e){}
+    og.innerHTML=[["BADGES",nb+"/8"],["SEALS",ns+"/4"],["FLAGS",f.length+"/5"],["VAULT",vo]].map(function(x){
+      return `<div class="stat"><b>${x[1]}</b><span>${x[0]}</span>`}).join("");
+    document.getElementById("ovCall").textContent=po;}
 }
 document.getElementById("aGo").onclick=function(){
   if(lockUntil>Date.now()){lockTick();return;}
@@ -147,6 +170,7 @@ document.getElementById("sApply").onclick=function(){
   store("holy_seals",s);render();};
 document.getElementById("vOpen").onclick=function(){try{localStorage.setItem("holy_vault","1")}catch(e){}render();};
 document.getElementById("vLock").onclick=function(){try{localStorage.removeItem("holy_vault")}catch(e){}render();};
+document.getElementById("oUnlock").onclick=function(){try{localStorage.setItem("holy_owner","1")}catch(e){}toast2("◉ OWNER hero unlocked on this browser.");};
 document.getElementById("xQuiz").onclick=function(){store("holy_best",{});try{localStorage.removeItem("holy_daily")}catch(e){}render();};
 document.getElementById("xExport").onclick=function(){
   var d={};["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily"].forEach(function(k){d[k]=store(k);});
@@ -191,6 +215,44 @@ async function cloudRefresh(){
       return new Date(x.created_at).toISOString().slice(5,16).replace("T"," ")+" · "+x.callsign+" · "+x.game+" "+x.score+"/"+x.total}).join("<br>"):"no scores yet.";
   }catch(e){st.textContent="CLOUD ERROR: "+(e.message||"unreachable");}
 }
+/* tabbed console: groups cards, adds overview + callsign override */
+const TABDEF=[["overview","◉ OVERVIEW"],["identity","OPERATIVE"],["badges","BADGES"],["seals","SEALS + VAULT"],["record","RECORD"],["cloud","CLOUD"],["bans","BANS"]];
+(function buildTabs(){
+  const panel=document.getElementById("panel");
+  const cards=[...panel.querySelectorAll(":scope > .card")];
+  const bar=document.createElement("div"); bar.className="tabbar";
+  TABDEF.forEach(([k,label],i)=>{
+    const b=document.createElement("button");
+    b.textContent=label; b.dataset.tab=k;
+    if(i===0)b.classList.add("on");
+    b.onclick=()=>showTab(k);
+    bar.appendChild(b);
+  });
+  panel.insertBefore(bar,panel.firstChild);
+  const panes={};
+  TABDEF.forEach(([k])=>{
+    const d=document.createElement("div"); d.dataset.pane=k;
+    if(k!=="overview")d.hidden=true;
+    panel.appendChild(d); panes[k]=d;
+  });
+  const map={identity:[0],badges:[1],seals:[2],record:[3],cloud:[4],bans:[5]};
+  Object.keys(map).forEach(k=>map[k].forEach(ix=>{if(cards[ix])panes[k].appendChild(cards[ix]);}));
+  panes.overview.innerHTML=`<div class="statgrid" id="ovGrid"></div>
+    <div class="card" style="margin:12px 0 0"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">OPERATIVE CALLSIGN (LOCAL OVERRIDE)</div>
+    <div class="mono" id="ovCall" style="font-size:13px;margin:6px 0"></div>
+    <input id="ovCallIn" placeholder="set callsign…" maxlength="20">
+    <button id="ovCallSet">SET CALLSIGN</button></div>`;
+  document.getElementById("ovCallSet").onclick=()=>{
+    const v=document.getElementById("ovCallIn").value.replace(/[<>&"]/g,"").trim().slice(0,20);
+    if(!/^[A-Za-z0-9_-]{2,20}$/.test(v)){toast2("2-20 chars.");return;}
+    try{const p=JSON.parse(localStorage.getItem("holy_profile")||"{}");p.callsign=v;
+      if(!p.since)p.since=Date.now();localStorage.setItem("holy_profile",JSON.stringify(p));}catch(e){}
+    render();toast2("Callsign set → "+v);};
+})();
+function showTab(k){
+  document.querySelectorAll("#panel .tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.tab===k));
+  document.querySelectorAll("#panel [data-pane]").forEach(p=>p.hidden=p.dataset.pane!==k);
+}
 function toast2(t){var s=document.getElementById("statLine"); if(s) s.textContent=t;}
 document.getElementById("cRefresh").onclick=cloudRefresh;
 document.getElementById("xImport").onclick=function(){
@@ -232,6 +294,24 @@ async function banAct(action){
 }
 document.getElementById("banGo").onclick=function(){banAct("ban");};
 document.getElementById("unbanGo").onclick=function(){banAct("unban");};
+document.getElementById("luGo").onclick=async ()=>{
+  const out=document.getElementById("luOut"), v=document.getElementById("luCall").value.trim();
+  out.dataset.uuid="";
+  if(!SBN){out.textContent="Cloud off — refresh cloud first.";return;}
+  try{const r=await SBN.from("profiles").select("id,callsign").ilike("callsign",v).limit(5);
+    if(r.error) throw r.error;
+    out.innerHTML=r.data.length?r.data.map(x=>escapeHtml(x.callsign)+" → "+x.id).join("<br>"):"no match.";
+    if(r.data[0]) out.dataset.uuid=r.data[0].id;
+  }catch(e){out.textContent="Lookup failed.";}
+};
+document.getElementById("luCopy").onclick=()=>{
+  const u=document.getElementById("luOut").dataset.uuid||"";
+  if(!u){toast2("Lookup first.");return;}
+  document.getElementById("banId").value=u;
+  if(navigator.clipboard) navigator.clipboard.writeText(u).catch(()=>{});
+  toast2("UUID loaded into ban field.");
+};
+function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 show();
 cloudRefresh();
 </script>

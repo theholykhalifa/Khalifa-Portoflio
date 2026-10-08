@@ -4,14 +4,6 @@
 "use strict";
 const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>[...c.querySelectorAll(s)];
 function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function fillProfileChip(){
-  const chip=document.getElementById("pchip"); if(!chip) return;
-  let p=null; try{p=JSON.parse(localStorage.getItem("holy_profile")||"null")}catch(e){}
-  if(p&&p.callsign){
-    document.getElementById("pavatar").innerHTML=avatarSVG(p.avatar||0,26);
-    document.getElementById("pname").textContent=p.callsign;
-  }
-}
 function toast(t){const el=document.getElementById("toast");if(!el)return;el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600);}
 function safe(fn){try{fn()}catch(e){if(window.console)console.error(e);}}
 /* lazy Supabase loader — never blocks page render */
@@ -609,7 +601,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   safe(()=>renderTool("hash")); safe(()=>renderDaily()); safe(()=>renderCtf()); safe(()=>renderPersonal());
   safe(()=>renderTrophies()); safe(()=>renderDashboard());
   safe(()=>{gameInput();const gb=document.getElementById("gameBtn");if(gb)gb.onclick=toggleGame;});
-  safe(()=>sbInit()); fillProfileChip();
+  safe(()=>sbInit());
   $("#boardSec").onclick=()=>loadBoard("sec");
   $("#boardVuln").onclick=()=>loadBoard("vuln");
   $("#boardGo").onclick=()=>loadBoard();

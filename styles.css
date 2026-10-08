@@ -412,7 +412,13 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .authbar [hidden]{display:none!important}
 /* header profile chip */
 .pchip{display:flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--line2);border-radius:99px;padding:5px 12px 5px 6px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text);white-space:nowrap}
+.pchip{background:rgba(255,255,255,.02);cursor:pointer;color:var(--text)}
 .pchip:hover{border-color:var(--accent)}
+/* header profile dropdown */
+.pdrop{position:fixed;top:64px;right:16px;z-index:400;width:min(380px,93vw);max-height:82vh;overflow-y:auto;background:var(--bg2);border:1px solid rgba(255,51,85,.35);border-radius:16px;padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.pdrop .avgrid{grid-template-columns:repeat(3,1fr)}
+.pdrop .avpick svg{width:52px;height:52px}
+.pdrop .avpick .avimg{width:52px;height:52px}
 .pavatar{width:26px;height:26px;border-radius:50%;overflow:hidden;background:#0a0e13;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:12px}
 .pavatar svg{width:26px;height:26px;display:block}
 @media(max-width:560px){.pchip #pname{display:none}.pchip{padding:5px 6px}}

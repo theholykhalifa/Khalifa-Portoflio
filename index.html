@@ -246,7 +246,13 @@
   <div class="sec-label">06 // THE LAB</div>
   <h2 class="head">AUTHORIZED<br>EXPERIMENTS</h2>
   <p class="sub">Each card opens a full case study: objective, environment, tools, methodology, challenge, approach, result, lessons, improvements. Every lab carries an <b>AUTHORIZED LAB / EDUCATIONAL ENVIRONMENT</b> badge.</p>
-  <div class="lab-grid" id="labGrid"></div>
+    <div class="lab-grid" id="labGrid"></div>
+  <div class="card reveal" style="margin-top:18px;border-color:rgba(255,176,32,.4)">
+    <div class="mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--warn)">TRAINING GROUND // SEPARATE ARENA</div>
+    <h3 style="margin:8px 0;font-size:22px">Quizzes, toolkit, challenges &amp; your dashboard live here now.</h3>
+    <p style="color:var(--muted);font-size:14px">Hands-on arena: spot-the-vuln, security quiz, browser-local utilities, daily challenge, mini-CTF, achievements and service record.</p>
+    <div class="btnrow"><a class="btn btn-p" href="playground.html">ENTER TRAINING GROUND →</a></div>
+  </div>
 </div></section>
 
 <!-- FIELD NOTES -->
@@ -299,17 +305,7 @@
 </div></section>
 
 <!-- MINDSET -->
-<!-- PROVE IT -->
-<section id="quiz"><div class="wrap">
-  <div class="sec-label">PROVE IT // INTERACTIVE</div>
-  <h2 class="head">TEST YOUR<br>INSTINCTS</h2>
-  <p class="sub">Two drills — spot the vulnerability, then take the security quiz. Wrong answers teach too. Found a bug in a drill? <a href="disclosure.html" style="color:var(--accent2)">report it →</a></p>
-  <div class="btnrow" style="margin-bottom:20px">
-    <button class="btn btn-p" id="tabVuln">SPOT THE VULN</button>
-    <button class="btn btn-g" id="tabSec">SECURITY QUIZ</button>
-  </div>
-  <div class="card reveal"><div id="quizBox"></div></div>
-</div></section>
+
 
 <section><div class="wrap mind" id="mind"></div></section>
 
@@ -332,59 +328,11 @@
   <div class="btnrow"><button class="btn btn-g" id="resumeBtn2">⤓ DOWNLOAD SECURITY PROFILE</button></div>
 </div></section>
 
-<!-- TOOLKIT -->
-<section id="toolkit"><div class="wrap">
-  <div class="sec-label">CYBERSECURITY TOOLKIT // 100% BROWSER-LOCAL</div>
-  <h2 class="head">POCKET<br>UTILITIES</h2>
-  <p class="sub">Harmless utilities running entirely in your browser — nothing leaves this page. Demos and learning aids, not operational tooling.</p>
-  <div class="btnrow" id="toolTabs" style="margin-bottom:18px">
-    <button class="btn btn-p" data-tool="hash">HASH</button>
-    <button class="btn btn-g" data-tool="b64">BASE64</button>
-    <button class="btn btn-g" data-tool="url">URL</button>
-    <button class="btn btn-g" data-tool="jwt">JWT</button>
-    <button class="btn btn-g" data-tool="time">TIME</button>
-    <button class="btn btn-g" data-tool="regex">REGEX</button>
-  </div>
-  <div class="card reveal"><div id="toolBox"></div></div>
-</div></section>
 
-<!-- CHALLENGE BOARD -->
-<section id="challenge"><div class="wrap">
-  <div class="sec-label">CHALLENGE BOARD // DAILY + MINI-CTF</div>
-  <h2 class="head">TRAIN<br>DAILY</h2>
-  <p class="sub">A fresh question every day plus a 5-minute guided CTF for recruiters and the curious. Progress lives in this browser only.</p>
-  <div class="lab-grid">
-    <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">DAILY CHALLENGE</div><div id="dailyBox" style="margin-top:10px"></div></div>
-    <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">MINI-CTF // ~5 MINUTES</div><div id="ctfBox" style="margin-top:10px"></div></div>
-    <div class="card reveal" style="grid-column:1/-1"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">ACHIEVEMENTS // TROPHY CASE</div><div id="trophyCase" style="margin-top:10px"></div>
-    <p class="mono" style="font-size:11px;color:var(--muted)">Earn them: terminal `achievements` shows progress. Flags, quizzes, midnight and PGP all count.</p></div>
-  </div>
-</div></section>
 
-<!-- DASHBOARD -->
-<section id="dashboard"><div class="wrap">
-  <div class="sec-label">OPERATIVE DASHBOARD // THIS BROWSER ONLY</div>
-  <h2 class="head">YOUR<br>SERVICE RECORD</h2>
-  <p class="sub">Local operative profile — badges, seals, flags and scores stored <b>only in this browser</b>. No server, no real account; a new browser starts fresh.</p>
-  <div class="lab-grid">
-    <div class="card reveal">
-      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">OPERATIVE</div>
-      <div id="dashProfile" style="margin-top:10px"></div>
-      <div id="callsignRow" style="margin-top:12px">
-        <input class="tfield" id="callsignIn" placeholder="callsign… (e.g. ghost)" maxlength="24" autocomplete="off" spellcheck="false">
-        <div class="btnrow" style="margin-top:10px"><button class="btn btn-p" id="callsignBtn">ENLIST →</button></div>
-      </div>
-    </div>
-    <div class="card reveal">
-      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">RECORD</div>
-      <div id="dashStats" style="margin-top:10px"></div>
-      <div class="btnrow" style="margin-top:12px">
-        <button class="btn btn-g" id="dashExport">EXPORT JSON</button>
-        <button class="btn btn-t" id="dashReset">RESET RECORD</button>
-      </div>
-    </div>
-  </div>
-</div></section>
+
+
+
 
 <!-- CONTACT -->
 <section id="contact" style="background:var(--bg2);border-top:1px solid var(--line2)"><div class="wrap">

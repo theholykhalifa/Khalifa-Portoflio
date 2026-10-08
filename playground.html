@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HOLY // Training Ground | Quizzes, Toolkit & Challenges</title>
+<meta name="description" content="Holy's interactive training ground: vulnerability quizzes, browser-local security toolkit, daily challenges, mini-CTF and operative dashboard.">
+<meta name="theme-color" content="#05070A">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#quiz">Skip to content</a>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-in">
+    <a class="brand" href="index.html">HOLY <b>//</b> <span>TRAINING GROUND</span></a>
+    <div class="links" role="navigation">
+      <a href="#quiz"><em>01</em>QUIZ</a>
+      <a href="#toolkit"><em>02</em>TOOLKIT</a>
+      <a href="#challenge"><em>03</em>CHALLENGE</a>
+      <a href="#dashboard"><em>04</em>DASHBOARD</a>
+      <a href="index.html"><em>05</em>HOME</a>
+    </div>
+    <div class="status"><span class="dot"></span>SYSTEM ONLINE</div>
+    <button class="burger" id="burger" aria-label="Open menu">☰</button>
+  </div>
+</nav>
+
+<div class="mmenu" id="mmenu" role="dialog" aria-label="Menu">
+  <div class="mmenu-top">
+    <span class="mono" style="letter-spacing:.2em;font-size:12px;color:var(--accent)">HOLY // NAV</span>
+    <button class="xbtn" id="mclose" aria-label="Close menu">✕</button>
+  </div>
+  <div style="height:20px"></div>
+  <a class="big" href="#quiz"><small>01</small>QUIZ</a>
+  <a class="big" href="#toolkit"><small>02</small>TOOLKIT</a>
+  <a class="big" href="#challenge"><small>03</small>CHALLENGE</a>
+  <a class="big" href="#dashboard"><small>04</small>DASHBOARD</a>
+  <a class="big" href="index.html"><small>05</small>HOME</a>
+</div>
+
+<header class="hero wrap" id="home" style="padding-bottom:30px">
+  <span class="kicker">TRAINING GROUND // INTERACTIVE ARENA</span>
+  <h1 class="giant" style="font-size:clamp(48px,9vw,110px)">TRAIN<br>HARD<span class="outline">.</span></h1>
+  <p class="lead">Quizzes, utilities, daily challenges and your service record — everything hands-on lives here. The main portfolio stays clean at <a href="index.html" style="color:var(--accent2)">home →</a></p>
+</header>
+
+<main>
+<section id="quiz"><div class="wrap">
+  <div class="sec-label">PROVE IT // INTERACTIVE</div>
+  <h2 class="head">TEST YOUR<br>INSTINCTS</h2>
+  <p class="sub">Two drills plus the concept lab — wrong answers teach too. Found a bug in a drill? <a href="disclosure.html" style="color:var(--accent2)">report it →</a></p>
+  <div class="btnrow" style="margin-bottom:20px">
+    <button class="btn btn-p" id="tabVuln">SPOT THE VULN</button>
+    <button class="btn btn-g" id="tabSec">SECURITY QUIZ</button>
+    <button class="btn btn-g" id="tabLab">VULN LAB</button>
+  </div>
+  <div class="card reveal"><div id="quizBox"></div></div>
+</div></section>
+
+<section id="toolkit" style="background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)"><div class="wrap">
+  <div class="sec-label">CYBERSECURITY TOOLKIT // 100% BROWSER-LOCAL</div>
+  <h2 class="head">POCKET<br>UTILITIES</h2>
+  <p class="sub">Harmless utilities running entirely in your browser — nothing leaves this page. Demos and learning aids, not operational tooling.</p>
+  <div class="btnrow" id="toolTabs" style="margin-bottom:18px">
+    <button class="btn btn-p" data-tool="hash">HASH</button>
+    <button class="btn btn-g" data-tool="b64">BASE64</button>
+    <button class="btn btn-g" data-tool="url">URL</button>
+    <button class="btn btn-g" data-tool="jwt">JWT</button>
+    <button class="btn btn-g" data-tool="time">TIME</button>
+    <button class="btn btn-g" data-tool="regex">REGEX</button>
+  </div>
+  <div class="card reveal"><div id="toolBox"></div></div>
+</div></section>
+
+<section id="challenge"><div class="wrap">
+  <div class="sec-label">CHALLENGE BOARD // DAILY + MINI-CTF</div>
+  <h2 class="head">TRAIN<br>DAILY</h2>
+  <p class="sub">A fresh question every day plus a 5-minute guided CTF for recruiters and the curious. Progress lives in this browser only.</p>
+  <div class="lab-grid">
+    <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">DAILY CHALLENGE</div><div id="dailyBox" style="margin-top:10px"></div></div>
+    <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">MINI-CTF // ~5 MINUTES</div><div id="ctfBox" style="margin-top:10px"></div></div>
+    <div class="card reveal" style="grid-column:1/-1"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">ACHIEVEMENTS // TROPHY CASE</div><div id="trophyCase" style="margin-top:10px"></div>
+    <p class="mono" style="font-size:11px;color:var(--muted)">Earn them across the site — terminal, flags, quizzes, midnight, PGP.</p></div>
+    <div class="card reveal" style="grid-column:1/-1">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">GLOBAL LEADERBOARD // CLOUD</div>
+      <div class="btnrow" style="margin:10px 0">
+        <button class="btn btn-p" id="boardSec">SECURITY QUIZ</button>
+        <button class="btn btn-g" id="boardVuln">SPOT THE VULN</button>
+        <button class="btn btn-t" id="boardGo">⟳ REFRESH</button>
+      </div>
+      <div id="boardBox" class="mono" style="font-size:12.5px;line-height:2">Connect a cloud project to light up this board.</div>
+    </div>
+  </div>
+</div></section>
+
+<section id="dashboard" style="background:var(--bg2);border-top:1px solid var(--line2)"><div class="wrap">
+  <div class="sec-label">OPERATIVE DASHBOARD // THIS BROWSER ONLY</div>
+  <h2 class="head">YOUR<br>SERVICE RECORD</h2>
+  <p class="sub">Local operative profile — badges, seals, flags and scores stored <b>only in this browser</b>. No server, no real account; a new browser starts fresh.</p>
+  <div class="lab-grid">
+    <div class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">OPERATIVE</div>
+      <div id="dashProfile" style="margin-top:10px"></div>
+      <div id="callsignRow" style="margin-top:12px">
+        <input class="tfield" id="callsignIn" placeholder="callsign… (e.g. ghost)" maxlength="24" autocomplete="off" spellcheck="false">
+        <div class="btnrow" style="margin-top:10px"><button class="btn btn-p" id="callsignBtn">ENLIST →</button></div>
+      </div>
+    </div>
+    <div class="card reveal">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">RECORD</div>
+      <div id="dashStats" style="margin-top:10px"></div>
+      <div class="btnrow" style="margin-top:12px">
+        <button class="btn btn-g" id="dashExport">EXPORT JSON</button>
+        <button class="btn btn-t" id="dashReset">RESET RECORD</button>
+      </div>
+    </div>
+    <div class="card reveal" style="grid-column:1/-1">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">CLOUD ACCOUNT // OPTIONAL</div>
+      <p class="mono" style="font-size:11.5px;color:var(--muted)">Local record stays offline. Create a cloud account to post quiz scores to the global leaderboard and compete.</p>
+      <div class="mono" id="sbStatus" style="font-size:12px;color:var(--accent2);margin:8px 0">CLOUD: …</div>
+      <div id="sbForm">
+        <input class="tfield" id="sbCall" placeholder="callsign (public leaderboard name)" maxlength="20" autocomplete="off">
+        <input class="tfield" id="sbEmail" type="email" placeholder="email" autocomplete="email">
+        <input class="tfield" id="sbPass" type="password" placeholder="password (8+ chars)" autocomplete="new-password">
+        <div class="btnrow" style="margin-top:10px">
+          <button class="btn btn-p" id="sbUp">CREATE ACCOUNT</button>
+          <button class="btn btn-g" id="sbIn">LOG IN</button>
+        </div>
+      </div>
+      <div class="btnrow" style="margin-top:10px"><button class="btn btn-t" id="sbOut" hidden>LOG OUT</button></div>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap foot-grid">
+  <div>
+    <div class="mono" style="color:var(--text);letter-spacing:.14em">HOLY // TRAINING GROUND</div>
+    <div class="mono" style="font-size:11px;color:var(--accent);margin-top:8px">THINK LIKE AN ATTACKER. BUILD LIKE A DEFENDER.</div>
+  </div>
+  <div class="mono" style="font-size:11px;line-height:2;text-align:right">
+    <a href="index.html" style="text-decoration:none">← BACK TO PORTFOLIO</a><br>
+    © <span id="year">2026</span> KHALIFA (HOLY) · ALL RIGHTS RESERVED.
+  </div>
+</div></footer>
+
+<div class="toast" id="toast" role="status"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="playground.js"></script>
+<script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+</body>
+</html>

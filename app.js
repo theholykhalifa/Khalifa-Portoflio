@@ -257,12 +257,7 @@ function runCmd(raw){
     else{const s=seals(), n=["e1","e2","e3","e4"].filter(k=>s[k]).length;
       out(`MIDNIGHT SEALS: ${"■".repeat(n)}${"□".repeat(4-n)} (${n}/4)<br>The midnight door opens only for the thorough.`);}
   }
-/* terminal achievements */
-function getAch(){try{return JSON.parse(localStorage.getItem("holy_ach")||"{}")}catch(e){return{}}}
-function unlockAch(k,label){const a=getAch(); if(a[k]) return; a[k]=1;
-  try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
-  toast("🏅 ACHIEVEMENT — "+label);}
-const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
+/* terminal achievements (helpers live top-level — see seals section) */
   else if(c==="achievements"||c==="badges"){const a=getAch();
     out(Object.keys(ACH_LABELS).map(k=>`${a[k]?"✓":"□"} ${ACH_LABELS[k]}`).join("<br>")+
     "<br><span style='color:var(--muted)'>Use the terminal. Find the flag. Go midnight.</span>");
@@ -288,6 +283,12 @@ function seals(){try{return JSON.parse(localStorage.getItem("holy_seals")||"{}")
 function setSeal(k){const s=seals(); if(s[k]) return; s[k]=1;
   try{localStorage.setItem("holy_seals",JSON.stringify(s))}catch(e){}
   toast("◉ SEAL ACQUIRED ("+Object.keys(s).length+"/4)");}
+/* terminal achievements */
+function getAch(){try{return JSON.parse(localStorage.getItem("holy_ach")||"{}")}catch(e){return{}}}
+function unlockAch(k,label){const a=getAch(); if(a[k]) return; a[k]=1;
+  try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
+  toast("🏅 ACHIEVEMENT — "+label);}
+const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED"};
 
 /* RED TEAM MODE — 12s site-wide alert pulse (simulation) */
 let rtT=null;

@@ -669,7 +669,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $$("[data-cmd]").forEach(b=>b.onclick=()=>{inp.value=b.dataset.cmd;runCmd(b.dataset.cmd);document.getElementById("terminal").scrollIntoView({behavior:"smooth"});});
 
   // palette
-  $("#palBtn").onclick=openPal;
+  $("#palBtn").onclick=openPal; fillProfileChip();
 
   // language + pgp
   let initLang="en"; try{initLang=localStorage.getItem("holy_lang")||"en"}catch(e){}
@@ -749,6 +749,14 @@ document.addEventListener("DOMContentLoaded",()=>{
   // packet counter
   if(!reduced) setInterval(()=>{const p=$("#hPackets"); if(p)p.textContent=(parseInt(p.textContent.replace(/,/g,""))+Math.floor(Math.random()*23)).toLocaleString();},2000);
 });
+function fillProfileChip(){
+  const chip=document.getElementById("pchip"); if(!chip) return;
+  let p=null; try{p=JSON.parse(localStorage.getItem("holy_profile")||"null")}catch(e){}
+  if(p&&p.callsign){
+    document.getElementById("pavatar").innerHTML=avatarSVG(p.avatar||0,26);
+    document.getElementById("pname").textContent=p.callsign;
+  }
+}
 function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2600); }
 
 /* Arabic chrome — technical body copy stays English by design */

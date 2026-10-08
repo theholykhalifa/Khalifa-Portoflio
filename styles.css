@@ -410,6 +410,23 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .authbar button{background:var(--accent);color:#0a0507;border:none;border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.06em}
 .authbar button.ghost{background:none;border:1px solid var(--line2);color:var(--text)}
 .authbar [hidden]{display:none!important}
+/* header profile chip */
+.pchip{display:flex;align-items:center;gap:8px;text-decoration:none;border:1px solid var(--line2);border-radius:99px;padding:5px 12px 5px 6px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text);white-space:nowrap}
+.pchip:hover{border-color:var(--accent)}
+.pavatar{width:26px;height:26px;border-radius:50%;overflow:hidden;background:#0a0e13;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:12px}
+.pavatar svg{width:26px;height:26px;display:block}
+@media(max-width:560px){.pchip #pname{display:none}.pchip{padding:5px 6px}}
+/* profile page */
+.avstage{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.avbig{width:150px;height:150px;border-radius:22px;overflow:hidden;border:2px solid var(--accent);background:#0a0e13;box-shadow:0 0 40px rgba(255,51,85,.25)}
+.avbig svg{width:100%;height:100%;display:block}
+.avgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px}
+.avpick{border:1px solid var(--line2);border-radius:14px;padding:12px;background:rgba(255,255,255,.015);cursor:pointer;text-align:center;transition:.2s;color:var(--text);font-family:var(--mono)}
+.avpick svg{width:72px;height:72px}
+.avpick small{display:block;font-size:10px;letter-spacing:.12em;color:var(--muted);margin-top:6px}
+.avpick:hover{border-color:var(--accent)}
+.avpick.sel{border-color:var(--accent);box-shadow:0 0 22px rgba(255,51,85,.3)}
+.avpick.sel small{color:var(--accent2)}
 /* packet defender */
 #gameCv{width:100%;height:auto;border:1px solid var(--line2);border-radius:12px;background:#04070b;touch-action:none;cursor:crosshair}
 #gameCv.hit{animation:gameHit .3s}

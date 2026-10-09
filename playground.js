@@ -665,20 +665,8 @@ async function renderPersonal(){
       const mel=box.querySelector("#myScores");
       if(ms.error) throw ms.error;
       mel.innerHTML=(ms.data||[]).length?ms.data.map(r=>
-        `${r.game} ${r.score}/${r.total} <button class="mini" data-med="${r.id}" data-max="${r.total}" style="background:none;border:1px solid #FFB020;color:#FFD88A;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✎</button> <button class="mini" data-mdel="${r.id}" style="background:none;border:1px solid #FF3B30;color:#FF8FA3;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✕</button>`
+        `${r.game} ${r.score}/${r.total} <button class="mini" data-mdel="${r.id}" style="background:none;border:1px solid #FF3B30;color:#FF8FA3;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✕</button>`
       ).join("<br>"):"no scores posted yet — go play.";
-      mel.querySelectorAll("[data-med]").forEach(b=>b.onclick=async ()=>{
-        const max=+b.dataset.max;
-        const v=prompt(`New score (0–${max}):`);
-        if(v===null) return;
-        const n=Math.floor(Number(v));
-        if(!Number.isFinite(n)||n<0||n>max){toast("Enter a number 0–"+max+".");return;}
-        try{
-          const u=await SB.from("scores").update({score:n}).eq("id",+b.dataset.med);
-          if(u.error) throw u.error;
-          toast("Score updated."); renderPersonal(); loadBoard();
-        }catch(e){toast("Blocked — run the section-8 SQL (update policy).");}
-      });
       mel.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=async ()=>{
         try{
           const d=await SB.from("scores").delete().eq("id",+b.dataset.mdel);

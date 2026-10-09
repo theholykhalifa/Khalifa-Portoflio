@@ -155,18 +155,7 @@ create policy "users delete own scores"
   on scores for delete to authenticated using (auth.uid() = user_id);
 ```
 
-And to *edit* values (not just delete), also run:
-
-```sql
-create policy "users update own scores"
-  on scores for update to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-```
-
-Then the ✎ button in MY SCORES works (0–max enforced in the UI too).
-
-After this, the personal board's ✕ buttons work. (Deleting *others'* scores stays server-side: edge function or Table Editor.)
+Then the ✕ button in MY SCORES works (delete own rows only). (Value editing is intentionally not offered — replay to improve. Deleting *others'* scores stays server-side: edge function or Table Editor.)
 
 ## Notes
 

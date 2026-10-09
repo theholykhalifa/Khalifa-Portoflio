@@ -497,7 +497,24 @@ async function renderPersonal(){
       <div class="kv"><b>BEST SEC</b><span>${best.sec}/${bt.sec||QUIZ_SEC.length}</span></div>
       <div class="kv"><b>BEST VULN</b><span>${best.vuln}/${bt.vuln||QUIZ_VULN.length}</span></div>
       <div class="kv"><b>SEC RANK</b><span>${rank}</span></div>
-      <div class="kv"><b>CLOUD BADGES</b><span>${(ac.data||[]).length} synced</span></div>`;
+      <div class="kv"><b>CLOUD BADGES</b><span>${(ac.data||[]).length} synced</span></div>
+      <div class="mono" style="font-size:11px;letter-spacing:.16em;color:var(--muted);margin-top:10px">MY SCORES — TAP ✕ TO DELETE</div>
+      <div id="myScores" class="mono" style="font-size:12px;line-height:2">—</div>`;
+    try{
+      const ms=await SB.from("scores").select("id,game,score,total,created_at").eq("user_id",sbUser.id).order("created_at",{ascending:false}).limit(20);
+      const mel=box.querySelector("#myScores");
+      if(ms.error) throw ms.error;
+      mel.innerHTML=(ms.data||[]).length?ms.data.map(r=>
+        `${r.game} ${r.score}/${r.total} <button class="mini" data-mdel="${r.id}" style="background:none;border:1px solid #FF3B30;color:#FF8FA3;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✕</button>`
+      ).join("<br>"):"no scores posted yet — go play.";
+      mel.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=async ()=>{
+        try{
+          const d=await SB.from("scores").delete().eq("id",+b.dataset.mdel);
+          if(d.error) throw d.error;
+          toast("Score deleted."); renderPersonal(); loadBoard();
+        }catch(e){toast("Blocked — run the section-7 SQL for self-delete.");}
+      });
+    }catch(e){/* listed inline above */}
   }catch(e){box.textContent="Board unreadable — check connection.";}
 }
 /* operative file — personal performance tab */

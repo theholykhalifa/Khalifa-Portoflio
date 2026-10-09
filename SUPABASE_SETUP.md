@@ -124,7 +124,7 @@ BAN. UNBAN reverses it. The secret is typed per session, never stored.
 → `bans` → Insert row manually (user_id from auth.users, until or NULL).
 The RLS policy above enforces it instantly.
 
-## 6. Achievements sync (one more table)
+## 7. Achievements sync (one more table)
 
 SQL Editor → New query → Run:
 
@@ -145,6 +145,17 @@ create policy "users update own achievements"
 ```
 
 Badges earned while logged in now sync to the account automatically.
+
+## 8. Let users delete their OWN scores
+
+Users can only ever touch their own rows — safe to allow. SQL Editor → Run:
+
+```sql
+create policy "users delete own scores"
+  on scores for delete to authenticated using (auth.uid() = user_id);
+```
+
+After this, the personal board's ✕ buttons work. (Deleting *others'* scores stays server-side: edge function or Table Editor.)
 
 ## Notes
 

@@ -100,7 +100,97 @@ const QUIZ_VULN=[
   exp:"Deserializing attacker data runs code. Sign it — or avoid native formats."},
  {code:'el.innerHTML = "<b>" + location.hash.slice(1) + "</b>"  // hash-fed',
   q:"What vulnerability is this?",opts:["DOM XSS","SQL Injection","IDOR","CSRF"],a:0,
-  exp:"Client-side sink fed by the URL. Encode output, never innerHTML location data."}
+  exp:"Client-side sink fed by the URL. Encode output, never innerHTML location data."},
+ {code:'ldap.search("(uid=" + u + ")")  // u = *)(uid=*))(|(uid=*',
+  q:"What vulnerability is this?",opts:["LDAP Injection","XSS","CSRF","IDOR"],a:0,
+  exp:"Metacharacters rewrite directory queries. Escape per RFC 4515, bind least-privilege."},
+ {code:'render("hello " + name)  // name {{7*7}} renders 49',
+  q:"What vulnerability is this?",opts:["XSS","SSTI","SQL Injection","CSRF"],a:1,
+  exp:"Server-Side Template Injection turns names into code. Logic-less templates, hard sandbox."},
+ {code:'resetLink = "https://" + req.headers.Host + "/reset?t=" + token',
+  q:"What vulnerability is this?",opts:["XSS","IDOR","Host Header Poisoning","SQL Injection"],a:2,
+  exp:"Attacker Host header poisons reset links. Allowlist hosts, use configured base URLs."},
+ {code:'if (balance >= price) { balance -= price; }  // fired in parallel…',
+  q:"What flaw is this?",opts:["XSS","CSRF","IDOR","Race Condition"],a:3,
+  exp:"Check-then-act without locking double-spends. Atomic ops or locks fix it."},
+ {code:'api_key = "sk-live-9f2c…"  // committed to the repo',
+  q:"What flaw is this?",opts:["Hardcoded Secrets","XSS","SQL Injection","CSRF"],a:0,
+  exp:"Repos leak in minutes. Vaults, env injection, pre-commit scans — then rotate."},
+ {code:'Access-Control-Allow-Origin: *  +  Allow-Credentials: true',
+  q:"What flaw is this?",opts:["XSS","CORS Misconfiguration","SQL Injection","IDOR"],a:1,
+  exp:"Any origin reads credentialed responses. Mirror explicit origins, never * with creds."},
+ {code:'<iframe src="https://bank.local/account"></iframe>  <!-- invisible overlay -->',
+  q:"What vulnerability is this?",opts:["XSS","CSRF","IDOR","Clickjacking"],a:3,
+  exp:"UI redressing steals clicks. X-Frame-Options DENY or frame-ancestors."},
+ {code:'token = md5(time())  // "random" reset tokens',
+  q:"What flaw is this?",opts:["XSS","SQL Injection","Weak Randomness","CSRF"],a:2,
+  exp:"Predictable tokens are enumerable. CSPRNG only — never timestamps."},
+ {code:'export(users)  // a cell holds =cmd|"/c calc"!A0',
+  q:"What vulnerability is this?",opts:["CSV Injection","XSS","SQL Injection","IDOR"],a:0,
+  exp:"Spreadsheet formulas execute on open. Prefix risky cells, warn on export."},
+ {code:'sess = req.query.sid || newSid()  // attacker shares ?sid=KNOWN',
+  q:"What flaw is this?",opts:["XSS","Session Fixation","CSRF","SQL Injection"],a:1,
+  exp:"Known session IDs survive login. Regenerate at auth, cookies only."},
+ {code:'if (req.method === "POST") auth();  // PUT sails straight through',
+  q:"What flaw is this?",opts:["HTTP Verb Tampering","XSS","CSRF","IDOR"],a:0,
+  exp:"Auth bound to one verb is no auth. Enforce on the route, all methods."},
+ {code:'GET /item?id=1&id=2  // WAF sees first, backend takes last',
+  q:"What flaw is this?",opts:["XSS","IDOR","Parameter Pollution","SQL Injection"],a:2,
+  exp:"Duplicate parameters split parsers. Canonicalize once, reject ambiguity."},
+ {code:'CNAME assets → expired-saas.herokuapp.com  // NXDOMAIN, claimable',
+  q:"What flaw is this?",opts:["XSS","CSRF","IDOR","Subdomain Takeover"],a:3,
+  exp:"Dangling DNS meets claimable hosting. Inventory records, kill the strays."},
+ {code:'jwt.verify(token, "secret123")  // crackable offline in minutes',
+  q:"What flaw is this?",opts:["XSS","Weak JWT Secret","SQL Injection","CSRF"],a:1,
+  exp:"Short HMAC secrets fall to wordlists. Long random secrets, strong algs."},
+ {code:'response_type=token  // access_token rides the URL fragment',
+  q:"What flaw is this?",opts:["Insecure OAuth Flow","XSS","CSRF","IDOR"],a:0,
+  exp:"Implicit flow leaks tokens via history and referers. Code flow + PKCE instead."},
+ {code:'{"query":"{__schema{types{name}}}"}  // production answers happily',
+  q:"What flaw is this?",opts:["XSS","IDOR","GraphQL Introspection","SQL Injection"],a:2,
+  exp:"Schema maps the whole API for attackers. Disable introspection in prod."},
+ {code:'ws.send({cmd:"reset",target:"all"})  // no handshake auth check',
+  q:"What flaw is this?",opts:["XSS","CSRF","SQL Injection","Broken WS Auth"],a:3,
+  exp:"Sockets skip login at your peril. Authenticate the upgrade, authorize frames."},
+ {code:'merge({}, req.body)  // body ships __proto__',
+  q:"What vulnerability is this?",opts:["XSS","Prototype Pollution","SQL Injection","IDOR"],a:1,
+  exp:"Prototype keys poison every object. Freeze, validate keys, use safe merge."},
+ {code:'if (/^(a+)+$/.test(user))  // user sends aaaaaaaaaaaaaaaaaaaaa!',
+  q:"What flaw is this?",opts:["ReDoS","XSS","SQL Injection","CSRF"],a:0,
+  exp:"Catastrophic backtracking burns CPU. Linear-time patterns, input caps, timeouts."},
+ {code:'include("pages/" + p + ".php")  // p = ../../config',
+  q:"What vulnerability is this?",opts:["XSS","SQL Injection","Local File Inclusion","CSRF"],a:2,
+  exp:"Paths become code. Map allowlisted names, never concatenate."},
+ {code:'GET /admin/users  // 200 OK, role never checked',
+  q:"What flaw is this?",opts:["XSS","CSRF","IDOR","Broken Function Auth"],a:3,
+  exp:"Hiding URLs is not authorization. Enforce roles on every function."},
+ {code:'{"user":"amy","passwordHash":"$2a$…","ssn":"…"}  // just to render a name',
+  q:"What flaw is this?",opts:["XSS","Excessive Data Exposure","SQL Injection","IDOR"],a:1,
+  exp:"APIs overshare by default. Return only what the screen needs."},
+ {code:'for (pw of rockyou) login(u, pw)  // 200 tries/sec, never blocked',
+  q:"What flaw is this?",opts:["Missing Rate Limiting","XSS","CSRF","SQL Injection"],a:0,
+  exp:"Unthrottled logins invite stuffing. Rate limits, lockouts, alerts."},
+ {code:'fetch("/log?url=" + location.href)  // href holds ?token=',
+  q:"What flaw is this?",opts:["XSS","IDOR","Token Leakage","CSRF"],a:2,
+  exp:"Tokens in URLs land in logs and referers. Keep secrets in bodies and headers."},
+ {code:'Access-Control-Allow-Origin: null  +  credentials: true',
+  q:"What flaw is this?",opts:["XSS","CSRF","IDOR","CORS Null Origin"],a:3,
+  exp:"Sandboxed null origins still read responses. Never pair null with credentials."},
+ {code:'eval("theme_" + userChoice)  // choice = ";fetch(evil)"',
+  q:"What vulnerability is this?",opts:["XSS","Eval Injection","SQL Injection","CSRF"],a:1,
+  exp:"Eval is remote code execution with extra steps. Maps and allowlists instead."},
+ {code:'parent.postMessage({token: t}, "*")  // any origin may listen',
+  q:"What flaw is this?",opts:["Insecure postMessage","XSS","CSRF","IDOR"],a:0,
+  exp:"Wildcard targets leak to attackers. Pin exact origins, validate senders."},
+ {code:'DEBUG = True  // yellow traceback pages, live in prod',
+  q:"What flaw is this?",opts:["XSS","IDOR","Debug Exposure","CSRF"],a:2,
+  exp:"Debug pages hand out internals and consoles. Off in prod, always."},
+ {code:'GET /reset?email=a@b.c&token=abc123  // logged everywhere',
+  q:"What flaw is this?",opts:["XSS","CSRF","IDOR","Sensitive Data in URL"],a:3,
+  exp:"URLs persist in history, logs, proxies. Secrets ride POST bodies."},
+ {code:'login("admin", "admin")  // 200 OK on the very first try',
+  q:"What flaw is this?",opts:["XSS","Default Credentials","SQL Injection","CSRF"],a:1,
+  exp:"Factory logins are public knowledge. Force rotation on first boot."}
 ];
 const QUIZ_SEC=[
  {q:"Which CIA-triad property guarantees data is unaltered?",opts:["Confidentiality","Integrity","Availability","Authenticity"],a:1,exp:"Integrity = unaltered. Hashes and signatures enforce it."},
@@ -124,7 +214,37 @@ const QUIZ_SEC=[
  {q:"Download pages list hashes so you can…",opts:["Look technical","Verify file integrity","Get support","Unlock premium"],a:1,exp:"Compare before you run it. Mismatched hash — delete it."},
  {q:"Covering the laptop camera helps against…",opts:["Hackers","Spyware peeking","Slow Wi-Fi","Overheating"],a:1,exp:"Cheap privacy. Malware can't see through tape."},
  {q:"Work laptop on hotel guest Wi-Fi?",opts:["Fine, it's Wi-Fi","Avoid it or VPN up","Faster actually","Required"],a:1,exp:"Shared airwaves, unknown neighbors. VPN or hotspot."},
- {q:"Sharing your screen? First…",opts:["Open everything","Hide sensitive tabs and notifications","Turn volume up","Share faster"],a:1,exp:"Audiences remember secrets. Declutter before you broadcast."}
+ {q:"Sharing your screen? First…",opts:["Open everything","Hide sensitive tabs and notifications","Turn volume up","Share faster"],a:1,exp:"Audiences remember secrets. Declutter before you broadcast."},
+ {q:"A caller claims to be IT and wants your code — that's…",opts:["Vishing","Skimming","Pharming","Sniffing"],a:0,exp:"Voice phishing. Hang up, call back on a known number."},
+ {q:"End-to-end encryption guarantees…",opts:["Speed","Only the endpoints can read it","Free storage","No passwords"],a:1,exp:"No middleman — not even the provider. Verify fingerprints anyway."},
+ {q:"Unique email aliases per site help because…",opts:["They look cool","Breach correlation becomes obvious","Faster login","More storage"],a:1,exp:"A leaked alias reveals exactly who lost it. Trace the spill."},
+ {q:"What is OSINT?",opts:["A hacking tool","Public-source intelligence","A firewall","A virus"],a:1,exp:"Attackers Google you first. Audit your own footprint."},
+ {q:"Always verify payment-change requests because…",opts:["BEC fraud is rampant","It's polite","It's slow","Printers"],a:0,exp:"Business Email Compromise reroutes real money. Call back, verify."},
+ {q:"Your password-manager master password should be…",opts:["password123","Long, unique, memorized","Your birthday","Written on screen"],a:1,exp:"One strong secret guards all others. Make it count."},
+ {q:"A VPN kill switch does what?",opts:["Speeds up","Blocks traffic if the VPN drops","Saves battery","Blocks ads"],a:1,exp:"No silent fallback to naked traffic. Always on."},
+ {q:"Disable Office macros by default because…",opts:["They're slow","Top malware delivery vector","Ugly fonts","Battery"],a:1,exp:"Maldocs rule initial access. Unsigned macros stay off."},
+ {q:"Phishing-resistant MFA means…",opts:["SMS codes","FIDO2 security keys","Secret questions","Email links"],a:1,exp:"Unphishable cryptography, not forwardable codes."},
+ {q:"The blue team are…",opts:["The attackers","The defenders","The vendors","The auditors"],a:1,exp:"Detect, respond, harden. You want them sharp — or be them."},
+ {q:"What does EDR do?",opts:["Encrypts disks","Detects and responds on endpoints","Blocks spam","Speeds boot"],a:1,exp:"Eyes and hands on every machine. Alerts plus response."},
+ {q:"Why segment networks?",opts:["Faster Wi-Fi","Contain breaches","More IPs","Prettier maps"],a:1,exp:"Compartments turn disasters into incidents. Isolate by trust."},
+ {q:"Number-matching in MFA stops…",opts:["Typos","Fatigue approve-spam","Slow logins","Expired certs"],a:1,exp:"Attackers can't approve what they can't see. Match the digits."},
+ {q:"Why read URLs before clicking?",opts:["Fun fonts","Spot lookalike domains","Faster loads","SEO"],a:1,exp:"paypaI vs paypal decides your money's fate. Inspect first."},
+ {q:"A security audit is…",opts:["A hack attack","A systematic review","A firewall","A backup"],a:1,exp:"Measure against a standard before attackers measure you."},
+ {q:"A home guest network exists to…",opts:["Share faster","Isolate visitors and IoT","Boost signal","Save power"],a:1,exp:"Guests get internet, never your NAS. Segment by trust."},
+ {q:"Passkeys replace…",opts:["Usernames","Passwords with device crypto","Email","Monitors"],a:1,exp:"Phishing-proof login bound to your device. The end of passwords."},
+ {q:"An incident response plan gives you…",opts:["More alerts","Roles and steps before chaos","Legal immunity","Free tools"],a:1,exp:"Decide calmly now what panic can't decide later."},
+ {q:"Screen lock timeout should be…",opts:["Never","Minutes, not hours","Weekly","Whenever"],a:1,exp:"Abandoned unlocked screens are free access. Short leash."},
+ {q:"Checksums verify ___, signatures verify ___?",opts:["Speed, price","Integrity, authenticity","Color, size","Nothing"],a:1,exp:"Hash says unaltered; signature says by whom. Use both."},
+ {q:"Threat modeling means…",opts:["Buying threats","Mapping threats before building","Ignoring risks","Hiring hackers"],a:1,exp:"Draw the attacker in during design, not after breach."},
+ {q:"The 3-2-1 backup rule?",opts:["3 passwords","3 copies, 2 media, 1 offsite","2 accounts","1 backup"],a:1,exp:"Redundancy across places and formats. Ransomware-proofing 101."},
+ {q:"A zero-day is…",opts:["A new calendar","An unknown unpatched flaw","A firewall","A holiday"],a:1,exp:"No patch exists yet. Mitigate, segment, watch closely."},
+ {q:"Why leave auto-updates on?",opts:["They're fun","Shrink the exposure window","More popups","Faster CPU"],a:1,exp:"Exploits race patches. Automatic wins the race."},
+ {q:"Doxing defense starts with…",opts:["Faster net","Minimizing public PII","More accounts","Louder passwords"],a:1,exp:"Every public detail is ammo. Publish less."},
+ {q:"Work files on a personal USB?",opts:["Sure","No — data-loss risk","Faster","Encrypted always"],a:1,exp:"Untracked copies walk away. DLP exists for a reason."},
+ {q:"Split tunneling risk?",opts:["Speed","Bypasses corporate inspection","Battery","Noise"],a:1,exp:"Half your traffic dodges the guards. Know which half."},
+ {q:"Security headers matter because…",opts:["They're pretty","Browsers enforce guardrails","Faster pages","SEO boost"],a:1,exp:"Free hardening per response. Set them once, benefit always."},
+ {q:"Default-deny means…",opts:["Allow all","Block all, allow listed","No passwords","Open Wi-Fi"],a:1,exp:"Closed by default, opened by decision. The safe posture."},
+ {q:"After containing a breach, preserve…",opts:["Nothing","Evidence: logs, images, timelines","The attacker","Silence"],a:1,exp:"Don't wipe what you'll need to understand. Image first."}
 ];
 let quiz={set:null,i:0,score:0};
 function quizRank(pct,top){
@@ -183,7 +303,37 @@ const VULNLAB=[
  {t:"Path Traversal",v:"User input joined into filesystem paths.",c:"Dot-dot sequences escape the web root.",i:"Arbitrary file read, config and secret theft.",f:"Canonicalize paths, strict allowlists, jail the process."},
  {t:"Unrestricted File Upload",v:"Uploads saved with attacker-controlled names, executable.",c:"Upload a web shell, then visit its URL.",i:"Remote code execution on the server.",f:"Validate type server-side, randomize names, store outside webroot."},
  {t:"Mass Assignment",v:"Raw request bodies bound straight to data models.",c:"Extra fields like role overwrite protected attributes.",i:"Privilege escalation via a signup form.",f:"Allowlist assignable fields; guard sensitive attributes server-side."},
- {t:"Insecure Deserialization",v:"Untrusted bytes fed to native deserializers.",c:"Crafted objects execute during parsing.",i:"Remote code execution.",f:"Avoid native formats for input; sign and verify when unavoidable."}
+ {t:"Insecure Deserialization",v:"Untrusted bytes fed to native deserializers.",c:"Crafted objects execute during parsing.",i:"Remote code execution.",f:"Avoid native formats for input; sign and verify when unavoidable."},
+ {t:"LDAP Injection",v:"User input concatenated into directory queries.",c:"Metacharacters rewrite filters, dumping entries.",i:"Auth bypass, directory disclosure.",f:"Escape per RFC 4515; least-privilege binds."},
+ {t:"Server-Side Template Injection (SSTI)",v:"User input rendered by a template engine.",c:"Template syntax smuggled in names executes.",i:"Server-side code execution in severe cases.",f:"Logic-less templates, strict sandboxing."},
+ {t:"Host Header Poisoning",v:"Host header trusted for building URLs.",c:"Poisoned links reset victims attacker's way.",i:"Account takeover via tainted flows.",f:"Allowlisted hosts, absolute configured URLs."},
+ {t:"Race Condition (TOCTOU)",v:"Check-then-act sequences without locking.",c:"Parallel requests both pass the check.",i:"Double-spend, overuse, privilege slips.",f:"Atomic operations, DB constraints, locking."},
+ {t:"Hardcoded Secrets",v:"Keys and tokens committed to repos.",c:"Scrapers harvest them within minutes.",i:"Full account and infrastructure compromise.",f:"Vaults, env injection, pre-commit scanning."},
+ {t:"CORS Misconfiguration",v:"Wildcard origins paired with credentials.",c:"Any site reads authenticated responses.",i:"Session and data theft cross-origin.",f:"Mirror explicit origins, never * with creds."},
+ {t:"Clickjacking",v:"Sensitive pages framable, no protections.",c:"Invisible overlays hijack user clicks.",i:"Unwanted actions as the victim.",f:"X-Frame-Options DENY or frame-ancestors."},
+ {t:"Weak Randomness",v:"Tokens from timestamps or weak PRNGs.",c:"Attackers enumerate the predictable space.",i:"Session and reset-token takeover.",f:"CSPRNG for anything secret. Always."},
+ {t:"CSV Injection",v:"Unescaped formulas in exported data.",c:"Victim opens export, spreadsheet executes.",i:"Command execution on analyst machines.",f:"Prefix risky cells, sanitize exports."},
+ {t:"Session Fixation",v:"Session IDs accepted from URLs.",c:"Attacker plants a known session ID.",i:"Full hijack after victim logs in.",f:"Regenerate at login; cookies only."},
+ {t:"HTTP Verb Tampering",v:"Auth bound to a single HTTP method.",c:"Attacker simply uses another verb.",i:"Authentication bypass.",f:"Enforce authorization on routes, all methods."},
+ {t:"HTTP Parameter Pollution",v:"Duplicate parameters parsed inconsistently.",c:"WAF and backend disagree on values.",i:"Filter bypass, logic abuse.",f:"Canonicalize once, reject ambiguity."},
+ {t:"Subdomain Takeover",v:"Dangling DNS pointing at claimable hosts.",c:"Attacker claims the expired service.",i:"Trusted-domain phishing and cookies.",f:"Inventory DNS, delete strays fast."},
+ {t:"Weak JWT Secret",v:"Short HMAC secrets signing tokens.",c:"Offline cracking forges any identity.",i:"Total authentication bypass.",f:"Long random secrets, strong algorithms."},
+ {t:"Insecure OAuth Flow",v:"Tokens delivered via URL fragments.",c:"History, logs and referers collect them.",i:"Account hijack through leaked tokens.",f:"Authorization code flow with PKCE."},
+ {t:"GraphQL Introspection",v:"Schema queries answered in production.",c:"Attackers map the entire API surface.",i:"Accelerated discovery of flaws.",f:"Disable introspection outside dev."},
+ {t:"Broken WebSocket Auth",v:"Socket frames accepted unauthenticated.",c:"Anyone speaks protocol directly.",i:"Unauthorized commands and data.",f:"Authenticate upgrades, authorize frames."},
+ {t:"Prototype Pollution",v:"Attacker keys merged into objects.",c:"__proto__ poisons every object.",i:"Logic bypass, sometimes RCE.",f:"Freeze prototypes, validate keys."},
+ {t:"Regular-Expression DoS",v:"Catastrophic-backtracking patterns on input.",c:"Crafted strings burn CPU cores.",i:"Denial of service, cheaply.",f:"Linear-time regex, input caps, timeouts."},
+ {t:"Local File Inclusion",v:"User input joined into include paths.",c:"Traversal reaches code and config.",i:"Source theft, often code execution.",f:"Allowlisted names, no concatenation."},
+ {t:"Broken Function Authorization",v:"Endpoints lacking role checks.",c:"Anyone calls admin functions directly.",i:"Privilege escalation by URL.",f:"Enforce roles on every function."},
+ {t:"Excessive Data Exposure",v:"APIs returning full internal objects.",c:"Clients receive secrets with names.",i:"Credential and PII leakage.",f:"Return only what the screen needs."},
+ {t:"Missing Rate Limiting",v:"Unthrottled sensitive endpoints.",c:"Attackers stuff credentials at scale.",i:"Account takeover campaigns.",f:"Rate limits, lockouts, alerting."},
+ {t:"Token Leakage",v:"Secrets embedded in URLs and logs.",c:"Referers and history collect tokens.",i:"Session hijack via bystanders.",f:"Secrets in bodies and headers only."},
+ {t:"CORS Null Origin",v:"Null origin trusted with credentials.",c:"Sandboxed pages still read responses.",i:"Cross-origin data theft.",f:"Never pair null with credentials."},
+ {t:"Client-Side Eval Injection",v:"User input passed to eval-like sinks.",c:"Strings become executed code.",i:"Full client compromise, XSS+.",f:"Maps and allowlists, never eval."},
+ {t:"Insecure postMessage",v:"Messages sent to wildcard origins.",c:"Any listening frame harvests data.",i:"Token and data leakage.",f:"Pin exact origins, validate senders."},
+ {t:"Debug Mode in Production",v:"Debuggers and tracebacks left live.",c:"Visitors browse internals and consoles.",i:"Secrets, paths, sometimes shells.",f:"Debug off in prod, always."},
+ {t:"Sensitive Data in URLs",v:"Tokens and PII riding query strings.",c:"History, logs and proxies keep copies.",i:"Hijack via bystanders.",f:"POST bodies and headers for secrets."},
+ {t:"Default Credentials",v:"Factory logins left unchanged.",c:"Public username/password pairs.",i:"Instant unauthorized access.",f:"Force rotation on first boot."}
 ];
 function renderVulnLab(){
   const box=document.getElementById("quizBox"); if(!box) return;
@@ -407,7 +557,7 @@ function renderDashboard(){
    `<div class="kv"><b>BADGES</b><span>${Object.keys(ACH_LABELS).filter(k=>a[k]).length} / ${Object.keys(ACH_LABELS).length}</span></div>
     <div class="kv"><b>SEALS</b><span>${["e1","e2","e3","e4"].filter(k=>s[k]).length} / 4</span></div>
     <div class="kv"><b>FLAGS</b><span>${f.length} / 5</span></div>
-    <div class="kv"><b>QUIZ BEST</b><span>vuln ${bestOf(best,"vuln").best} / 18 · sec ${bestOf(best,"sec").best} / 26</span></div>
+    <div class="kv"><b>QUIZ BEST</b><span>vuln ${bestOf(best,"vuln").best} / 49 · sec ${bestOf(best,"sec").best} / 53</span></div>
     <div class="kv"><b>STREAK</b><span>${st.streak||0} 🔥</span></div>
     <div class="kv"><b>VAULT</b><span>${vault}</span></div>`;
 }
@@ -505,8 +655,20 @@ async function renderPersonal(){
       const mel=box.querySelector("#myScores");
       if(ms.error) throw ms.error;
       mel.innerHTML=(ms.data||[]).length?ms.data.map(r=>
-        `${r.game} ${r.score}/${r.total} <button class="mini" data-mdel="${r.id}" style="background:none;border:1px solid #FF3B30;color:#FF8FA3;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✕</button>`
+        `${r.game} ${r.score}/${r.total} <button class="mini" data-med="${r.id}" data-max="${r.total}" style="background:none;border:1px solid #FFB020;color:#FFD88A;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✎</button> <button class="mini" data-mdel="${r.id}" style="background:none;border:1px solid #FF3B30;color:#FF8FA3;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✕</button>`
       ).join("<br>"):"no scores posted yet — go play.";
+      mel.querySelectorAll("[data-med]").forEach(b=>b.onclick=async ()=>{
+        const max=+b.dataset.max;
+        const v=prompt(`New score (0–${max}):`);
+        if(v===null) return;
+        const n=Math.floor(Number(v));
+        if(!Number.isFinite(n)||n<0||n>max){toast("Enter a number 0–"+max+".");return;}
+        try{
+          const u=await SB.from("scores").update({score:n}).eq("id",+b.dataset.med);
+          if(u.error) throw u.error;
+          toast("Score updated."); renderPersonal(); loadBoard();
+        }catch(e){toast("Blocked — run the section-8 SQL (update policy).");}
+      });
       mel.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=async ()=>{
         try{
           const d=await SB.from("scores").delete().eq("id",+b.dataset.mdel);

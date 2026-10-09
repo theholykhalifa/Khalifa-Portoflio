@@ -27,6 +27,8 @@ label.row input{width:auto;margin:0}
 .ok{color:#00ffa3;font-family:ui-monospace,monospace;font-size:12.5px;min-height:20px}
 .warn{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.4);border-radius:10px;padding:14px;font-size:13.5px;color:#FFD88A;margin:18px 0}
 a{color:#FFD88A}
+.bar{height:8px;background:#1a222b;border-radius:99px;overflow:hidden;margin:4px 0 10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#FF3355,#FFB020)}
 /* admin tabs + overview */
 .tabbar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px;position:sticky;top:0;background:#05070A;padding:10px 0;z-index:5}
 .tabbar button{background:none;border:1px solid rgba(255,255,255,.16);color:#c6cfd8;border-radius:99px;padding:8px 16px;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.1em;cursor:pointer;margin:0}
@@ -69,10 +71,9 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
       <input type="file" id="xFile" accept="application/json" style="margin-top:12px">
       <button class="ghost" id="xImport">IMPORT RECORD JSON</button>
       <div style="margin-top:12px" class="mono">QUIZ BESTS — SET MANUALLY</div>
-      <input id="bestV" placeholder="vuln best (0-14)" inputmode="numeric" style="max-width:220px">
-      <input id="bestS" placeholder="sec best (0-22)" inputmode="numeric" style="max-width:220px">
+      <input id="bestV" placeholder="vuln best (0-49)" inputmode="numeric" style="max-width:220px">
+      <input id="bestS" placeholder="sec best (0-53)" inputmode="numeric" style="max-width:220px">
       <button class="ghost" id="bestApply">SET BESTS</button></div>
-  </div>
   <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">CLOUD DATABASE // READ LIVE</div>
     <div class="mono" id="cloudStatus" style="font-size:12px;margin:8px 0">CLOUD: …</div>
     <div class="mono" id="cloudStats" style="font-size:12.5px;line-height:2"></div>
@@ -98,6 +99,22 @@ pre{background:#04070b;border:1px solid rgba(255,255,255,.1);border-radius:10px;
     <div><button class="ghost" id="luGo">LOOKUP →</button> <button class="ghost" id="luCopy">COPY UUID → BAN FIELD</button></div>
     <div class="ok" id="luOut"></div>
   </div>
+    <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">LIVE SYSTEM STATUS</div>
+      <div class="mono" id="sysBody" style="font-size:12.5px;line-height:2">…</div>
+      <div><button id="sysGo">RE-CHECK →</button></div></div>
+    <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">VISITOR INTELLIGENCE // LAST 7 DAYS</div>
+      <div class="mono" id="visBody" style="font-size:12.5px">…</div></div>
+    <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">AUDIT TRAIL // THIS BROWSER</div>
+      <div class="mono" id="auditBody" style="font-size:12px;line-height:2">…</div>
+      <div><button class="ghost" id="auditClear">CLEAR TRAIL</button></div></div>
+    <div class="card"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">SECURITY CENTER</div>
+      <div class="mono" id="lockInfo" style="font-size:12px;margin:6px 0"></div>
+      <div><button class="ghost" id="lockReset">RESET LOCKOUT</button></div>
+      <div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A;margin-top:12px">ROTATE ADMIN CREDENTIALS (THIS BROWSER)</div>
+      <input id="nuUser" placeholder="new username (3+ chars)" maxlength="24">
+      <input id="nuPass" type="password" placeholder="new password (8+ chars)">
+      <div><button id="rotGo">ROTATE →</button></div></div>
+  </div>
   <p><a href="index.html">← BACK TO THE SITE</a></p>
 </div>
 <script src="config.js"></script>
@@ -120,7 +137,7 @@ function render(){
     return "<label class='row'><input type='checkbox' data-s='"+k+"'"+(s[k]?" checked":"")+"> "+SEALS[k]+"</label>"}).join("");
   var f=[];try{f=JSON.parse(localStorage.getItem("holy_flags")||"[]")}catch(e){}
   var best=store("holy_best");
-  document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(function(){var v=best.vuln;return(v&&typeof v==="object")?v.best:(v||0)}())+"/14 · sec "+(function(){var v=best.sec;return(v&&typeof v==="object")?v.best:(v||0)}())+"/22 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
+  document.getElementById("statLine").textContent="flags "+f.length+"/5 · quiz best vuln "+(function(){var v=best.vuln;return(v&&typeof v==="object")?v.best:(v||0)}())+"/49 · sec "+(function(){var v=best.sec;return(v&&typeof v==="object")?v.best:(v||0)}())+"/53 · vault "+(function(){try{return localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){return"? "}}());
   var og=document.getElementById("ovGrid");
   if(og){var aa=store("holy_ach"),ss=store("holy_seals");
     var nb=Object.keys(BADGES).filter(function(k){return aa[k]}).length;
@@ -129,16 +146,18 @@ function render(){
     try{vo=localStorage.getItem("holy_vault")==="1"?"OPEN":"LOCKED"}catch(e){}
     try{var pp=JSON.parse(localStorage.getItem("holy_profile")||"{}");po=pp.callsign?("◉ "+pp.callsign):"— none —"}catch(e){}
     og.innerHTML=[["BADGES",nb+"/8"],["SEALS",ns+"/4"],["FLAGS",f.length+"/5"],["VAULT",vo]].map(function(x){
-      return `<div class="stat"><b>${x[1]}</b><span>${x[0]}</span>`}).join("");
+      return `<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`}).join("");
     document.getElementById("ovCall").textContent=po;}
 }
 document.getElementById("aGo").onclick=function(){
   if(lockUntil>Date.now()){lockTick();return;}
   var u=document.getElementById("aUser").value.trim(), p=document.getElementById("aPass").value;
   sha(p).then(function(h){
-    if(u===HOLY_ADMIN.user&&h===HOLY_ADMIN.passHash){
+var U=HOLY_ADMIN.user,H=HOLY_ADMIN.passHash;
+    try{var ov=JSON.parse(localStorage.getItem("holy_admin_cred")||"null");if(ov&&ov.user&&ov.passHash){U=ov.user;H=ov.passHash;}}catch(e){}
+    if(u===U&&h===H){
       try{localStorage.setItem("holy_alock",JSON.stringify({fails:0,until:0}))}catch(e){}
-      try{sessionStorage.setItem("holy_admin","1")}catch(e){}show();}
+      try{sessionStorage.setItem("holy_admin","1")}catch(e){}audit("login","success");show();}
     else{
       var lk=lockState(); lk.fails++;
       if(lk.fails>=3){lk.until=Date.now()+60000;
@@ -167,14 +186,14 @@ function lockTick(){
 document.getElementById("aOut").onclick=function(){try{sessionStorage.removeItem("holy_admin")}catch(e){}show();};
 document.getElementById("bApply").onclick=function(){
   var a={};document.querySelectorAll("#badgeList input").forEach(function(c){if(c.checked)a[c.dataset.b]=1;});
-  store("holy_ach",a);render();};
+  store("holy_ach",a);render();audit("badges",Object.keys(a).length+"/8");};
 document.getElementById("sApply").onclick=function(){
   var s={};document.querySelectorAll("#sealList input").forEach(function(c){if(c.checked)s[c.dataset.s]=1;});
-  store("holy_seals",s);render();};
-document.getElementById("vOpen").onclick=function(){try{localStorage.setItem("holy_vault","1")}catch(e){}render();};
-document.getElementById("vLock").onclick=function(){try{localStorage.removeItem("holy_vault")}catch(e){}render();};
-document.getElementById("oUnlock").onclick=function(){try{localStorage.setItem("holy_owner","1")}catch(e){}toast2("◉ OWNER hero unlocked on this browser.");};
-document.getElementById("xQuiz").onclick=function(){store("holy_best",{});try{localStorage.removeItem("holy_daily")}catch(e){}render();};
+  store("holy_seals",s);render();audit("seals","updated");};
+document.getElementById("vOpen").onclick=function(){try{localStorage.setItem("holy_vault","1")}catch(e){}render();audit("vault","unlocked");};
+document.getElementById("vLock").onclick=function(){try{localStorage.removeItem("holy_vault")}catch(e){}render();audit("vault","relocked");};
+document.getElementById("oUnlock").onclick=function(){try{localStorage.setItem("holy_owner","1")}catch(e){}toast2("◉ OWNER hero unlocked on this browser.");audit("owner-unlock","");};
+document.getElementById("xQuiz").onclick=function(){store("holy_best",{});try{localStorage.removeItem("holy_daily")}catch(e){}render();audit("quiz-reset","");};
 document.getElementById("xExport").onclick=function(){
   var d={};["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily"].forEach(function(k){d[k]=store(k);});
   var b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});var a=document.createElement("a");
@@ -182,7 +201,7 @@ document.getElementById("xExport").onclick=function(){
 document.getElementById("xNuke").onclick=function(){
   if(!confirm("Wipe ALL local demo data in this browser?"))return;
   ["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily","holy_vault","holy_rec"].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});
-  render();};
+  render();audit("NUKE","all local data");};
 var SBN=null;
 function loadSbLibAdmin(){
   return new Promise(function(res){
@@ -231,7 +250,7 @@ async function cloudRefresh(){
   }catch(e){st.textContent="CLOUD ERROR: "+(e.message||"unreachable");}
 }
 /* tabbed console: groups cards, adds overview + callsign override */
-const TABDEF=[["overview","◉ OVERVIEW"],["identity","OPERATIVE"],["badges","BADGES"],["seals","SEALS + VAULT"],["record","RECORD"],["cloud","CLOUD"],["bans","BANS"]];
+const TABDEF=[["overview","◉ OVERVIEW"],["security","SECURITY"],["visitors","VISITORS"],["audit","AUDIT"],["badges","BADGES"],["seals","SEALS + VAULT"],["record","RECORD"],["cloud","CLOUD"]];
 (function buildTabs(){
   const panel=document.getElementById("panel");
   const cards=[...panel.querySelectorAll(":scope > .card")];
@@ -250,7 +269,7 @@ const TABDEF=[["overview","◉ OVERVIEW"],["identity","OPERATIVE"],["badges","BA
     if(k!=="overview")d.hidden=true;
     panel.appendChild(d); panes[k]=d;
   });
-  const map={identity:[0],badges:[1],seals:[2],record:[3],cloud:[4],bans:[5]};
+  const map={overview:[6],security:[0,9],visitors:[7],audit:[8],badges:[1],seals:[2],record:[3],cloud:[4],bans:[5]};
   Object.keys(map).forEach(k=>map[k].forEach(ix=>{if(cards[ix])panes[k].appendChild(cards[ix]);}));
   panes.overview.innerHTML=`<div class="statgrid" id="ovGrid"></div>
     <div class="card" style="margin:12px 0 0"><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#FFD88A">OPERATIVE CALLSIGN (LOCAL OVERRIDE)</div>
@@ -262,13 +281,16 @@ const TABDEF=[["overview","◉ OVERVIEW"],["identity","OPERATIVE"],["badges","BA
     if(!/^[A-Za-z0-9_-]{2,20}$/.test(v)){toast2("2-20 chars.");return;}
     try{const p=JSON.parse(localStorage.getItem("holy_profile")||"{}");p.callsign=v;
       if(!p.since)p.since=Date.now();localStorage.setItem("holy_profile",JSON.stringify(p));}catch(e){}
-    render();toast2("Callsign set → "+v);};
+    render();toast2("Callsign set → "+v);audit("callsign",v);};
 })();
 function showTab(k){
   document.querySelectorAll("#panel .tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.tab===k));
   document.querySelectorAll("#panel [data-pane]").forEach(p=>p.hidden=p.dataset.pane!==k);
 }
 function toast2(t){var s=document.getElementById("statLine"); if(s) s.textContent=t;}
+function audit(act,d){try{var l=JSON.parse(localStorage.getItem("holy_audit")||"[]");l.unshift({t:new Date().toISOString(),act:act,d:d||""});localStorage.setItem("holy_audit",JSON.stringify(l.slice(0,100)));}catch(e){} renderAudit();}
+function renderAudit(){var el=document.getElementById("auditBody");if(!el)return;var l=[];try{l=JSON.parse(localStorage.getItem("holy_audit")||"[]")}catch(e){}
+  el.innerHTML=l.length?l.map(function(x){return x.t.slice(0,16).replace("T"," ")+" · <b>"+x.act+"</b> "+(x.d||"")}).join("<br>"):"no entries yet — admin actions log here.";}
 document.getElementById("cRefresh").onclick=cloudRefresh;
 document.getElementById("xImport").onclick=function(){
   var f=document.getElementById("xFile").files[0]; if(!f)return;
@@ -277,7 +299,7 @@ document.getElementById("xImport").onclick=function(){
     var d=JSON.parse(rd.result);
     ["holy_profile","holy_ach","holy_seals","holy_flags","holy_best","holy_cmds","holy_daily"].forEach(function(k){
       if(d[k]!==undefined) localStorage.setItem(k,JSON.stringify(d[k]));});
-    render(); toast2("Record imported.");
+    render(); toast2("Record imported.");audit("import","record JSON");
   }catch(e){toast2("Invalid record file.");}};
   rd.readAsText(f);
 };
@@ -285,9 +307,9 @@ document.getElementById("bestApply").onclick=function(){
   var v=parseInt(document.getElementById("bestV").value,10),
       s=parseInt(document.getElementById("bestS").value,10);
   var b=store("holy_best");
-  if(!isNaN(v)) b.vuln=Math.max(0,Math.min(14,v));
-  if(!isNaN(s)) b.sec=Math.max(0,Math.min(22,s));
-  store("holy_best",b); render(); toast2("Quiz bests set.");
+  if(!isNaN(v)) b.vuln=Math.max(0,Math.min(49,v));
+  if(!isNaN(s)) b.sec=Math.max(0,Math.min(53,s));
+  store("holy_best",b); render(); toast2("Quiz bests set.");audit("bests","manual set");
 };
 async function banAct(action){
   var msg=document.getElementById("banMsg");
@@ -328,6 +350,45 @@ document.getElementById("luCopy").onclick=()=>{
   toast2("UUID loaded into ban field.");
 };
 function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+async function sysCheck(){
+  var el=document.getElementById("sysBody"); if(!el) return;
+  var rows=[];
+  try{var t0=performance.now();var r=await fetch("favicon.svg",{method:"HEAD",cache:"no-store"});
+    rows.push(["SITE (PAGES)",r.ok?("ONLINE · "+Math.round(performance.now()-t0)+"ms"):("HTTP "+r.status)]);}
+  catch(e){rows.push(["SITE (PAGES)","UNREACHABLE"]);}
+  if(typeof supabase!=="undefined"&&typeof HOLY_SUPABASE!=="undefined"&&HOLY_SUPABASE.url){
+    try{if(!SBN)SBN=supabase.createClient(HOLY_SUPABASE.url,HOLY_SUPABASE.key);
+      var t1=performance.now();
+      await SBN.from("profiles").select("id",{count:"exact",head:true});
+      rows.push(["CLOUD DB","ONLINE · "+Math.round(performance.now()-t1)+"ms"]);}
+    catch(e){rows.push(["CLOUD DB","ERROR"]);}
+  } else rows.push(["CLOUD DB","OFF — no keys/lib"]);
+  try{localStorage.setItem("__t","1");localStorage.removeItem("__t");
+    rows.push(["BROWSER STORE","OK · "+(JSON.stringify(localStorage).length/1024).toFixed(1)+"KB"]);}
+  catch(e){rows.push(["BROWSER STORE","BLOCKED"]);}
+  el.innerHTML=rows.map(function(x){return x[0]+" — <b>"+x[1]+"</b>"}).join("<br>");
+  var lk=lockState(), left=Math.ceil((lk.until-Date.now())/1000);
+  document.getElementById("lockInfo").textContent=left>0?("LOCKED OUT — "+left+"s left · fails: "+lk.fails):("Lockout clear · recorded fails: "+lk.fails);
+}
+async function visitors(){
+  var box=document.getElementById("visBody"); if(!box) return;
+  if(typeof supabase==="undefined"||!SBN){box.textContent="Cloud off — connect to see visitors.";return;}
+  try{
+    var days=[...Array(7)].map(function(_,i){return new Date(Date.now()-i*864e5).toISOString().slice(0,10)}).reverse();
+    var pr=await SBN.from("profiles").select("created_at").limit(1000);
+    if(pr.error) throw pr.error;
+    var sc=await SBN.from("scores").select("game,created_at").limit(1000);
+    if(sc.error) throw sc.error;
+    var grp=function(rows){var m={};days.forEach(function(d){m[d]=0});rows.forEach(function(r){var d=(r.created_at||"").slice(0,10);if(d in m)m[d]++;});return m;};
+    var su=grp(pr.data||[]), ss=grp(sc.data||[]);
+    var mx=Math.max(1,...Object.values(su),...Object.values(ss));
+    var bar=function(v){return `<div class="bar"><i style="width:${Math.round(v/mx*100)}%"></i></div>`;};
+    var games={};(sc.data||[]).forEach(function(r){games[r.game]=(games[r.game]||0)+1;});
+    box.innerHTML="<b>SIGNUPS / DAY</b>"+days.map(function(d){return d.slice(5)+" · "+su[d]+bar(su[d])}).join("")+
+     "<b>SCORES / DAY</b>"+days.map(function(d){return d.slice(5)+" · "+ss[d]+bar(ss[d])}).join("")+
+     "<b>BY GAME</b> "+(Object.keys(games).map(function(g){return g+": "+games[g]}).join(" · ")||"—");
+  }catch(e){box.textContent="Visitor feed failed: "+(e.message||"unreachable");}
+}
 async function adminAct(payload,done){
   const fnUrl=(document.getElementById("fnUrl")||{}).value||"";
   const sec=(document.getElementById("fnSecret")||{}).value||"";
@@ -344,8 +405,20 @@ async function adminAct(payload,done){
   try{const u=localStorage.getItem("holy_fnurl"),s=sessionStorage.getItem("holy_fnsec");
     if(u)document.getElementById("fnUrl").value=u;
     if(s)document.getElementById("fnSecret").value=s;}catch(e){}
+document.getElementById("sysGo").onclick=sysCheck;
+document.getElementById("auditClear").onclick=function(){try{localStorage.removeItem("holy_audit")}catch(e){}renderAudit();};
+document.getElementById("lockReset").onclick=function(){try{localStorage.setItem("holy_alock",JSON.stringify({fails:0,until:0}))}catch(e){}lockTick();sysCheck();toast2("Lockout cleared.");audit("lockout-cleared","");};
+document.getElementById("rotGo").onclick=async function(){
+  var u=document.getElementById("nuUser").value.trim(), p=document.getElementById("nuPass").value;
+  if(u.length<3||p.length<8){toast2("Username 3+, password 8+.");return;}
+  const hh=await sha(p);
+  try{localStorage.setItem("holy_admin_cred",JSON.stringify({user:u,passHash:hh}))}catch(e){}
+  document.getElementById("nuUser").value="";document.getElementById("nuPass").value="";
+  audit("creds-rotated",u); toast2("Credentials rotated — old login dead after logout.");
+};
 show();
 cloudRefresh();
+renderAudit(); sysCheck(); visitors();
 </script>
 </body>
 </html>

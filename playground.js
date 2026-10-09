@@ -255,9 +255,18 @@ function quizRank(pct,top){
 }
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function bestOf(b,k){const v=b[k];return (v&&typeof v==="object")?{best:v.best||0,plays:v.plays||0,sum:v.sum||0}:{best:v||0,plays:0,sum:0};}
-function quizStart(set,game){quiz={game:game||(set===QUIZ_VULN?"vuln":"sec"),
-  set:shuffle(set.map(q=>{const ord=shuffle(q.opts.map((o,i)=>i));return{...q,opts:ord.map(i=>q.opts[i]),a:ord.indexOf(q.a)};})),
-  i:0,score:0};quizRender();}
+function quizStart(set,game){
+  const g=game||(set===QUIZ_VULN?"vuln":"sec");
+  const mapped=set.map(q=>{
+    if(g==="vuln"){
+      const correct=q.opts[q.a];
+      const distract=shuffle(VPOOL.filter(x=>x!==correct)).slice(0,3);
+      const opts=shuffle([correct,...distract]);
+      return{...q,opts:opts,a:opts.indexOf(correct)};
+    }
+    const ord=shuffle(q.opts.map((o,i)=>i));return{...q,opts:ord.map(i=>q.opts[i]),a:ord.indexOf(q.a)};});
+  quiz={game:g,set:shuffle(mapped),i:0,score:0};quizRender();}
+const VPOOL=[...new Set(QUIZ_VULN.map(q=>q.opts[q.a]))];
 function quizRender(){
   const box=document.getElementById("quizBox"); if(!box) return;
   const Q=quiz.set[quiz.i];
@@ -584,6 +593,7 @@ function sbPaint(){
   document.getElementById("sbForm").hidden=on;
   document.getElementById("sbOut").hidden=!on;
   renderPersonal();
+  if(on){(async()=>{try{if(SB)await SB.from("profiles").update({avatar:localAv()}).eq("id",sbUser.id);}catch(e){}})();}
   sbStatus(on?("online as "+(sbUser.user_metadata&&sbUser.user_metadata.callsign?sbUser.user_metadata.callsign:sbUser.email)):"logged out.");
 }
 async function sbCallsign(){
@@ -799,7 +809,8 @@ function localAv(){try{const p=JSON.parse(localStorage.getItem("holy_profile")||
       const r=await SB.auth.signUp({email:em,password:pw,options:{data:{callsign:call}}});
       if(r.error) throw r.error;
       if(r.data.session){sbUser=r.data.session.user;
-        const up=await SB.from("profiles").upsert({id:sbUser.id,callsign:call,avatar:localAv()});
+        let up=await SB.from("profiles").upsert({id:sbUser.id,callsign:call,avatar:localAv()});
+        if(up.error){up=await SB.from("profiles").upsert({id:sbUser.id,callsign:call});}
         if(up.error) throw up.error;
         sbPaint(); toast("◉ ACCOUNT LIVE — welcome, "+call);
       } else {sbStatus("account created — confirm via inbox (or disable confirm-email), then LOG IN.");toast("Check your inbox, then log in.");}

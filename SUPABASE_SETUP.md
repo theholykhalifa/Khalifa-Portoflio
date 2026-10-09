@@ -146,16 +146,17 @@ create policy "users update own achievements"
 
 Badges earned while logged in now sync to the account automatically.
 
-## 8. Let users delete their OWN scores
+## 8. Self-service scores — RETIRED
 
-Users can only ever touch their own rows — safe to allow. SQL Editor → Run:
+Score editing and deleting were removed from the site: posted scores are
+final for everyone, including the owner. (Management happens in Table
+Editor or the admin panel.) If you ran the delete/update policies, you
+may drop them:
 
 ```sql
-create policy "users delete own scores"
-  on scores for delete to authenticated using (auth.uid() = user_id);
+drop policy if exists "users delete own scores" on scores;
+drop policy if exists "users update own scores" on scores;
 ```
-
-Then the ✕ button in MY SCORES works (delete own rows only). (Value editing is intentionally not offered — replay to improve. Deleting *others'* scores stays server-side: edge function or Table Editor.)
 
 ## Notes
 

@@ -665,15 +665,8 @@ async function renderPersonal(){
       const mel=box.querySelector("#myScores");
       if(ms.error) throw ms.error;
       mel.innerHTML=(ms.data||[]).length?ms.data.map(r=>
-        `${r.game} ${r.score}/${r.total} <button class="mini" data-mdel="${r.id}" style="background:none;border:1px solid #FF3B30;color:#FF8FA3;border-radius:6px;font-size:10px;padding:1px 8px;cursor:pointer">✕</button>`
+        `${r.game} ${r.score}/${r.total}`
       ).join("<br>"):"no scores posted yet — go play.";
-      mel.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=async ()=>{
-        try{
-          const d=await SB.from("scores").delete().eq("id",+b.dataset.mdel);
-          if(d.error) throw d.error;
-          toast("Score deleted."); renderPersonal(); loadBoard();
-        }catch(e){toast("Blocked — run the section-7 SQL for self-delete.");}
-      });
     }catch(e){/* listed inline above */}
   }catch(e){box.textContent="Board unreadable — check connection.";}
 }

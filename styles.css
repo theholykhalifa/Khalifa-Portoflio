@@ -460,7 +460,8 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .bav svg,.bav img{width:22px;height:22px;display:block;object-fit:cover}
 .brow{align-items:center}
 /* live board motion — rotating tri-color border, travelling sheen, live dot */
-.board-top{position:relative;overflow:hidden;border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from var(--ba,0deg),rgba(255,51,85,.75),rgba(255,176,32,.7),rgba(125,235,255,.55),rgba(255,51,85,.75)) border-box;animation:holyspin 7s linear infinite}
+.board-top{position:relative;overflow:hidden;border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from var(--ba,0deg),#FFB020,#FFF3C4,#FF8A3D,#FFB020,#8a6300,#FFB020) border-box;animation:holyspin 6s linear infinite,goldbreathe 3s ease-in-out infinite}
+@keyframes goldbreathe{0%,100%{box-shadow:0 0 12px rgba(255,176,32,.15)}50%{box-shadow:0 0 48px rgba(255,176,32,.4)}}
 .board-top::after{content:"";position:absolute;top:0;bottom:0;width:35%;left:-45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);animation:sheenmove 6s ease-in-out infinite;pointer-events:none}
 @keyframes sheenmove{0%{left:-45%}60%,100%{left:135%}}
 .board-top .idx::before{content:"● ";color:#00ffa3;animation:blinkSoft 1.6s ease-in-out infinite}

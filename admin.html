@@ -294,6 +294,7 @@ async function banAct(action){
   var url=document.getElementById("fnUrl").value.trim(),
       sec=document.getElementById("fnSecret").value,
       id=document.getElementById("banId").value.trim();
+  try{localStorage.setItem("holy_fnurl",url);sessionStorage.setItem("holy_fnsec",sec);}catch(e){}
   if(!url||!sec||!id){msg.textContent="Need function URL + secret + user UUID.";return;}
   msg.textContent="sending…";
   try{
@@ -340,6 +341,9 @@ async function adminAct(payload,done){
     if(r.ok&&done)done();
   }catch(e){toast2("✗ function unreachable — deployed?");}
 }
+  try{const u=localStorage.getItem("holy_fnurl"),s=sessionStorage.getItem("holy_fnsec");
+    if(u)document.getElementById("fnUrl").value=u;
+    if(s)document.getElementById("fnSecret").value=s;}catch(e){}
 show();
 cloudRefresh();
 </script>

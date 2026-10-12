@@ -1198,6 +1198,35 @@ function openTab(name){
   try{history.replaceState(null,"","#"+name)}catch(e){}
   scrollTo({top:0,behavior:"smooth"});
 }
+/* arena ember canvas — slow red dust, pauses offscreen */
+(function(){
+function arenaFX(){
+  const cv=document.getElementById("arenaCv"); if(!cv) return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const ctx=cv.getContext("2d"); if(!ctx) return;
+  let W,H,run=false,raf=0;
+  const P=[];
+  function size(){const r=cv.parentElement.getBoundingClientRect();
+    W=cv.width=Math.max(300,Math.floor(r.width));H=cv.height=Math.max(160,Math.floor(r.height));}
+  size(); addEventListener("resize",size);
+  for(let i=0;i<36;i++)P.push({x:Math.random(),y:Math.random(),v:.0004+Math.random()*.0012,s:Math.random()*1.6+.6,o:.22+Math.random()*.5});
+  function frame(){
+    if(!run) return;
+    ctx.clearRect(0,0,W,H);
+    P.forEach(p=>{p.y-=p.v;if(p.y<-.02){p.y=1.02;p.x=Math.random();}
+      ctx.globalAlpha=p.o;ctx.fillStyle="#ff3355";
+      ctx.fillRect(p.x*W,p.y*H,p.s,p.s);});
+    ctx.globalAlpha=1;
+    raf=requestAnimationFrame(frame);
+  }
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting&&!run){run=true;frame();}
+    else if(!e.isIntersecting){run=false;cancelAnimationFrame(raf);}
+  }),{threshold:0}).observe(cv);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",arenaFX);
+else arenaFX();
+})();
 function localAv(){try{const p=JSON.parse(localStorage.getItem("holy_profile")||"null");return (p&&p.avatar)||0}catch(e){return 0}}
   $("#sbUp").onclick=async ()=>{
     if(!SB){toast("Cloud off — add project keys first.");return;}

@@ -834,7 +834,8 @@ function downloadVcf(){
 function setRecruiter(on){
   document.body.classList.toggle("recruiter",on);
   try{localStorage.setItem("holy_rec",on?"1":"0")}catch(e){}
-  if(on){scrollTo({top:0,behavior:"smooth"});toast("◉ RECRUITER VIEW — clean profile");}
+  if(on){toast("◉ RECRUITER VIEW — clean profile");
+    setTimeout(()=>{const a=document.getElementById("about");if(a)a.scrollIntoView({behavior:"smooth"});},150);}
 }
 let holyLang="en";
 const I18N_MAP=[

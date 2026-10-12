@@ -1106,7 +1106,10 @@ async function loadExamBoard(){
   try{
     const r=await SB.from("exam_runs").select("callsign,score,duration_s").eq("scenario",boardGame).order("score",{ascending:false}).order("duration_s",{ascending:true}).limit(10);
     if(r.error) throw r.error;
-    if(!r.data.length){box.textContent="No runs yet — be the first through the fire.";return;}
+    if(!r.data.length){box.innerHTML=`No runs yet — be the first through the fire.<br><br><button class="btn btn-p" id="exJump">START ${boardGame.toUpperCase()} →</button>`;
+      const jb=document.getElementById("exJump");
+      if(jb)jb.onclick=()=>{openTab("exams");const tb=document.querySelector(`#examTabs [data-ex="${boardGame}"]`);if(tb)tb.click();};
+      return;}
     box.innerHTML=r.data.map((row,i)=>{
       const cls=i===0?"r1":(i===1?"r2":(i===2?"r3":""));
       return `<div class="brow ${cls}"><span>${String(i+1).padStart(2,"0")}</span><span>${escapeHtml(row.callsign)}</span><span>${row.score} · ${row.duration_s}s</span></div>`;}).join("");
@@ -1129,7 +1132,10 @@ async function loadCrown(){
       const ks=Object.keys(u.best), avg=ks.reduce((s,k)=>s+u.best[k],0)/Math.max(1,ks.length);
       return{call:u.call,avg:avg,n:ks.length};
     }).filter(x=>x.n>0).sort((a,b)=>b.avg-a.avg||b.n-a.n).slice(0,10);
-    if(!rows.length){box.textContent="Crown unclaimed — run all three sims.";return;}
+    if(!rows.length){box.innerHTML=`Crown unclaimed — run all three sims.<br><br><button class="btn btn-p" id="exJump2">ENTER THE SIMS →</button>`;
+      const jb=document.getElementById("exJump2");
+      if(jb)jb.onclick=()=>{openTab("exams");};
+      return;}
     box.innerHTML=rows.map((x,i)=>{
       const cls=i===0?"r1":(i===1?"r2":(i===2?"r3":""));
       return `<div class="brow ${cls}"><span>${String(i+1).padStart(2,"0")}</span><span>${escapeHtml(x.call)}</span><span>${Math.round(x.avg*100)}% · ${x.n}/3</span></div>`;}).join("");

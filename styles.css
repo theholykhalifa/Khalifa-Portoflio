@@ -576,3 +576,16 @@ footer{border-top:1px solid var(--line2);padding:48px 0 32px;color:var(--muted);
   .kv{grid-template-columns:1fr;gap:2px}
 }
 @media(max-width:560px){.cred-grid,.res-grid{grid-template-columns:1fr}.wrap{padding:0 16px}.ops-grid{grid-template-columns:1fr 1fr}}
+/* mobile polish — touch-first */
+@media(max-width:768px){
+  input.tfield,#cform input,#cform textarea,#tinput,.authbar input,#sbForm input{font-size:16px}
+  .sheet{padding:22px 16px}
+  .article table{display:block;overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch}
+  .article pre{font-size:11.5px}
+  .toast{max-width:92vw;text-align:center}
+  .tele-grid,.tele-metrics{grid-template-columns:1fr 1fr}
+  .hero .btnrow .btn{flex:1 1 100%;justify-content:center}
+  section{padding:60px 0}
+  .term-body{font-size:14px;min-height:280px}
+  .opt{padding:14px}
+}

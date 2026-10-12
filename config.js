@@ -369,7 +369,7 @@ const HOLY_SUPABASE = { url: "https://clicgiyhobsuvbnngwel.supabase.co", key: "s
 
 /* Maintenance mode — set on:true to park the whole site behind an
    under-construction screen. Bypass with ?live=1 or triple-click logo. */
-const HOLY_MAINTENANCE = { on: true, eta: "Back soon — hardening in progress." };
+const HOLY_MAINTENANCE = { on: false, eta: "Back soon — hardening in progress." };
 
 /* PGP fingerprint — displayed + copied exactly as given. */
 const HOLY_PGP_FP = "689B D5F7 560E A3E6 B246 EE16 588B 7097 6549 7307";

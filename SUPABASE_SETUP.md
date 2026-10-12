@@ -175,6 +175,51 @@ create policy "visits readable by all"
 
 One row per page load. Powers the little ◉ VISITS pill.
 
+## 10. Convergence pass (run this whole block once)
+
+If you ever saw "already exists" errors, run this: every statement is
+guarded, so re-running is always safe and finishes anything skipped.
+
+```sql
+-- visits table + policies
+create table if not exists visits (
+  id bigint generated always as identity primary key,
+  path text default '',
+  created_at timestamptz default now()
+);
+alter table visits enable row level security;
+drop policy if exists "visits insertable by all" on visits;
+create policy "visits insertable by all"
+  on visits for insert to anon, authenticated with check (true);
+drop policy if exists "visits readable by all" on visits;
+create policy "visits readable by all"
+  on visits for select to anon, authenticated using (true);
+
+-- achievements table + policies
+create table if not exists achievements (
+  user_id uuid references auth.users(id) on delete cascade,
+  badge text not null,
+  earned_at timestamptz default now(),
+  primary key (user_id, badge)
+);
+alter table achievements enable row level security;
+drop policy if exists "achievements readable by all" on achievements;
+create policy "achievements readable by all"
+  on achievements for select to anon, authenticated using (true);
+drop policy if exists "users insert own achievements" on achievements;
+create policy "users insert own achievements"
+  on achievements for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "users update own achievements" on achievements;
+create policy "users update own achievements"
+  on achievements for update to authenticated using (auth.uid() = user_id);
+
+-- avatar column for leaderboard faces
+alter table profiles add column if not exists avatar int default 0;
+```
+
+Expect green Success with no errors this time — then every cloud
+feature (visits pill, badge sync, hero faces) lights up together.
+
 ## Notes
 
 - RLS means: anyone can READ the board; only logged-in users can write

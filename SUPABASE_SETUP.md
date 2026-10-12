@@ -158,6 +158,23 @@ drop policy if exists "users delete own scores" on scores;
 drop policy if exists "users update own scores" on scores;
 ```
 
+## 9. Visits counter (one tiny table)
+
+```sql
+create table visits (
+  id bigint generated always as identity primary key,
+  path text default '',
+  created_at timestamptz default now()
+);
+alter table visits enable row level security;
+create policy "visits insertable by all"
+  on visits for insert to anon, authenticated with check (true);
+create policy "visits readable by all"
+  on visits for select to anon, authenticated using (true);
+```
+
+One row per page load. Powers the little ◉ VISITS pill.
+
 ## Notes
 
 - RLS means: anyone can READ the board; only logged-in users can write

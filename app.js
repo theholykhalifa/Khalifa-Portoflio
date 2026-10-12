@@ -538,6 +538,27 @@ function palList(q){
 
 /* ---------- boot ---------- */
 document.addEventListener("DOMContentLoaded",()=>{
+/* maintenance code rain — ambient, infinite, subtle */
+function maintRain(cv){
+  if(!cv) return;
+  const ctx=cv.getContext("2d");
+  const chars="01ABCDEF$#/*<>+|0123456789";
+  let W,H,drops,dead=false;
+  function size(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;
+    drops=Array(Math.max(1,Math.floor(W/18))).fill(0).map(()=>Math.random()*-40);}
+  size(); addEventListener("resize",size);
+  ctx.font="14px monospace";
+  (function tick(){
+    if(dead||!document.getElementById("maint")) return;
+    ctx.fillStyle="rgba(2,3,4,.14)"; ctx.fillRect(0,0,W,H);
+    drops.forEach((y,i)=>{
+      ctx.globalAlpha=.14+Math.random()*.3; ctx.fillStyle="#ff3355";
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*18,y*18);
+      drops[i]=y*18>H&&Math.random()>.975?0:y+.55;
+    });
+    ctx.globalAlpha=1; requestAnimationFrame(tick);
+  })();
+}
 /* maintenance mode — parks the site behind a construction screen */
 function maintenanceMode(){
   if(!document.getElementById("intro")) return;
@@ -546,14 +567,18 @@ function maintenanceMode(){
   document.body.style.overflow="";
   const m=document.createElement("div");
   m.className="intro"; m.id="maint";
-  m.innerHTML=`<div class="intro-box" style="text-align:center">
+  m.innerHTML=`<canvas class="maint-rain" id="maintRain"></canvas><div class="intro-box" style="text-align:center;position:relative">
     <img class="logo-intro" src="assets/logo.png" alt="HOLY logo">
     <div class="mono" style="font-size:clamp(26px,6vw,52px);font-weight:900;letter-spacing:-.02em">UNDER<br>CONSTRUCTION</div>
     <div class="mono" id="maintLog" style="font-size:12.5px;color:var(--muted);line-height:2;min-height:120px;margin-top:14px;text-align:left"></div>
     <div class="intro-bar"><i id="maintBar" style="width:0"></i></div>
     <p class="mono" style="font-size:12px;color:var(--accent2)">${HOLY_MAINTENANCE.eta}</p>
     <div class="btnrow" style="justify-content:center"><a class="btn btn-g" href="mailto:HVoid9@proton.me">CONTACT HOLY →</a></div>
-    <div class="mono" style="font-size:10px;color:var(--muted);margin-top:14px">operators: triple-click the logo</div>
+    <div id="maintGate" style="margin-top:18px">
+      <div class="mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--muted)">OPERATOR ACCESS</div>
+      <div class="intro-row" style="margin-top:8px"><input id="maintPass" type="password" placeholder="passphrase" autocomplete="off" style="flex:1;min-width:0;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:14px"><button id="maintGo" style="background:var(--accent);color:#0a0507;border:none;border-radius:10px;padding:12px 18px;font-family:var(--mono);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">ENTER →</button></div>
+      <div class="mono" id="maintErr" style="font-size:11px;color:var(--crit);min-height:18px;margin-top:6px"></div>
+    </div>
   </div>`;
   document.body.appendChild(m);
   document.body.style.overflow="hidden";
@@ -561,12 +586,32 @@ function maintenanceMode(){
   const log=m.querySelector("#maintLog"), bar=m.querySelector("#maintBar");
   lines.forEach((l,i)=>setTimeout(()=>{if(!document.getElementById("maint"))return;
     log.innerHTML+=l+"<br>";bar.style.width=((i+1)/lines.length*100)+"%";},700*(i+1)));
+  maintRain(m.querySelector("#maintRain"));
   let n=0;
-  m.querySelector(".logo-intro").addEventListener("click",()=>{
-    if(++n>=3){m.remove();document.body.style.overflow="";toast("◉ Operator bypass — welcome back.");}
-  });
+  const passGo=async ()=>{
+    const v=m.querySelector("#maintPass").value;
+    try{
+      const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));
+      const hx=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+      let H=HOLY_ADMIN.passHash;
+      try{const ov=JSON.parse(localStorage.getItem("holy_admin_cred")||"null");
+        if(ov&&ov.passHash)H=ov.passHash;}catch(e){}
+      if(hx===H){try{sessionStorage.setItem("holy_maint","1")}catch(e){}
+        m.remove();document.body.style.overflow="";toast("◉ Operator access — welcome back.");}
+      else if(++n>=3){m.querySelector("#maintErr").textContent="✗ Denied. Cooling down 30s.";
+        m.querySelector("#maintGo").disabled=true;
+        setTimeout(()=>{n=0;const bt=m.querySelector("#maintGo");if(bt)bt.disabled=false;
+          const er=m.querySelector("#maintErr");if(er)er.textContent="";},30000);}
+      else m.querySelector("#maintErr").textContent="✗ Denied — attempt "+n+"/3.";
+    }catch(e){m.querySelector("#maintErr").textContent="✗ Crypto unavailable.";}
+  };
+  m.querySelector("#maintGo").onclick=passGo;
+  m.querySelector("#maintPass").addEventListener("keydown",e=>{if(e.key==="Enter")passGo();});
 }
-  if(typeof HOLY_MAINTENANCE!=="undefined"&&HOLY_MAINTENANCE.on&&!/[?&]live=1/.test(location.search)){maintenanceMode();}
+  if(typeof HOLY_MAINTENANCE!=="undefined"&&HOLY_MAINTENANCE.on&&!/[?&]live=1/.test(location.search)){
+    let skip=false; try{skip=sessionStorage.getItem("holy_maint")==="1"}catch(e){}
+    if(!skip) maintenanceMode();
+  }
   // entry sequence — hack-style login, skippable
   const intro=document.getElementById("intro");
   if(intro&&/[?&]intro=0/.test(location.search)){intro.remove();document.body.classList.add("ready");}

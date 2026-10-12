@@ -532,7 +532,7 @@ function renderTrophies(){
   const a=getAch();
   el.innerHTML='<div class="bgrid">'+Object.keys(BADGE_META).map((k,ix)=>{
     const m=BADGE_META[k], won=!!a[k];
-    return `<div class="bcard ${m.c} ${won?"won":""}" style="animation-delay:${ix*70}ms"><div class="bicon">${m.i}</div><div><b>${m.n}</b><p>${m.d}</p></div><span class="bstate">${won?"◉":"○"}</span></div>`;}).join("")+'</div>'+holyProgress();
+    return `<div class="bcard ${m.c} ${won?"won":""}" style="animation-delay:${ix*70}ms"><div class="medal" style="animation-delay:${ix*260}ms"><div class="coin-edge"></div><div class="coin"><div class="bicon">${m.i}</div></div></div><div><b>${m.n}</b><p>${m.d}</p></div><span class="bstate">${won?"◉":"○"}</span></div>`;}).join("")+'</div>'+holyProgress();
 }
 function holyProgress(){
   const a=getAch(), f=foundFlags(); let best={}, mid=0;
@@ -981,6 +981,19 @@ document.addEventListener("DOMContentLoaded",()=>{
   safe(()=>{$$("#toolTabs .btn").forEach(b=>b.onclick=()=>renderTool(b.dataset.tool));});
   safe(()=>renderTool("hash")); safe(()=>renderDaily()); safe(()=>renderCtf()); safe(()=>renderPersonal());
   safe(()=>renderTrophies()); safe(()=>renderDashboard());
+  safe(()=>{
+    const tc=document.getElementById("trophyCase"); if(!tc) return;
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    tc.addEventListener("mousemove",e=>{
+      const c=e.target.closest(".bcard.won");
+      tc.querySelectorAll(".bcard").forEach(x=>{if(x!==c)x.style.transform="";});
+      if(!c) return;
+      const r=c.getBoundingClientRect();
+      const rx=((e.clientY-r.top)/r.height-.5)*-12, ry=((e.clientX-r.left)/r.width-.5)*12;
+      c.style.transform=`perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
+    });
+    tc.addEventListener("mouseleave",()=>tc.querySelectorAll(".bcard").forEach(x=>x.style.transform=""));
+  });
   safe(()=>{gameInput();const gb=document.getElementById("gameBtn");if(gb)gb.onclick=toggleGame;});
   safe(()=>{document.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>openGame(b.dataset.game));});
   document.getElementById("gclose").onclick=()=>closeGame();

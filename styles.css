@@ -403,6 +403,18 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .b-holy.won{animation:holyfloat 3.5s ease-in-out infinite,holyspin 8s linear infinite}
 @keyframes holyspin{to{--ba:360deg}}
 @keyframes holyfloat{50%{transform:translateY(-4px)}}
+/* 3D trophy shelf — floating medallions, spinning shine, cursor tilt */
+#trophyCase .bgrid{perspective:1200px}
+#trophyCase .bcard{transform-style:preserve-3d}
+#trophyCase .medal{width:64px;height:64px;flex:none;position:relative;transform-style:preserve-3d;animation:floaty 4.2s ease-in-out infinite}
+@keyframes floaty{50%{transform:translateY(-7px) rotateX(7deg)}}
+#trophyCase .coin{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.32),transparent 46%),linear-gradient(145deg,#1b232c,#090d12);border:2px solid currentColor;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 26px rgba(0,0,0,.55),inset 0 0 0 4px rgba(0,0,0,.4),inset 0 0 20px rgba(255,255,255,.07);transform:translateZ(12px)}
+#trophyCase .coin::after{content:"";position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 68%,rgba(255,255,255,.55),transparent 86%);animation:coinspin 4.5s linear infinite;mix-blend-mode:screen;pointer-events:none}
+@keyframes coinspin{to{transform:rotate(360deg)}}
+#trophyCase .coin-edge{position:absolute;inset:0;border-radius:50%;border:2px solid currentColor;opacity:.45}
+#trophyCase .medal::after{content:"";position:absolute;left:12%;right:12%;bottom:-11px;height:9px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.65),transparent 70%);animation:shadpulse 4.2s ease-in-out infinite}
+@keyframes shadpulse{50%{transform:scaleX(.78);opacity:.7}}
+#trophyCase .bicon svg{width:28px;height:28px;position:relative;z-index:2}
 .holybar{margin-top:12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:#FFD88A;border:1px dashed rgba(255,176,32,.5);border-radius:10px;padding:10px 14px;line-height:1.9}
 /* badge svg icons + entrance */
 #trophyCase .bcard{animation:cardIn .45s backwards}

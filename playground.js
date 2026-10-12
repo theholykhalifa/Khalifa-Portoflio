@@ -616,8 +616,12 @@ let boardGame="sec";
 async function loadBoard(game){
   boardGame=game||boardGame;
   const box=document.getElementById("boardBox"); if(!box) return;
-  const bS=document.getElementById("boardSec"), bV=document.getElementById("boardVuln");
-  if(bS){bS.className="btn "+(boardGame==="sec"?"btn-p":"btn-g");bV.className="btn "+(boardGame==="vuln"?"btn-p":"btn-g");}
+  const paint=(id,on)=>{const el=document.getElementById(id);if(el)el.className="btn btn-"+(on?"p":"g");};
+  paint("boardSec",boardGame==="sec");paint("boardVuln",boardGame==="vuln");
+  paint("boardS1",boardGame==="s1");paint("boardS2",boardGame==="s2");
+  paint("boardS3",boardGame==="s3");paint("boardCrown",boardGame==="crown");
+  if(boardGame==="crown") return loadCrown();
+  if(["s1","s2","s3"].includes(boardGame)) return loadExamBoard();
   if(!SB){box.textContent="Connect a cloud project to light up this board.";return;}
   box.textContent="Loading…";
   try{
@@ -965,6 +969,193 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#boardSec").onclick=()=>loadBoard("sec");
   $("#boardVuln").onclick=()=>loadBoard("vuln");
   $("#boardGo").onclick=()=>loadBoard();
+  ["boardS1","boardS2","boardS3","boardCrown"].forEach((id,i)=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.onclick=()=>loadBoard(["s1","s2","s3","crown"][i]);});
+  $$("#examTabs .btn").forEach(b=>b.onclick=()=>{
+    $$("#examTabs .btn").forEach(x=>x.className="btn btn-g");
+    b.className="btn btn-p"; examBrief(b.dataset.ex);});
+  examBrief("s1");
+  document.getElementById("examGo").onclick=()=>document.getElementById("examBox").scrollIntoView({behavior:"smooth",block:"center"});
+  fillChampion();
+/* simulation exams — timed stages, hint economy, safety violations fail */
+const EXAMS={
+ s1:{name:"BLACKOUT RIDGE",brief:"External op. IDS-watched perimeter, unknown lockouts, one out-of-scope surprise. Quiet wins.",qs:[
+  {q:"First touch against an IDS-watched /24?",opts:["-sS -T4, full range, now","-sS -T2 -f -D RND:5, top ports","-sU -T5, everything","-A -T3, whole subnet"],a:1,h:"Slow, fragmented, and lying about source.",exp:"SYN + sneaky timing + fragmentation + decoys. Speed is for labs, not live perimeters."},
+  {q:"1,000 users, lockout policy unknown. First auth move?",opts:["rockyou per user, 16 threads","One tiny spray, then watch for lockouts","Skip auth — find another way in","Hydra full throttle"],a:1,h:"One bad morning can lock a whole company.",exp:"Spray minimally, monitor for lockouts, stop at smoke. Efficiency includes not breaking the client."},
+  {q:"Odd TXT spikes to a 2-day-old domain. Defender's read?",opts:["Marketing pixels","Possible DNS tunneling — inspect + block","Normal CDN behavior","Ignore, low volume"],a:1,h:"TXT + volume + newborn domain.",exp:"Classic C2/bypass channel shape. Pull pcaps, sinkhole, block."},
+  {q:"Scope says .10–.20. Your scan shows live .44. You…",opts:["Quick peek — no harm","Stop, document, report to handler","Scan it quietly, omit later","Add it to scope yourself"],a:1,h:"Authorization is the entire game.",exp:"SAFETY: out-of-scope contact without approval fails the engagement — and this exam."}]},
+ s2:{name:"GLASSHOUSE",brief:"Web app assessment. Auth logic, object trust, export features, token crypto. Prove impact without damage.",qs:[
+  {q:"Valid users enumerated via login oracle. Quietest next validation?",opts:["Hydra 32 threads","Single spray + timing analysis","SQLi the login","Abandon auth"],a:1,h:"Confirm without thunder.",exp:"One careful spray plus response-timing analysis validates with minimal noise."},
+  {q:"/profile/124 returns another user's data. Correct handling?",opts:["Dump everything for impact","Read-only proof, document, halt that thread","Exploit to admin","Share the URL around"],a:1,h:"Proof, not plunder.",exp:"SAFETY: existence proof + report. Pivoting on live user data fails you."},
+  {q:"PDF export fetches ?url=. Reachable fix that holds?",opts:["Block PDFs entirely","Allowlist + no redirects + metadata-IP deny","WAF regex on 'http'","Trust intranet callers"],a:1,h:"SSRF lives in fetchers.",exp:"Exporters are SSRF cannons. Allowlist destinations, kill redirects, deny metadata."},
+  {q:"Session JWT: HS256, 'secret'. Fastest quiet win?",opts:["Online brute force","Offline dictionary crack","Ignore crypto","Ask the admin"],a:1,h:"Steal the hash, crack at home.",exp:"Weak HMAC secrets fall offline with zero target noise. Then forge, don't smash."}]},
+ s3:{name:"IRONVAULT",brief:"AD range. No creds, network access, blue team awake. OPSEC is scored.",qs:[
+  {q:"No creds, LAN access. Quietest first move?",opts:["Full Nessus sweep","LLMNR/NBT-NS poisoning + watch","Mass RDP spray","Shodan the range"],a:1,h:"Listen before you shout.",exp:"Responder-style poisoning harvests hashes passively. Authorized ranges only."},
+  {q:"svc_sql account has an SPN. Technique?",opts:["AS-REP roast","Kerberoasting — request TGS, crack offline","Password spray Domain Admins","DCSync now"],a:1,h:"SPN + service account = roastable.",exp:"Kerberoasting pulls crackable tickets offline. AS-REP needs no-preauth accounts instead."},
+  {q:"DA path mapped. Least-noise objective?",opts:["DCSync immediately","Golden ticket + persist everywhere","Abuse delegation minimally, clean up","Mimikatz interactively on DC"],a:2,h:"Loud toys end operations.",exp:"Use the quietest sufficient path, touch little, remove artifacts. DCSync screams."},
+  {q:"Which OPSEC failure burns operations fastest?",opts:["Daytime scanning","Wiping ALL logs clean","Using lab tools","Writing reports"],a:1,h:"Gaps are louder than entries.",exp:"SAFETY: mass log deletion creates a glowing hole. Targeted cleanup or none — and never outside scope."}]}
+};
+const EXAM_QTIME=60, EXAM_MAX=4800;
+let exam={key:null,i:0,score:0,t0:0,left:0,timer:null,hintUsed:false,attempts:0,hints:0,attTotal:0,dur:0};
+function examStart(key){
+  exam={key:key,i:0,score:0,t0:Date.now(),left:EXAM_QTIME,timer:null,hintUsed:false,attempts:0,hints:0,attTotal:0,dur:0};
+  examRender();
+}
+function examStop(){if(exam.timer){clearInterval(exam.timer);exam.timer=null;}}
+function examRender(){
+  const box=document.getElementById("examBox"); if(!box) return;
+  const E=EXAMS[exam.key], Q=E.qs[exam.i];
+  if(!Q){
+    examStop(); exam.dur=Math.round((Date.now()-exam.t0)/1000);
+    const pct=Math.round(exam.score/EXAM_MAX*100);
+    box.innerHTML=`<div class="qprog">SIM COMPLETE — ${E.name}</div>
+    <div class="qscore">${exam.score} / ${EXAM_MAX} (${pct}%)</div>
+    <div class="qrank">TIME ${exam.dur}s · HINTS ${exam.hints} · EXTRA ATTEMPTS ${exam.attTotal}</div>
+    <div class="mono" id="exSub" style="font-size:12px;color:var(--muted);margin-top:8px">${(typeof SB!=="undefined"&&SB&&sbUser)?"Posting run…":"Log in to post this run to the crown board."}</div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn btn-g" id="exAgain">RETRY SIM →</button></div>`;
+    document.getElementById("exAgain").onclick=()=>examStart(exam.key);
+    submitExam();
+    return;
+  }
+  exam.left=EXAM_QTIME; exam.hintUsed=false; exam.attempts=0;
+  box.innerHTML=`<div class="qprog">${E.name} — STAGE ${exam.i+1} / ${E.qs.length} · SCORE ${exam.score}</div>
+  <div class="extimer"><i id="exBar"></i></div>
+  <h4 class="qq">${Q.q}</h4>
+  <div class="qopts">${Q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div>
+  <div class="btnrow" style="margin-top:10px">
+    <button class="btn btn-t" id="exHint">HINT −150</button>
+    <button class="btn btn-t" id="exGive">GIVE UP → 0</button>
+  </div>
+  <div class="qexp" hidden></div>`;
+  const bar=box.querySelector("#exBar");
+  examStop();
+  exam.timer=setInterval(()=>{
+    exam.left--;
+    if(bar)bar.style.width=(exam.left/EXAM_QTIME*100)+"%";
+    if(exam.left<=0){examStop();examResolve(box,Q,-1);}
+  },1000);
+  box.querySelector("#exHint").onclick=()=>{
+    if(exam.hintUsed)return; exam.hintUsed=true; exam.hints++;
+    exam.score=Math.max(0,exam.score);
+    const ex=box.querySelector(".qexp"); ex.hidden=false;
+    ex.innerHTML=`<b>HANDLER WHISPERS (−150):</b> ${Q.h}`;
+    box.querySelector("#exHint").disabled=true;
+  };
+  box.querySelector("#exGive").onclick=()=>{examStop();examResolve(box,Q,-2);};
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>examResolve(box,Q,+b.dataset.i));
+}
+function examResolve(box,Q,pick){
+  examStop();
+  box.querySelectorAll(".opt").forEach(x=>{x.disabled=true;});
+  const ex=box.querySelector(".qexp"); ex.hidden=false;
+  let pts=0, verdict="";
+  if(pick>=0&&pick===Q.a){
+    const frac=exam.left/EXAM_QTIME;
+    pts=Math.max(100,1000+(exam.hintUsed?-150:0)-exam.attempts*100+Math.round(200*frac));
+    exam.score+=pts; verdict=`✓ STAGE CLEAR +${pts}`;
+  } else if(pick===-2){
+    verdict="◐ STAGE ABANDONED +0";
+  } else if(pick===-1){
+    verdict="◷ TIME EXPIRED +0 — speed matters";
+  } else {
+    exam.attempts++; exam.attTotal++;
+    if(exam.attempts>=2){
+      verdict=`✗ SECOND MISS — stage failed +0. Correct: <b>${Q.opts[Q.a]}</b>`;
+      ex.innerHTML=`<b>${verdict}</b> — ${Q.exp}<br><br><button class="btn btn-p" id="exNext">NEXT STAGE →</button>`;
+      box.querySelector("#exNext").onclick=()=>{exam.i++;examRender();};
+      return;
+    }
+    verdict=`✗ MISS (−100 if cleared) — try again`;
+    ex.innerHTML=`<b>${verdict}</b><br><span class="mono" style="font-size:11px;color:var(--muted)">Second miss fails the stage.</span>`;
+    box.querySelectorAll(".opt").forEach(x=>{if(+x.dataset.i!==pick)x.disabled=false;});
+    exam.timer=setInterval(()=>{
+      exam.left--;
+      const bar=box.querySelector("#exBar");
+      if(bar)bar.style.width=(exam.left/EXAM_QTIME*100)+"%";
+      if(exam.left<=0){examStop();examResolve(box,Q,-1);}
+    },1000);
+    return;
+  }
+  ex.innerHTML=`<b>${verdict}</b> — ${Q.exp}<br><br><button class="btn btn-p" id="exNext">${exam.i+1>=EXAMS[exam.key].qs.length?"SEE RESULT":"NEXT STAGE →"}</button>`;
+  box.querySelectorAll(".opt").forEach(x=>{if(+x.dataset.i===Q.a)x.classList.add("ok");});
+  box.querySelector("#exNext").onclick=()=>{exam.i++;examRender();};
+}
+async function submitExam(){
+  try{
+    if(typeof SB==="undefined"||!SB||!sbUser) return;
+    const call=await sbCallsign();
+    const r=await SB.from("exam_runs").insert({user_id:sbUser.id,callsign:call,
+      scenario:exam.key,score:exam.score,total:EXAM_MAX,
+      duration_s:exam.dur,hints:exam.hints,attempts:exam.attTotal});
+    const el=document.getElementById("exSub");
+    if(el)el.textContent=r.error?("Post failed: "+(r.error.message||"RLS")):"◉ Run posted — check the crown board.";
+    loadBoard(boardGame);
+  }catch(e){}
+}
+async function loadExamBoard(){
+  const box=document.getElementById("boardBox"); if(!box) return;
+  if(typeof SB==="undefined"||!SB){box.textContent="Connect a cloud project to light up this board.";return;}
+  box.textContent="Loading…";
+  try{
+    const r=await SB.from("exam_runs").select("callsign,score,duration_s").eq("scenario",boardGame).order("score",{ascending:false}).order("duration_s",{ascending:true}).limit(10);
+    if(r.error) throw r.error;
+    if(!r.data.length){box.textContent="No runs yet — be the first through the fire.";return;}
+    box.innerHTML=r.data.map((row,i)=>{
+      const cls=i===0?"r1":(i===1?"r2":(i===2?"r3":""));
+      return `<div class="brow ${cls}"><span>${String(i+1).padStart(2,"0")}</span><span>${escapeHtml(row.callsign)}</span><span>${row.score} · ${row.duration_s}s</span></div>`;}).join("");
+  }catch(e){box.textContent="Board unreadable: "+(e.message||"check RLS policies");}
+}
+async function loadCrown(){
+  const box=document.getElementById("boardBox"); if(!box) return;
+  if(typeof SB==="undefined"||!SB){box.textContent="Connect a cloud project to light up this board.";return;}
+  box.textContent="Loading…";
+  try{
+    const r=await SB.from("exam_runs").select("user_id,callsign,scenario,score,total").limit(500);
+    if(r.error) throw r.error;
+    const per={};
+    (r.data||[]).forEach(x=>{
+      const u=per[x.user_id]=per[x.user_id]||{call:x.callsign,best:{}};
+      const pct=x.score/Math.max(1,x.total);
+      if(!u.best[x.scenario]||pct>u.best[x.scenario])u.best[x.scenario]=pct;
+    });
+    const rows=Object.values(per).map(u=>{
+      const ks=Object.keys(u.best), avg=ks.reduce((s,k)=>s+u.best[k],0)/Math.max(1,ks.length);
+      return{call:u.call,avg:avg,n:ks.length};
+    }).filter(x=>x.n>0).sort((a,b)=>b.avg-a.avg||b.n-a.n).slice(0,10);
+    if(!rows.length){box.textContent="Crown unclaimed — run all three sims.";return;}
+    box.innerHTML=rows.map((x,i)=>{
+      const cls=i===0?"r1":(i===1?"r2":(i===2?"r3":""));
+      return `<div class="brow ${cls}"><span>${String(i+1).padStart(2,"0")}</span><span>${escapeHtml(x.call)}</span><span>${Math.round(x.avg*100)}% · ${x.n}/3</span></div>`;}).join("");
+    const champ=document.getElementById("champName");
+    if(champ&&rows[0].n>=1)champ.textContent=`👑 ${rows[0].call.toUpperCase()} — ${Math.round(rows[0].avg*100)}% ACROSS ${rows[0].n}/3 SIMS`;
+  }catch(e){box.textContent="Board unreadable: "+(e.message||"check RLS policies");}
+}
+function examBrief(key){
+  const box=document.getElementById("examBox"); if(!box) return;
+  const E=EXAMS[key||"s1"];
+  box.innerHTML=`<div class="qprog">STANDBY</div>
+  <h4 class="qq">${E.name}</h4><p style="color:#c6cfd8;font-size:14px">${E.brief}</p>
+  <p class="mono" style="font-size:11px;color:var(--muted)">4 STAGES · 60S EACH · HINT −150 · WRONG −100 · SPEED TO +200 · SAFETY VIOLATIONS FAIL</p>
+  <div class="btnrow"><button class="btn btn-p" id="exBegin">BEGIN SIM →</button></div>`;
+  box.querySelector("#exBegin").onclick=()=>examStart(key||"s1");
+}
+async function fillChampion(){
+  try{
+    if(typeof SB==="undefined"||!SB) return;
+    const r=await SB.from("exam_runs").select("user_id,callsign,scenario,score,total").limit(500);
+    if(r.error||!r.data.length) return;
+    const per={};
+    r.data.forEach(x=>{const u=per[x.user_id]=per[x.user_id]||{call:x.callsign,best:{}};
+      const pct=x.score/Math.max(1,x.total);
+      if(!u.best[x.scenario]||pct>u.best[x.scenario])u.best[x.scenario]=pct;});
+    const rows=Object.values(per).map(u=>{const ks=Object.keys(u.best);
+      return{call:u.call,avg:ks.reduce((s,k)=>s+u.best[k],0)/ks.length,n:ks.length};})
+      .sort((a,b)=>b.avg-a.avg).slice(0,1);
+    const champ=document.getElementById("champName");
+    if(champ&&rows.length)champ.textContent=`👑 ${rows[0].call.toUpperCase()} — ${Math.round(rows[0].avg*100)}% ACROSS ${rows[0].n}/3 SIMS`;
+  }catch(e){}
+}
 function localAv(){try{const p=JSON.parse(localStorage.getItem("holy_profile")||"null");return (p&&p.avatar)||0}catch(e){return 0}}
   $("#sbUp").onclick=async ()=>{
     if(!SB){toast("Cloud off — add project keys first.");return;}

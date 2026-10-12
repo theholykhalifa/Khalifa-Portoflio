@@ -220,6 +220,30 @@ alter table profiles add column if not exists avatar int default 0;
 Expect green Success with no errors this time — then every cloud
 feature (visits pill, badge sync, hero faces) lights up together.
 
+## 11. Simulation exams (timed runs + crown)
+
+```sql
+create table if not exists exam_runs (
+  id bigint generated always as identity primary key,
+  user_id uuid references auth.users(id) on delete cascade,
+  callsign text not null,
+  scenario text not null check (scenario in ('s1','s2','s3')),
+  score int not null,
+  total int not null,
+  duration_s int default 0,
+  hints int default 0,
+  attempts int default 0,
+  created_at timestamptz default now()
+);
+alter table exam_runs enable row level security;
+drop policy if exists "exam runs readable by all" on exam_runs;
+create policy "exam runs readable by all"
+  on exam_runs for select to anon, authenticated using (true);
+drop policy if exists "users insert own exam runs" on exam_runs;
+create policy "users insert own exam runs"
+  on exam_runs for insert to authenticated with check (auth.uid() = user_id);
+```
+
 ## Notes
 
 - RLS means: anyone can READ the board; only logged-in users can write

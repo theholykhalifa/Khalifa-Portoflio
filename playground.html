@@ -80,6 +80,12 @@
       <button class="btn btn-g" id="boardVuln">SPOT THE VULN</button>
       <button class="btn btn-t" id="boardGo">⟳ REFRESH</button>
     </div>
+    <div class="btnrow" style="margin:0 0 10px">
+        <button class="btn btn-t" id="boardS1">S1</button>
+        <button class="btn btn-t" id="boardS2">S2</button>
+        <button class="btn btn-t" id="boardS3">S3</button>
+        <button class="btn btn-t" id="boardCrown">👑 CROWN</button>
+      </div>
     <div id="boardBox" class="board">Connect a cloud project to light up this board.</div>
   </div>
  </div>
@@ -151,9 +157,28 @@
       <canvas id="gameCv" width="520" height="260"></canvas>
       <div class="btnrow" style="margin-top:10px"><button class="btn btn-p" id="gameBtn">START →</button></div>
     </div>
+    <div class="card reveal champ" style="grid-column:1/-1">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">CHAMPION'S VAULT // SIMULATION CROWN</div>
+      <div class="tcase trock"><div class="tglow"></div>
+        <div class="tarm l"></div><div class="tarm r"></div>
+        <div class="tcup"></div><div class="tstem"></div><div class="tbase"></div><div class="tbase2"></div>
+        <div class="tshine"></div></div>
+      <div class="mono" id="champName" style="font-size:13px;letter-spacing:.1em;color:#FFD88A">👑 UNCLAIMED — be the first legend.</div>
+      <div class="btnrow" style="justify-content:center;margin-top:10px"><button class="btn btn-p" id="examGo">ENTER THE SIMS →</button></div>
+    </div>
     <div class="card reveal" style="grid-column:1/-1"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">ACHIEVEMENTS // TROPHY CASE</div><div id="trophyCase" style="margin-top:10px"></div>
     <p class="mono" style="font-size:11px;color:var(--muted)">Earn them across the site — terminal, flags, quizzes, midnight, PGP.</p></div>
 
+    <div class="card reveal" style="grid-column:1/-1">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">SIMULATION EXAMS // TIMED · HINTS COST · SAFETY COUNTS</div>
+      <p class="mono" style="font-size:11.5px;color:var(--muted)">Three extreme scenarios. 60s per stage, hints −150, wrong attempts −100, speed bonuses to +200. One safety-violation answer fails the stage. Logged-in runs post to the crown board.</p>
+      <div class="btnrow" id="examTabs" style="margin:10px 0">
+        <button class="btn btn-p" data-ex="s1">S1 · BLACKOUT RIDGE</button>
+        <button class="btn btn-g" data-ex="s2">S2 · GLASSHOUSE</button>
+        <button class="btn btn-g" data-ex="s3">S3 · IRONVAULT</button>
+      </div>
+      <div id="examBox"></div>
+    </div>
     <div class="card reveal" style="grid-column:1/-1;order:-1">
       <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">MY BOARD // PERSONAL RECORD</div>
       <div id="personalBox" class="mono" style="font-size:12.5px;line-height:2;margin-top:8px">Log in above to see your board.</div>

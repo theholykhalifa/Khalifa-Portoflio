@@ -942,6 +942,26 @@ function gamePairs(box){
   }
   deal();
 }
+/* simulation exams — timed stages, hint economy, safety violations fail */
+const EXAMS={
+ s1:{name:"BLACKOUT RIDGE",brief:"External op. IDS-watched perimeter, unknown lockouts, one out-of-scope surprise. Quiet wins.",qs:[
+  {q:"First touch against an IDS-watched /24?",opts:["-sS -T4, full range, now","-sS -T2 -f -D RND:5, top ports","-sU -T5, everything","-A -T3, whole subnet"],a:1,h:"Slow, fragmented, and lying about source.",exp:"SYN + sneaky timing + fragmentation + decoys. Speed is for labs, not live perimeters."},
+  {q:"1,000 users, lockout policy unknown. First auth move?",opts:["rockyou per user, 16 threads","One tiny spray, then watch for lockouts","Skip auth — find another way in","Hydra full throttle"],a:1,h:"One bad morning can lock a whole company.",exp:"Spray minimally, monitor for lockouts, stop at smoke. Efficiency includes not breaking the client."},
+  {q:"Odd TXT spikes to a 2-day-old domain. Defender's read?",opts:["Marketing pixels","Possible DNS tunneling — inspect + block","Normal CDN behavior","Ignore, low volume"],a:1,h:"TXT + volume + newborn domain.",exp:"Classic C2/bypass channel shape. Pull pcaps, sinkhole, block."},
+  {q:"Scope says .10–.20. Your scan shows live .44. You…",opts:["Quick peek — no harm","Stop, document, report to handler","Scan it quietly, omit later","Add it to scope yourself"],a:1,h:"Authorization is the entire game.",exp:"SAFETY: out-of-scope contact without approval fails the engagement — and this exam."}]},
+ s2:{name:"GLASSHOUSE",brief:"Web app assessment. Auth logic, object trust, export features, token crypto. Prove impact without damage.",qs:[
+  {q:"Valid users enumerated via login oracle. Quietest next validation?",opts:["Hydra 32 threads","Single spray + timing analysis","SQLi the login","Abandon auth"],a:1,h:"Confirm without thunder.",exp:"One careful spray plus response-timing analysis validates with minimal noise."},
+  {q:"/profile/124 returns another user's data. Correct handling?",opts:["Dump everything for impact","Read-only proof, document, halt that thread","Exploit to admin","Share the URL around"],a:1,h:"Proof, not plunder.",exp:"SAFETY: existence proof + report. Pivoting on live user data fails you."},
+  {q:"PDF export fetches ?url=. Reachable fix that holds?",opts:["Block PDFs entirely","Allowlist + no redirects + metadata-IP deny","WAF regex on 'http'","Trust intranet callers"],a:1,h:"SSRF lives in fetchers.",exp:"Exporters are SSRF cannons. Allowlist destinations, kill redirects, deny metadata."},
+  {q:"Session JWT: HS256, 'secret'. Fastest quiet win?",opts:["Online brute force","Offline dictionary crack","Ignore crypto","Ask the admin"],a:1,h:"Steal the hash, crack at home.",exp:"Weak HMAC secrets fall offline with zero target noise. Then forge, don't smash."}]},
+ s3:{name:"IRONVAULT",brief:"AD range. No creds, network access, blue team awake. OPSEC is scored.",qs:[
+  {q:"No creds, LAN access. Quietest first move?",opts:["Full Nessus sweep","LLMNR/NBT-NS poisoning + watch","Mass RDP spray","Shodan the range"],a:1,h:"Listen before you shout.",exp:"Responder-style poisoning harvests hashes passively. Authorized ranges only."},
+  {q:"svc_sql account has an SPN. Technique?",opts:["AS-REP roast","Kerberoasting — request TGS, crack offline","Password spray Domain Admins","DCSync now"],a:1,h:"SPN + service account = roastable.",exp:"Kerberoasting pulls crackable tickets offline. AS-REP needs no-preauth accounts instead."},
+  {q:"DA path mapped. Least-noise objective?",opts:["DCSync immediately","Golden ticket + persist everywhere","Abuse delegation minimally, clean up","Mimikatz interactively on DC"],a:2,h:"Loud toys end operations.",exp:"Use the quietest sufficient path, touch little, remove artifacts. DCSync screams."},
+  {q:"Which OPSEC failure burns operations fastest?",opts:["Daytime scanning","Wiping ALL logs clean","Using lab tools","Writing reports"],a:1,h:"Gaps are louder than entries.",exp:"SAFETY: mass log deletion creates a glowing hole. Targeted cleanup or none — and never outside scope."}]}
+};
+const EXAM_QTIME=60, EXAM_MAX=4800;
+let exam={key:null,i:0,score:0,t0:0,left:0,timer:null,hintUsed:false,attempts:0,hints:0,attTotal:0,dur:0};
 document.addEventListener("DOMContentLoaded",()=>{
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vis");io.unobserve(e.target);}}),{threshold:.12});
   $$(".reveal").forEach(el=>io.observe(el));
@@ -984,26 +1004,6 @@ document.addEventListener("DOMContentLoaded",()=>{
   const startPane=(location.hash||"").slice(1);
   if(document.querySelector('main section[data-pane="'+startPane+'"]'))openTab(startPane);
   fillChampion();
-/* simulation exams — timed stages, hint economy, safety violations fail */
-const EXAMS={
- s1:{name:"BLACKOUT RIDGE",brief:"External op. IDS-watched perimeter, unknown lockouts, one out-of-scope surprise. Quiet wins.",qs:[
-  {q:"First touch against an IDS-watched /24?",opts:["-sS -T4, full range, now","-sS -T2 -f -D RND:5, top ports","-sU -T5, everything","-A -T3, whole subnet"],a:1,h:"Slow, fragmented, and lying about source.",exp:"SYN + sneaky timing + fragmentation + decoys. Speed is for labs, not live perimeters."},
-  {q:"1,000 users, lockout policy unknown. First auth move?",opts:["rockyou per user, 16 threads","One tiny spray, then watch for lockouts","Skip auth — find another way in","Hydra full throttle"],a:1,h:"One bad morning can lock a whole company.",exp:"Spray minimally, monitor for lockouts, stop at smoke. Efficiency includes not breaking the client."},
-  {q:"Odd TXT spikes to a 2-day-old domain. Defender's read?",opts:["Marketing pixels","Possible DNS tunneling — inspect + block","Normal CDN behavior","Ignore, low volume"],a:1,h:"TXT + volume + newborn domain.",exp:"Classic C2/bypass channel shape. Pull pcaps, sinkhole, block."},
-  {q:"Scope says .10–.20. Your scan shows live .44. You…",opts:["Quick peek — no harm","Stop, document, report to handler","Scan it quietly, omit later","Add it to scope yourself"],a:1,h:"Authorization is the entire game.",exp:"SAFETY: out-of-scope contact without approval fails the engagement — and this exam."}]},
- s2:{name:"GLASSHOUSE",brief:"Web app assessment. Auth logic, object trust, export features, token crypto. Prove impact without damage.",qs:[
-  {q:"Valid users enumerated via login oracle. Quietest next validation?",opts:["Hydra 32 threads","Single spray + timing analysis","SQLi the login","Abandon auth"],a:1,h:"Confirm without thunder.",exp:"One careful spray plus response-timing analysis validates with minimal noise."},
-  {q:"/profile/124 returns another user's data. Correct handling?",opts:["Dump everything for impact","Read-only proof, document, halt that thread","Exploit to admin","Share the URL around"],a:1,h:"Proof, not plunder.",exp:"SAFETY: existence proof + report. Pivoting on live user data fails you."},
-  {q:"PDF export fetches ?url=. Reachable fix that holds?",opts:["Block PDFs entirely","Allowlist + no redirects + metadata-IP deny","WAF regex on 'http'","Trust intranet callers"],a:1,h:"SSRF lives in fetchers.",exp:"Exporters are SSRF cannons. Allowlist destinations, kill redirects, deny metadata."},
-  {q:"Session JWT: HS256, 'secret'. Fastest quiet win?",opts:["Online brute force","Offline dictionary crack","Ignore crypto","Ask the admin"],a:1,h:"Steal the hash, crack at home.",exp:"Weak HMAC secrets fall offline with zero target noise. Then forge, don't smash."}]},
- s3:{name:"IRONVAULT",brief:"AD range. No creds, network access, blue team awake. OPSEC is scored.",qs:[
-  {q:"No creds, LAN access. Quietest first move?",opts:["Full Nessus sweep","LLMNR/NBT-NS poisoning + watch","Mass RDP spray","Shodan the range"],a:1,h:"Listen before you shout.",exp:"Responder-style poisoning harvests hashes passively. Authorized ranges only."},
-  {q:"svc_sql account has an SPN. Technique?",opts:["AS-REP roast","Kerberoasting — request TGS, crack offline","Password spray Domain Admins","DCSync now"],a:1,h:"SPN + service account = roastable.",exp:"Kerberoasting pulls crackable tickets offline. AS-REP needs no-preauth accounts instead."},
-  {q:"DA path mapped. Least-noise objective?",opts:["DCSync immediately","Golden ticket + persist everywhere","Abuse delegation minimally, clean up","Mimikatz interactively on DC"],a:2,h:"Loud toys end operations.",exp:"Use the quietest sufficient path, touch little, remove artifacts. DCSync screams."},
-  {q:"Which OPSEC failure burns operations fastest?",opts:["Daytime scanning","Wiping ALL logs clean","Using lab tools","Writing reports"],a:1,h:"Gaps are louder than entries.",exp:"SAFETY: mass log deletion creates a glowing hole. Targeted cleanup or none — and never outside scope."}]}
-};
-const EXAM_QTIME=60, EXAM_MAX=4800;
-let exam={key:null,i:0,score:0,t0:0,left:0,timer:null,hintUsed:false,attempts:0,hints:0,attTotal:0,dur:0};
 function examStart(key){
   exam={key:key,i:0,score:0,t0:Date.now(),left:EXAM_QTIME,timer:null,hintUsed:false,attempts:0,hints:0,attTotal:0,dur:0};
   examRender();

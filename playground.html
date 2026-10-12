@@ -134,6 +134,17 @@
     <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">DAILY CHALLENGE</div><div id="dailyBox" style="margin-top:10px"></div></div>
     <div class="card reveal"><div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">MINI-CTF // ~5 MINUTES</div><div id="ctfBox" style="margin-top:10px"></div></div>
     <div class="card reveal" style="grid-column:1/-1">
+      <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">ARCADE // 5 MORE GAMES — POPUP EDITION</div>
+      <p class="mono" style="font-size:11.5px;color:var(--muted)">Each opens in its own arena popup. No installs, no accounts needed.</p>
+      <div class="lab-grid" style="margin-top:12px">
+        <div class="card"><h4 style="margin:0 0 6px">⏱ TIMING CRACK</h4><p style="color:var(--muted);font-size:13px">Stop the needle inside the green vault window. 3 rounds, shrinking margin.</p><div class="btnrow"><button class="btn btn-p" data-game="crack">PLAY →</button></div></div>
+        <div class="card"><h4 style="margin:0 0 6px">🎣 PHISH FINDER</h4><p style="color:var(--muted);font-size:13px">Six emails land. One wants your credentials. Spot all three phish.</p><div class="btnrow"><button class="btn btn-p" data-game="phish">PLAY →</button></div></div>
+        <div class="card"><h4 style="margin:0 0 6px">🎯 PORT SNIPER</h4><p style="color:var(--muted);font-size:13px">Open ports flash red — close them before they vanish. 30 seconds.</p><div class="btnrow"><button class="btn btn-p" data-game="ports">PLAY →</button></div></div>
+        <div class="card"><h4 style="margin:0 0 6px">🔤 CAESAR LAB</h4><p style="font-size:13px;color:var(--muted)">Intercepted ciphers. Shift, decode, submit. 3 rounds.</p><div class="btnrow"><button class="btn btn-p" data-game="caesar">PLAY →</button></div></div>
+        <div class="card"><h4 style="margin:0 0 6px">🃏 PAIRS PROTOCOL</h4><p style="color:var(--muted);font-size:13px">Match threats to meanings. 8 cards, fewest moves wins.</p><div class="btnrow"><button class="btn btn-p" data-game="pairs">PLAY →</button></div></div>
+      </div>
+    </div>
+    <div class="card reveal" style="grid-column:1/-1">
       <div class="idx mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--accent)">PACKET DEFENDER // 2D ARCADE</div>
       <p class="mono" style="font-size:11.5px;color:var(--muted)">Firewall duty: catch clean packets, dodge malware. Mouse / touch / ← → keys. 3 lives.</p>
       <div class="mono" id="gameHud" style="font-size:11px;letter-spacing:.14em;color:var(--accent2);margin:8px 0">SCORE 0 · LIVES 3 · BEST 0</div>
@@ -187,6 +198,13 @@
 </div></footer>
 
 <div class="visitpill mono" id="visitPill" title="Total visits since launch">◉ …</div>
+<div class="modal" id="gmodal" role="dialog" aria-modal="true"><div class="sheet">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <div class="mono" id="gtitle" style="font-size:11px;letter-spacing:.2em;color:var(--accent)">ARCADE</div>
+    <button class="xbtn" id="gclose" aria-label="Close game">✕</button>
+  </div>
+  <div id="gbox" style="margin-top:14px"></div>
+</div></div>
 <div class="toast" id="toast" role="status"></div>
 <script src="avatar.js"></script>
 <script src="profile-ui.js"></script>

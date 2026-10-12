@@ -755,6 +755,189 @@ function gameInput(){
     if(e.key==="ArrowLeft")G.dir=-1; if(e.key==="ArrowRight")G.dir=1;});
   addEventListener("keyup",()=>{if(G)G.dir=0;});
 }
+/* arcade popup games — 5 mini games, modal arena */
+let G2=null;
+function openGame(id){
+  const box=document.getElementById("gbox"), m=document.getElementById("gmodal");
+  if(!box||!m) return;
+  closeGame();
+  document.getElementById("gtitle").textContent="ARCADE // "+id.toUpperCase();
+  ({crack:gameCrack,phish:gamePhish,ports:gamePorts,caesar:gameCaesar,pairs:gamePairs}[id]||(()=>{}))(box);
+  m.classList.add("open");
+}
+function closeGame(){
+  const m=document.getElementById("gmodal");
+  if(m)m.classList.remove("open");
+  if(typeof G2==="function"){try{G2()}catch(e){}G2=null;}
+  const box=document.getElementById("gbox"); if(box)box.innerHTML="";
+}
+/* 1 — timing crack */
+function gameCrack(box){
+  let round=0,score=0,pos=0,dir=1,run=true,zone={s:.4,e:.62},raf=0;
+  box.innerHTML=`<div class="qprog">VAULT CRACK — ROUND <span id="crR">1</span>/3</div>
+  <div class="crack-track"><div class="crack-zone" id="crZ"></div><div class="crack-needle" id="crN"></div></div>
+  <div class="btnrow"><button class="btn btn-p" id="crStop">STOP →</button></div>
+  <div class="mono" id="crMsg" style="font-size:12px;color:var(--muted)">Stop the needle inside green.</div>`;
+  const N=box.querySelector("#crN"), Z=box.querySelector("#crZ");
+  const place=()=>{const w=0.24-round*0.06,s=Math.random()*(1-w);zone={s:s,e:s+w};
+    Z.style.left=(s*100)+"%";Z.style.width=(w*100)+"%";};
+  place();
+  const step=()=>{if(!run)return;pos+=dir*0.013;if(pos>1){pos=1;dir=-1}if(pos<0){pos=0;dir=1}
+    N.style.left=(pos*100)+"%";raf=requestAnimationFrame(step);};
+  step();
+  const stop=box.querySelector("#crStop");
+  stop.onclick=()=>{
+    if(stop.textContent.indexOf("RETRY")===0){gameCrack(box);return;}
+    const hit=pos>=zone.s&&pos<=zone.e;
+    const acc=hit?Math.max(10,Math.round(100-Math.abs(pos-(zone.s+zone.e)/2)/((zone.e-zone.s)/2)*100)):0;
+    if(hit)score+=acc;
+    round++;
+    box.querySelector("#crMsg").textContent=hit?`◉ HIT +${acc} (total ${score})`:`✗ MISS — total ${score}`;
+    if(round>=3){run=false;cancelAnimationFrame(raf);
+      box.querySelector("#crMsg").innerHTML=`<b>${score>=180?"◉ VAULT OPEN":"◉ LOCKED"}</b> — final ${score}/300`;
+      stop.textContent="RETRY →";return;}
+    box.querySelector("#crR").textContent=round+1;place();
+  };
+  G2=()=>{run=false;cancelAnimationFrame(raf);};
+}
+/* 2 — phish finder */
+function gamePhish(box){
+  const legit=[
+   ["IT Helpdesk <help@company.com>","Password expiry notice","Your password expires in 3 days. Change it inside the portal when ready."],
+   ["Amina <amina@company.com>","Slides for Thursday","Attached the deck — let me know if the numbers look off."],
+   ["GitHub <noreply@github.com>","[org] New sign-in","A new sign-in to your account was detected. Review it in settings."],
+   ["HR <hr@company.com>","Holiday calendar","The updated holiday calendar is on the intranet."],
+   ["AWS <no-reply@amazonses.com>","Your invoice is ready","June invoice available in the billing console."],
+   ["Lina <lina@company.com>","Lunch?","Cafeteria at 12:30? Karim is in."]];
+  const phish=[
+   ["IT Helpdesk <help@company-support.net>","URGENT: verify now","Click http://company-verify.net/login within 1 hour or you are locked out!","Lookalike domain + urgency + link."],
+   ["CEO <ceo.company@gmail.com>","Wire needed ASAP","Send $4,800 to this account today. Keep it quiet.","Free-mailbox CEO + secrecy + money."],
+   ["Netflix <billing@netfIix-pay.com>","Payment failed","Update billing at the attached link to keep service.","Homoglyph domain + attachment pressure."],
+   ["Bank <alerts@secure-bank-verify.com>","Unusual sign-in","Confirm identity here or your account closes tonight.","Fear + fake security domain."]];
+  let round=0,score=0;
+  const rnd=a=>a.sort(()=>Math.random()-.5);
+  function deal(){
+    if(round>=3){box.innerHTML=`<div class="qprog">PHISH PATROL COMPLETE</div>
+      <div class="qscore">${score} / 3</div>
+      <div class="qrank">RANK: ${score>=3?"EAGLE EYE":score>=2?"SPOTTING":"KEEP PRACTICING"}</div>
+      <div class="btnrow" style="margin-top:12px"><button class="btn btn-p" id="phAgain">REPLAY →</button></div>`;
+      box.querySelector("#phAgain").onclick=()=>gamePhish(box);return;}
+    const set=[...rnd(legit.slice()).slice(0,5).map(m=>({m,ph:false})),{m:rnd(phish.slice())[0],ph:true}];
+    rnd(set);
+    box.innerHTML=`<div class="qprog">INBOX ${round+1} / 3 · SCORE ${score}</div>
+      <p class="mono" style="font-size:11.5px;color:var(--muted)">One of these six wants credentials. Click it.</p>
+      ${set.map((x,i)=>`<div class="mail" data-i="${i}"><b>${x.m[1]}</b><br><small>${x.m[0]}</small><br><small>${x.m[2]}</small></div>`).join("")}
+      <div class="qexp" hidden></div>`;
+    box.querySelectorAll(".mail").forEach(el=>el.onclick=()=>{
+      const x=set[+el.dataset.i], ok=x.ph;
+      box.querySelectorAll(".mail").forEach(m=>m.classList.add("dead"));
+      el.classList.add(ok?"hit":"miss");
+      if(ok){score++;box.querySelectorAll(".mail").forEach(m=>{const y=set[+m.dataset.i];if(y.ph)m.classList.add("hit");});}
+      const ex=box.querySelector(".qexp");ex.hidden=false;
+      ex.innerHTML=`<b>${ok?"✓ PHISH CAUGHT":"✗ MISSED"}</b> — ${x.ph?x.m[3]:"That one was clean. Real tone, no links, no threats."}<br><br><button class="btn btn-p" id="phNext">${round+1>=3?"SEE SCORE":"NEXT INBOX →"}</button>`;
+      box.querySelector("#phNext").onclick=()=>{round++;deal();};
+    });
+  }
+  deal();
+}
+/* 3 — port sniper */
+function gamePorts(box){
+  const ports=[22,80,443,21,25,53,110,143,993];
+  let score=0,left=30,run=true;
+  box.innerHTML=`<div class="qprog">CLOSE THE OPEN PORTS — <span id="ptT">30</span>s · SCORE <span id="ptS">0</span></div>
+  <div class="ports-grid">${ports.map(p=>`<div class="port" data-p="${p}">${p}<small>CLOSED</small></div>`).join("")}</div>
+  <p class="mono" style="font-size:11px;color:var(--muted)">Red + OPEN = click it. Green misclick −5.</p>`;
+  const cells=[...box.querySelectorAll(".port")];
+  const iv=setInterval(()=>{
+    if(!run)return;
+    cells.forEach(c=>{c.classList.remove("open");c.querySelector("small").textContent="CLOSED";});
+    rnd2(cells,Math.random()>.6?2:1).forEach(c=>{c.classList.add("open");c.querySelector("small").textContent="OPEN";});
+  },950);
+  const rnd2=(a,n)=>a.slice().sort(()=>Math.random()-.5).slice(0,n);
+  const tick=setInterval(()=>{
+    if(!run)return;
+    left--;box.querySelector("#ptT").textContent=left;
+    if(left<=0){run=false;clearInterval(iv);clearInterval(tick);
+      cells.forEach(c=>c.classList.remove("open"));
+      box.querySelector("#ptT").parentElement.innerHTML=`TIME! FINAL <b>${score}</b> — ${score>=80?"◉ SEGMENT SECURED":"keep practicing"}`;}
+  },1000);
+  cells.forEach(c=>c.onclick=()=>{
+    if(!run)return;
+    if(c.classList.contains("open")){score+=10;c.classList.remove("open");c.querySelector("small").textContent="CLOSED";}
+    else score=Math.max(0,score-5);
+    box.querySelector("#ptS").textContent=score;
+  });
+  G2=()=>{run=false;clearInterval(iv);clearInterval(tick);};
+}
+/* 4 — caesar lab */
+function gameCaesar(box){
+  const words=["firewall","packet","cipher","router","malware","proxy","subnet","kernel","token","payload"];
+  const enc=(w,s)=>w.replace(/[a-z]/g,c=>String.fromCharCode(97+((c.charCodeAt(0)-97+s)%26)));
+  let round=0,score=0,w="",shift=0,guess=0;
+  function deal(){
+    if(round>=3){box.innerHTML=`<div class="qprog">LAB COMPLETE</div>
+      <div class="qscore">${score} / 3</div>
+      <div class="qrank">RANK: ${score>=3?"CRYPTO OPERATOR":score>=2?"DECODING":"KEEP PRACTICING"}</div>
+      <div class="btnrow" style="margin-top:12px"><button class="btn btn-p" id="czAgain">REPLAY →</button></div>`;
+      box.querySelector("#czAgain").onclick=()=>gameCaesar(box);return;}
+    w=words[Math.floor(Math.random()*words.length)];
+    shift=1+Math.floor(Math.random()*12); guess=0;
+    paint();
+  }
+  function paint(){
+    box.innerHTML=`<div class="qprog">INTERCEPT ${round+1} / 3 · SCORE ${score}</div>
+    <pre class="qcode">${enc(w,shift)}</pre>
+    <p class="mono" style="font-size:11.5px;color:var(--muted)">Ciphertext, Caesar shift unknown. Dial it back:</p>
+    <div class="btnrow"><button class="btn btn-g" id="czM">◀ SHIFT <span id="czV">${guess}</span></button>
+    <button class="btn btn-g" id="czP">SHIFT ▶</button>
+    <button class="btn btn-p" id="czGo">SUBMIT →</button></div>
+    <pre class="qcode" id="czPrev"></pre><div class="qexp" hidden></div>`;
+    const prev=()=>{box.querySelector("#czPrev").textContent="shift -"+guess+" → "+w.split("").map(c=>String.fromCharCode(97+((c.charCodeAt(0)-97-guess%26+26)%26))).join("");};
+    prev();
+    box.querySelector("#czM").onclick=()=>{guess=(guess+25)%26;box.querySelector("#czV").textContent=guess;prev();};
+    box.querySelector("#czP").onclick=()=>{guess=(guess+1)%26;box.querySelector("#czV").textContent=guess;prev();};
+    box.querySelector("#czGo").onclick=()=>{
+      const ok=guess===shift;
+      if(ok)score++;
+      const ex=box.querySelector(".qexp");ex.hidden=false;
+      ex.innerHTML=`<b>${ok?"✓ DECODED":"✗ WRONG SHIFT"}</b> — "${w}" was shifted +${shift}.<br><br><button class="btn btn-p" id="czNext">${round+1>=3?"SEE SCORE":"NEXT →"}</button>`;
+      box.querySelector("#czNext").onclick=()=>{round++;deal();};
+    };
+  }
+  deal();
+}
+/* 5 — pairs protocol */
+function gamePairs(box){
+  const pairs=[["SQLi","DB injection"],["XSS","Page scripts"],["Firewall","Traffic filter"],["Phishing","Fake messages"]];
+  let deck=[],first=null,lock=false,moves=0,matched=0;
+  function deal(){
+    deck=[];
+    pairs.forEach((p,i)=>{deck.push({t:p[0],k:i});deck.push({t:p[1],k:i});});
+    deck.sort(()=>Math.random()-.5);
+    first=null;lock=false;moves=0;matched=0;
+    paint();
+  }
+  function paint(msg){
+    box.innerHTML=`<div class="qprog">PAIRS PROTOCOL · MOVES ${moves} · MATCHED ${matched}/4</div>
+    <div class="pairs-grid">${deck.map((c,i)=>`<div class="pcard ${c.done?"done":(c.up?"face":"")}" data-i="${i}">${(c.up||c.done)?c.t:"?"}</div>`).join("")}</div>
+    ${msg?`<div class="qexp">${msg}</div>`:""}`;
+    box.querySelectorAll(".pcard").forEach(el=>el.onclick=()=>{
+      const c=deck[+el.dataset.i];
+      if(lock||c.up||c.done)return;
+      c.up=true;moves++;paint();
+      const ups=deck.map((x,i)=>x.up?i:-1).filter(i=>i>=0);
+      if(ups.length===2){lock=true;
+        setTimeout(()=>{
+          const [a,b]=ups.map(i=>deck[i]);
+          if(a.k===b.k){a.done=b.done=true;matched++;
+            if(matched>=4){paint(`<b>◉ CLEAR</b> — 4 pairs in ${moves} moves. ${moves<=8?"Flawless operator.":"Solid."}`);return;}}
+          else{a.up=b.up=false;}
+          lock=false;paint();
+        },650);}
+    });
+  }
+  deal();
+}
 document.addEventListener("DOMContentLoaded",()=>{
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vis");io.unobserve(e.target);}}),{threshold:.12});
   $$(".reveal").forEach(el=>io.observe(el));
@@ -775,6 +958,9 @@ document.addEventListener("DOMContentLoaded",()=>{
   safe(()=>renderTool("hash")); safe(()=>renderDaily()); safe(()=>renderCtf()); safe(()=>renderPersonal());
   safe(()=>renderTrophies()); safe(()=>renderDashboard());
   safe(()=>{gameInput();const gb=document.getElementById("gameBtn");if(gb)gb.onclick=toggleGame;});
+  safe(()=>{document.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>openGame(b.dataset.game));});
+  document.getElementById("gclose").onclick=()=>closeGame();
+  document.getElementById("gmodal").addEventListener("click",e=>{if(e.target.id==="gmodal")closeGame();});
   safe(()=>sbInit());
   $("#boardSec").onclick=()=>loadBoard("sec");
   $("#boardVuln").onclick=()=>loadBoard("vuln");

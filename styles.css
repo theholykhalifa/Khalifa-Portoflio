@@ -500,6 +500,14 @@ body.recruiter .rec-exit{display:block}
 body.recruiter .ticker,body.recruiter #soc,body.recruiter #terminal,body.recruiter #quiz,body.recruiter #toolkit,body.recruiter #challenge,body.recruiter .mind,body.recruiter #recBtn,body.recruiter .tele,body.recruiter .hero-strip,body.recruiter .logo-side{display:none}
 body.recruiter::before{content:"RECRUITER VIEW — CLEAN PROFILE · CLICK ◉ BELOW TO EXIT";position:fixed;top:0;left:0;right:0;z-index:359;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#0a0507;background:var(--accent);padding:8px}
 @media(max-width:1020px){.notes-grid{grid-template-columns:1fr}}
+/* journey timeline */
+.journey-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.jyear{cursor:pointer;text-align:left;color:var(--text)}
+.jyear b{font-family:var(--mono);font-size:26px;letter-spacing:-.01em;color:var(--accent);display:block}
+.jyear h4{margin:8px 0 4px;font-size:13.5px;letter-spacing:.04em}
+.jyear p{font-size:12.5px;color:var(--muted);margin:0}
+@media(max-width:1020px){.journey-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.journey-grid{grid-template-columns:1fr 1fr}}
 .op b{font-family:var(--mono);font-size:11px;color:var(--accent);display:block}
 .op span{font-weight:800;font-size:13.5px;letter-spacing:.02em}
 /* SOC */

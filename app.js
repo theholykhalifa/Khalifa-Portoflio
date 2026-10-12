@@ -71,6 +71,22 @@ function renderResearch(){
     <div class="card reveal"><small class="${cls[r.stage]||""}">${r.stage}</small>
     <h4 style="margin:12px 0 6px">${r.topic}</h4><p style="color:var(--muted);font-size:13.5px;margin:0">${r.note}</p></div>`).join("");
 }
+function renderJourney(){
+  $("#journeyGrid").innerHTML=HOLY_JOURNEY.map((j,i)=>`
+    <button class="card jyear reveal" data-j="${i}">
+      <b>${j.year}</b><h4>${j.title}</h4><p>${j.summary.split("—")[0].slice(0,64)}…</p>
+      <div>${j.status==="IN PROGRESS"?'<span class="badge b-progress">◐ IN PROGRESS</span>':'<span class="badge b-verified">✓</span>'}</div>
+    </button>`).join("");
+  $$("#journeyGrid .jyear").forEach(b=>b.onclick=()=>openJourney(+b.dataset.j));
+}
+function openJourney(i){
+  const j=HOLY_JOURNEY[i];
+  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">${j.year} // ${j.status}</div>
+  <h3 style="font-size:28px;margin:8px 0">${j.title}</h3>
+  <p style="color:#c6cfd8">${j.summary}</p>
+  <ul style="color:#c6cfd8;padding-left:18px">${j.points.map(p=>`<li>${p}</li>`).join("")}</ul>
+  <br><button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+}
 function renderNotes(){
   const badge=s=>s==="PUBLISHED"?`<span class="badge b-verified">✓ PUBLISHED</span>`:s==="DOCUMENTING"?`<span class="badge b-progress">◐ DOCUMENTING</span>`:`<span class="badge b-soon">⚡ SOON</span>`;
   $("#notesGrid").innerHTML=HOLY_WRITEUPS.map((w,i)=>`
@@ -146,6 +162,7 @@ function openResume(){
     <h2>${HOLY_PROFILE.name}</h2><div class="mono" style="font-size:12px">${HOLY_PROFILE.realName} — working as ${HOLY_PROFILE.name}</div><div class="mono" style="font-size:12px">${HOLY_PROFILE.identity}</div>
     <p><em>"${HOLY_PROFILE.slogan}"</em><br>${HOLY_PROFILE.aboutSupport}</p>
     <h4>PROFILE</h4><p>Focus: ${HOLY_PROFILE.focus}<br>Specialization: ${HOLY_PROFILE.specialization}<br>Interests: ${HOLY_PROFILE.interests.join(", ")}<br>Mode: ${HOLY_PROFILE.modes.join(" · ")}<br>Open to: ${HOLY_PROFILE.openTo.join(", ")}</p>
+    <h4>JOURNEY SINCE 2019</h4><p>${HOLY_JOURNEY.map(j=>`<b>${j.year} — ${j.title}</b> [${j.status}]<br>${j.points.join("; ")}`).join("<br><br>")}</p>
     <h4>CERTIFICATIONS</h4><p>${certs}</p>
     <h4>TECHNICAL ARSENAL</h4><p>${ars}</p>
     <h4>EXPERIENCE</h4><p>${exp}</p>
@@ -558,7 +575,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(e.key==="Escape") introDone(); });
   } else { document.body.classList.add("ready"); }
 
-  renderCerts(); renderRoad(); renderExp(); renderArsenal(); renderOps(); renderLabs(); renderResearch(); renderMind(); renderNotes(); renderQuotes();
+  renderCerts(); renderRoad(); renderExp(); renderArsenal(); renderOps(); renderLabs(); renderResearch(); renderMind(); renderNotes(); renderQuotes(); renderJourney();
   $$(".avail-fill").forEach(el=>el.textContent=HOLY_PROFILE.openTo.join(" · "));
   $("#year").textContent=new Date().getFullYear();
   $("#ghBtn").href=HOLY_SOCIALS.github; $("#liBtn").href=HOLY_SOCIALS.linkedin; $("#mailBtn").href=HOLY_SOCIALS.email;
@@ -569,7 +586,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $$(".reveal,.rstep,.mind div").forEach(el=>io.observe(el));
   // re-observe dynamically added
   const io2=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vis");io2.unobserve(e.target);}}),{threshold:.1});
-  $$("#credGrid .reveal,#arsGrid .reveal,#opsGrid .reveal,#labGrid .reveal,#resGrid .reveal,#expList .reveal,#notesGrid .reveal,#quotes .reveal").forEach(el=>io2.observe(el));
+  $$("#credGrid .reveal,#arsGrid .reveal,#opsGrid .reveal,#labGrid .reveal,#resGrid .reveal,#expList .reveal,#notesGrid .reveal,#quotes .reveal,#journeyGrid .reveal").forEach(el=>io2.observe(el));
 
   // nav active
   const secs=["home","about","credentials","experience","arsenal","lab","research","contact"];

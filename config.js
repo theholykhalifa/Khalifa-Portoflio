@@ -455,3 +455,32 @@ const HOLY_WRITEUPS = [
    explicit permission. Example:
    // { quote: "…", name: "Eng. …", role: "Supervisor", org: "…" }, */
 const HOLY_QUOTES = [];
+
+/* Journey since 2019 — user-provided milestones only. Years without
+   confirmed detail stay intentionally general. Never invent events. */
+const HOLY_JOURNEY = [
+  { year: "2019", title: "THE BEGINNING", status: "COMPLETED",
+    summary: "Exploring cybersecurity through YouTube and self-learning — first steps into computer security and ethical hacking.",
+    points: ["Self-directed learning begins", "Computer security fundamentals", "Ethical hacking curiosity"] },
+  { year: "2020", title: "BUILDING THE FOUNDATION", status: "COMPLETED",
+    summary: "Continued the journey from the initial self-learning phase — learning and technical development.",
+    points: ["Sustained independent study", "Technical foundations"] },
+  { year: "2021", title: "DEVELOPING TECHNICAL SKILLS", status: "COMPLETED",
+    summary: "Continued independent development — deepening the technical base.",
+    points: ["Hands-on practice phase", "Networking and security studies"] },
+  { year: "2022", title: "CONTINUED LEARNING", status: "COMPLETED",
+    summary: "Kept building cybersecurity knowledge — ongoing technical development.",
+    points: ["Steady skill accumulation"] },
+  { year: "2023", title: "PREPARING FOR PROFESSIONAL GROWTH", status: "COMPLETED",
+    summary: "Moved toward a professional cybersecurity career — progress toward professional-level skills.",
+    points: ["Career-oriented preparation"] },
+  { year: "2024", title: "CORPORATE EXPERIENCE", status: "COMPLETED",
+    summary: "First industry exposure — two confirmed internships.",
+    points: ["HASSAN ALLAM — 3-month internship", "MICROSOFT — 1-month internship"] },
+  { year: "2025", title: "PROFESSIONAL DEVELOPMENT", status: "COMPLETED",
+    summary: "Two more internships plus five earned certifications.",
+    points: ["KASPERSKY — 4-month internship", "HUAWEI — 2-month internship", "Earned: CCNA", "Earned: CompTIA Security+", "Earned: eJPT", "Earned: PNPT", "Earned: CEH"] },
+  { year: "2026", title: "ADVANCED OFFENSIVE SECURITY", status: "IN PROGRESS",
+    summary: "Advancing penetration-testing capabilities — web exploitation, red-team skills, and presenting the work.",
+    points: ["OSWE preparation — web security + code auditing", "Red-team skill development", "Portfolio and professional presence"] },
+];

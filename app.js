@@ -73,9 +73,10 @@ function renderResearch(){
 }
 function renderJourney(){
   $("#journeyGrid").innerHTML=HOLY_JOURNEY.map((j,i)=>`
-    <button class="card jyear reveal" data-j="${i}">
+    <button class="card jyear reveal" data-j="${i}" style="transition-delay:${i*70}ms">
       <b>${j.year}</b><h4>${j.title}</h4><p>${j.summary.split("—")[0].slice(0,64)}…</p>
       <div>${j.status==="IN PROGRESS"?'<span class="badge b-progress">◐ IN PROGRESS</span>':'<span class="badge b-verified">✓</span>'}</div>
+      <span class="open mono">OPEN STORY →</span>
     </button>`).join("");
   $$("#journeyGrid .jyear").forEach(b=>b.onclick=()=>openJourney(+b.dataset.j));
 }

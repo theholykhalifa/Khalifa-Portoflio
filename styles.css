@@ -502,10 +502,17 @@ body.recruiter::before{content:"RECRUITER VIEW — CLEAN PROFILE · CLICK ◉ BE
 @media(max-width:1020px){.notes-grid{grid-template-columns:1fr}}
 /* journey timeline */
 .journey-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.jyear{cursor:pointer;text-align:left;color:var(--text)}
-.jyear b{font-family:var(--mono);font-size:26px;letter-spacing:-.01em;color:var(--accent);display:block}
+.jyear{cursor:pointer;text-align:left;color:var(--text);position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s}
+.jyear::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent);transform:scaleX(0);transform-origin:left;transition:transform .45s ease}
+.jyear:hover::before{transform:scaleX(1)}
+.jyear:hover{border-color:rgba(255,51,85,.55);transform:translateY(-7px);box-shadow:0 20px 46px rgba(0,0,0,.55),0 0 26px rgba(255,51,85,.14)}
+.jyear.vis{transition-delay:0s}
+.jyear b{font-family:var(--mono);font-size:30px;letter-spacing:-.01em;color:var(--accent);display:block;transition:text-shadow .3s}
+.jyear:hover b{text-shadow:0 0 26px rgba(255,51,85,.55)}
 .jyear h4{margin:8px 0 4px;font-size:13.5px;letter-spacing:.04em}
 .jyear p{font-size:12.5px;color:var(--muted);margin:0}
+.jyear .open{display:block;margin-top:10px;font-size:10.5px;letter-spacing:.16em;color:var(--accent2);opacity:0;transform:translateX(-6px);transition:.3s}
+.jyear:hover .open{opacity:1;transform:none}
 @media(max-width:1020px){.journey-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.journey-grid{grid-template-columns:1fr 1fr}}
 .op b{font-family:var(--mono);font-size:11px;color:var(--accent);display:block}

@@ -52,12 +52,6 @@ a{color:inherit}
 .logo-mark{width:26px;height:26px;object-fit:cover;border-radius:7px;mix-blend-mode:screen;animation:logoGlow 5s ease-in-out infinite}
 .logo-hero{display:block;width:clamp(120px,18vw,190px);height:auto;margin-bottom:22px;border-radius:14px;mix-blend-mode:screen;animation:logoGlow 5s ease-in-out infinite}
 .logo-side{width:clamp(200px,30vw,320px);margin:0 auto 18px}
-/* orbiting light line — one thin travelling dash, nothing more */
-.logo-orbit{position:relative;display:block;width:fit-content;margin:0 auto 18px}
-.logo-orbit .logo-side{margin:0}
-.logo-orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.logo-orbit rect{fill:none;stroke:rgba(255,216,138,.75);stroke-width:.8;stroke-dasharray:14 86;animation:orbit 9s linear infinite;filter:drop-shadow(0 0 3px rgba(255,216,138,.8))}
-@keyframes orbit{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
 @keyframes logoGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,51,85,.35))}50%{filter:drop-shadow(0 0 22px rgba(255,51,85,.6))}}
 .brand b{color:var(--accent)}
 .brand span{color:var(--muted);font-weight:400}

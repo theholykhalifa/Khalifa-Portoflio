@@ -506,10 +506,10 @@ body.recruiter::before{content:"RECRUITER VIEW — CLEAN PROFILE · CLICK ◉ BE
 .jrow b{font-family:var(--mono);font-size:15px;color:var(--accent);min-width:56px}
 .jrow h4{margin:0;font-size:15px;font-weight:700;flex:1}
 .jrow .st{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted)}
-.jrow .go{color:var(--accent2);opacity:0;transform:translateX(-6px);transition:.25s}
+.jrow .go{color:var(--accent2);opacity:.35;transition:.25s}
 .jrow:hover{background:rgba(255,51,85,.05)}
 .jrow:hover b{text-shadow:0 0 18px rgba(255,51,85,.6)}
-.jrow:hover .go{opacity:1;transform:none}
+.jrow:hover .go{opacity:1;transform:translateX(3px)}
 .reveal.vis{transition-delay:0s!important}
 /* journey timeline */
 .op b{font-family:var(--mono);font-size:11px;color:var(--accent);display:block}

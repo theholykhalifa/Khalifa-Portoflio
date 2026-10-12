@@ -690,6 +690,9 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   // palette
   $("#palBtn").onclick=openPal;
+  try{if(!localStorage.getItem("holy_hinted")){
+    setTimeout(()=>toast("TIP — anything marked → opens. Try the 2019–2026 timeline."),9000);
+    localStorage.setItem("holy_hinted","1");}}catch(e){}
 
   // language + pgp
   let initLang="en"; try{initLang=localStorage.getItem("holy_lang")||"en"}catch(e){}

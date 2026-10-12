@@ -534,6 +534,21 @@ main section.pane[hidden]{display:none}
 @keyframes sheenmove{0%{left:-45%}60%,100%{left:135%}}
 .board-top .idx::before{content:"● ";color:#00ffa3;animation:blinkSoft 1.6s ease-in-out infinite}
 @keyframes blinkSoft{50%{opacity:.2}}
+/* exam terminal look */
+.exterm{background:#04070b;border:1px solid var(--line2);border-radius:14px;overflow:hidden}
+.exterm-bar{display:flex;gap:7px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line2);background:#080d13}
+.exterm-bar span{width:10px;height:10px;border-radius:50%;background:#232c35}
+.exterm-bar span:first-child{background:rgba(255,59,48,.8)}
+.exterm-bar em{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
+.exterm-body{padding:16px 16px 18px;font-family:var(--mono)}
+.exterm-body .tl-dim{color:var(--accent2);font-size:12px;letter-spacing:.06em}
+.exterm-body .tq{font-size:14.5px;color:var(--text);line-height:1.7;min-height:48px;margin:10px 0 4px}
+.exterm-body .tq::after{content:"▊";color:var(--accent);animation:blink 1s steps(1) infinite}
+.exterm .opt{background:rgba(255,255,255,.02)}
+.exterm .qexp{margin-top:12px}
+.exterm .ok-num{color:var(--accent)}
+.exterm.shk{animation:shk .45s}
+@keyframes shk{20%{transform:translate(-7px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-5px,-2px)}80%{transform:translate(4px,2px)}}
 /* toolkit + challenge */
 .tfield{width:100%;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:13px;margin:8px 0}
 textarea.tfield{min-height:90px;resize:vertical}

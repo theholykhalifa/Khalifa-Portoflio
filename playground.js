@@ -1018,87 +1018,96 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(document.querySelector('main section[data-pane="'+startPane+'"]'))openTab(startPane);
   fillChampion();
 function examStart(key){
-  exam={key:key,i:0,score:0,t0:Date.now(),left:EXAM_QTIME,timer:null,hintUsed:false,attempts:0,hints:0,attTotal:0,dur:0};
+  exam={key:key,i:0,score:0,t0:Date.now(),left:EXAM_QTIME,timer:null,hintUsed:false,attempts:0,hints:0,attTotal:0,dur:0,typers:[]};
   examRender();
 }
 function examStop(){if(exam.timer){clearInterval(exam.timer);exam.timer=null;}}
+function exClearTypers(){(exam.typers||[]).forEach(x=>{try{clearInterval(x)}catch(e){}});exam.typers=[];}
+function exType(el,text,done){el.textContent="";let i=0;const iv=setInterval(()=>{i+=2;el.textContent=text.slice(0,i);if(i>=text.length){clearInterval(iv);if(done)done();}},14);(exam.typers=exam.typers||[]).push(iv);}
 function examRender(){
   const box=document.getElementById("examBox"); if(!box) return;
   const E=EXAMS[exam.key], Q=E.qs[exam.i];
   if(!Q){
-    examStop(); exam.dur=Math.round((Date.now()-exam.t0)/1000);
+    examStop(); exClearTypers(); exam.dur=Math.round((Date.now()-exam.t0)/1000);
     const pct=Math.round(exam.score/EXAM_MAX*100);
-    box.innerHTML=`<div class="qprog">SIM COMPLETE — ${E.name}</div>
+    box.innerHTML=`<div class="exterm"><div class="exterm-bar"><span></span><span></span><span></span><em>sim://${exam.key} — debrief</em></div>
+    <div class="exterm-body"><div class="qprog">SIM COMPLETE — ${E.name}</div>
     <div class="qscore">${exam.score} / ${EXAM_MAX} (${pct}%)</div>
-    <div class="qrank">TIME ${exam.dur}s · HINTS ${exam.hints} · EXTRA ATTEMPTS ${exam.attTotal}</div>
+    <div class="qrank">TIME ${exam.dur}s · HINTS ${exam.hints} · FLAWLESS RUN</div>
     <div class="mono" id="exSub" style="font-size:12px;color:var(--muted);margin-top:8px">${(typeof SB!=="undefined"&&SB&&sbUser)?"Posting run…":"Log in to post this run to the crown board."}</div>
-    <div class="btnrow" style="margin-top:12px"><button class="btn btn-g" id="exAgain">RETRY SIM →</button></div>`;
+    <div class="btnrow" style="margin-top:12px"><button class="btn btn-g" id="exAgain">RETRY SIM →</button></div></div></div>`;
     document.getElementById("exAgain").onclick=()=>examStart(exam.key);
     submitExam();
     return;
   }
-  exam.left=EXAM_QTIME; exam.hintUsed=false; exam.attempts=0;
-  box.innerHTML=`<div class="qprog">${E.name} — STAGE ${exam.i+1} / ${E.qs.length} · SCORE ${exam.score}</div>
-  <div class="extimer"><i id="exBar"></i></div>
-  <h4 class="qq">${Q.q}</h4>
-  <div class="qopts">${Q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div>
-  <div class="btnrow" style="margin-top:10px">
-    <button class="btn btn-t" id="exHint">HINT −150</button>
-    <button class="btn btn-t" id="exGive">GIVE UP → 0</button>
-  </div>
-  <div class="qexp" hidden></div>`;
-  const bar=box.querySelector("#exBar");
+  exam.left=EXAM_QTIME; exam.hintUsed=false; exClearTypers();
+  exam._r=(exam._r||0)+1; const myR=exam._r;
+  box.innerHTML=`<div class="exterm"><div class="exterm-bar"><span></span><span></span><span></span><em>sim://${exam.key} — live</em></div>
+  <div class="exterm-body" id="exBody"></div></div>`;
+  const body=box.querySelector("#exBody"), term=box.querySelector(".exterm");
+  const add=html=>{const d=document.createElement("div");d.innerHTML=html;body.appendChild(d);return d;};
+  add(`<div class="tl-dim">┌─ STAGE ${exam.i+1}/${E.qs.length} · SCORE ${exam.score} · <span id="exClock">T-60s</span></div>`);
+  const ql=add(`<div class="tq"></div>`);
+  const bar=document.createElement("div");bar.className="extimer";bar.innerHTML="<i></i>";body.appendChild(bar);
+  const fill=bar.querySelector("i");
+  function hintFn(){
+    if(exam.hintUsed)return; exam.hintUsed=true; exam.hints++;
+    const ex=document.createElement("div");ex.className="qexp";
+    ex.innerHTML=`<b>HANDLER WHISPERS (−150):</b> ${Q.h}`;body.appendChild(ex);
+    const hb=box.querySelector("#exHint"); if(hb)hb.disabled=true;
+  }
+  exType(ql,`$ ${Q.q}`,()=>{
+    if(myR!==exam._r) return;
+    const opts=document.createElement("div");opts.className="qopts";
+    opts.innerHTML=Q.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="ok-num">[${i+1}]</span> ${o}</button>`).join("");
+    body.appendChild(opts);
+    opts.querySelectorAll(".opt").forEach(b=>b.onclick=()=>examResolve(box,Q,+b.dataset.i));
+    const row=document.createElement("div");row.className="btnrow";row.style.marginTop="10px";
+    row.innerHTML=`<button class="btn btn-t" id="exHint">HINT −150</button><button class="btn btn-t" id="exGive">ABORT RUN</button>`;
+    body.appendChild(row);
+    const hb=box.querySelector("#exHint"), gv=box.querySelector("#exGive");
+    if(!hb||!gv) return;
+    hb.onclick=hintFn;
+    gv.onclick=()=>{examStop();failRun(box,Q,"◐ RUN ABORTED");};
+  });
   examStop();
   exam.timer=setInterval(()=>{
+    if(myR!==exam._r){clearInterval(exam.timer);return;}
     exam.left--;
-    if(bar)bar.style.width=(exam.left/EXAM_QTIME*100)+"%";
-    if(exam.left<=0){examStop();examResolve(box,Q,-1);}
+    if(fill)fill.style.width=(exam.left/EXAM_QTIME*100)+"%";
+    const ck=box.querySelector("#exClock"); if(ck)ck.textContent="T-"+Math.max(0,exam.left)+"s";
+    if(exam.left<=0){examStop();failRun(box,Q,"◷ TIME EXPIRED");}
   },1000);
-  box.querySelector("#exHint").onclick=()=>{
-    if(exam.hintUsed)return; exam.hintUsed=true; exam.hints++;
-    exam.score=Math.max(0,exam.score);
-    const ex=box.querySelector(".qexp"); ex.hidden=false;
-    ex.innerHTML=`<b>HANDLER WHISPERS (−150):</b> ${Q.h}`;
-    box.querySelector("#exHint").disabled=true;
-  };
-  box.querySelector("#exGive").onclick=()=>{examStop();examResolve(box,Q,-2);};
-  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>examResolve(box,Q,+b.dataset.i));
+}
+function failRun(box,Q,why){
+  examStop(); exClearTypers();
+  const term=box.querySelector(".exterm");
+  if(term){term.classList.remove("shk");void term.offsetWidth;term.classList.add("shk");}
+  const body=box.querySelector("#exBody");
+  const ex=document.createElement("div");ex.className="qexp";
+  ex.innerHTML=`<b style="color:var(--crit)">${why} — RUN FAILED</b> — correct was: <b>${Q?Q.opts[Q.a]:"—"}</b>${Q?`<br><span style="color:var(--muted)">${Q.exp}</span>`:""}`;
+  body.appendChild(ex);
+  let n=3;
+  const cd=document.createElement("div");cd.className="mono";cd.style.cssText="color:var(--warn);margin-top:10px";body.appendChild(cd);
+  const iv=setInterval(()=>{cd.textContent=`◉ REBOOTING RUN IN ${n}…`;if(--n<0){clearInterval(iv);examStart(exam.key);}},900);
+  (exam.typers=exam.typers||[]).push(iv);
 }
 function examResolve(box,Q,pick){
-  examStop();
+  examStop(); exClearTypers();
   box.querySelectorAll(".opt").forEach(x=>{x.disabled=true;});
-  const ex=box.querySelector(".qexp"); ex.hidden=false;
-  let pts=0, verdict="";
+  const body=box.querySelector("#exBody");
   if(pick>=0&&pick===Q.a){
     const frac=exam.left/EXAM_QTIME;
-    pts=Math.max(100,1000+(exam.hintUsed?-150:0)-exam.attempts*100+Math.round(200*frac));
-    exam.score+=pts; verdict=`✓ STAGE CLEAR +${pts}`;
-  } else if(pick===-2){
-    verdict="◐ STAGE ABANDONED +0";
-  } else if(pick===-1){
-    verdict="◷ TIME EXPIRED +0 — speed matters";
+    const pts=Math.max(100,1000+(exam.hintUsed?-150:0)+Math.round(200*frac));
+    exam.score+=pts;
+    const ex=document.createElement("div");ex.className="qexp";
+    ex.innerHTML=`<b style="color:#00ffa3">✓ STAGE CLEAR +${pts}</b> — ${Q.exp}<br><br><button class="btn btn-p" id="exNext">${exam.i+1>=EXAMS[exam.key].qs.length?"SEE RESULT":"NEXT STAGE →"}</button>`;
+    body.appendChild(ex);
+    box.querySelectorAll(".opt").forEach(x=>{if(+x.dataset.i===Q.a)x.classList.add("ok");});
+    box.querySelector("#exNext").onclick=()=>{exam.i++;examRender();};
   } else {
-    exam.attempts++; exam.attTotal++;
-    if(exam.attempts>=2){
-      verdict=`✗ SECOND MISS — stage failed +0. Correct: <b>${Q.opts[Q.a]}</b>`;
-      ex.innerHTML=`<b>${verdict}</b> — ${Q.exp}<br><br><button class="btn btn-p" id="exNext">NEXT STAGE →</button>`;
-      box.querySelector("#exNext").onclick=()=>{exam.i++;examRender();};
-      return;
-    }
-    verdict=`✗ MISS (−100 if cleared) — try again`;
-    ex.innerHTML=`<b>${verdict}</b><br><span class="mono" style="font-size:11px;color:var(--muted)">Second miss fails the stage.</span>`;
-    box.querySelectorAll(".opt").forEach(x=>{if(+x.dataset.i!==pick)x.disabled=false;});
-    exam.timer=setInterval(()=>{
-      exam.left--;
-      const bar=box.querySelector("#exBar");
-      if(bar)bar.style.width=(exam.left/EXAM_QTIME*100)+"%";
-      if(exam.left<=0){examStop();examResolve(box,Q,-1);}
-    },1000);
-    return;
+    failRun(box,Q,"✗ WRONG ANSWER");
   }
-  ex.innerHTML=`<b>${verdict}</b> — ${Q.exp}<br><br><button class="btn btn-p" id="exNext">${exam.i+1>=EXAMS[exam.key].qs.length?"SEE RESULT":"NEXT STAGE →"}</button>`;
-  box.querySelectorAll(".opt").forEach(x=>{if(+x.dataset.i===Q.a)x.classList.add("ok");});
-  box.querySelector("#exNext").onclick=()=>{exam.i++;examRender();};
 }
 async function submitExam(){
   try{
@@ -1161,7 +1170,7 @@ function examBrief(key){
   const E=EXAMS[key||"s1"];
   box.innerHTML=`<div class="qprog">STANDBY</div>
   <h4 class="qq">${E.name}</h4><p style="color:#c6cfd8;font-size:14px">${E.brief}</p>
-  <p class="mono" style="font-size:11px;color:var(--muted)">4 STAGES · 60S EACH · HINT −150 · WRONG −100 · SPEED TO +200 · SAFETY VIOLATIONS FAIL</p>
+  <p class="mono" style="font-size:11px;color:var(--muted)">4 STAGES · 60S EACH · HINT −150 · SPEED TO +200 · ONE WRONG ANSWER REBOOTS THE RUN</p>
   <div class="btnrow"><button class="btn btn-p" id="exBegin">BEGIN SIM →</button></div>`;
   box.querySelector("#exBegin").onclick=()=>examStart(key||"s1");
 }

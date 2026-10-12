@@ -545,6 +545,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       e.preventDefault();
       document.getElementById("introForm").hidden=true;
       const g=document.getElementById("introGrant"); g.hidden=false;
+      document.getElementById("introLogo").classList.add("granted");
       tone(880,.3,"triangle",.05);
       setTimeout(()=>{ if(!document.getElementById("intro")) return;
         g.hidden=true; document.getElementById("introWel").hidden=false;

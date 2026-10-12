@@ -538,6 +538,35 @@ function palList(q){
 
 /* ---------- boot ---------- */
 document.addEventListener("DOMContentLoaded",()=>{
+/* maintenance mode — parks the site behind a construction screen */
+function maintenanceMode(){
+  if(!document.getElementById("intro")) return;
+  document.getElementById("intro").remove();
+  document.body.classList.add("ready");
+  document.body.style.overflow="";
+  const m=document.createElement("div");
+  m.className="intro"; m.id="maint";
+  m.innerHTML=`<div class="intro-box" style="text-align:center">
+    <img class="logo-intro" src="assets/logo.png" alt="HOLY logo">
+    <div class="mono" style="font-size:clamp(26px,6vw,52px);font-weight:900;letter-spacing:-.02em">UNDER<br>CONSTRUCTION</div>
+    <div class="mono" id="maintLog" style="font-size:12.5px;color:var(--muted);line-height:2;min-height:120px;margin-top:14px;text-align:left"></div>
+    <div class="intro-bar"><i id="maintBar" style="width:0"></i></div>
+    <p class="mono" style="font-size:12px;color:var(--accent2)">${HOLY_MAINTENANCE.eta}</p>
+    <div class="btnrow" style="justify-content:center"><a class="btn btn-g" href="mailto:HVoid9@proton.me">CONTACT HOLY →</a></div>
+    <div class="mono" style="font-size:10px;color:var(--muted);margin-top:14px">operators: triple-click the logo</div>
+  </div>`;
+  document.body.appendChild(m);
+  document.body.style.overflow="hidden";
+  const lines=["$ halting public routes… OK","[+] draining sessions… OK","[+] snapshots verified… OK","[+] deploying hardened build…","> _"];
+  const log=m.querySelector("#maintLog"), bar=m.querySelector("#maintBar");
+  lines.forEach((l,i)=>setTimeout(()=>{if(!document.getElementById("maint"))return;
+    log.innerHTML+=l+"<br>";bar.style.width=((i+1)/lines.length*100)+"%";},700*(i+1)));
+  let n=0;
+  m.querySelector(".logo-intro").addEventListener("click",()=>{
+    if(++n>=3){m.remove();document.body.style.overflow="";toast("◉ Operator bypass — welcome back.");}
+  });
+}
+  if(typeof HOLY_MAINTENANCE!=="undefined"&&HOLY_MAINTENANCE.on&&!/[?&]live=1/.test(location.search)){maintenanceMode();}
   // entry sequence — hack-style login, skippable
   const intro=document.getElementById("intro");
   if(intro&&/[?&]intro=0/.test(location.search)){intro.remove();document.body.classList.add("ready");}

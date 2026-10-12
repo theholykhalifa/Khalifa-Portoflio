@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HOLY // Courses | Coming Soon</title>
+<meta name="description" content="Holy's upcoming cybersecurity study tracks and lab journals. Currently in the forge.">
+<meta name="theme-color" content="#05070A">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+<style>
+.soon{position:relative;overflow:hidden}
+.soon::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-50%;background:linear-gradient(100deg,transparent,rgba(255,176,32,.12),transparent);animation:sheenmove 4.5s ease-in-out infinite;pointer-events:none}
+.lock{font-family:var(--mono);font-size:22px}
+.pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 10px var(--warn);animation:pulse 2s infinite;margin-right:8px}
+</style>
+</head>
+<body>
+<a class="skip" href="#courses">Skip to content</a>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-in">
+    <a class="brand" href="index.html"><img class="logo-mark" src="assets/logo.png" alt="HOLY logo">HOLY <b>//</b> <span>COURSES</span></a>
+    <div class="links" role="navigation">
+      <a href="index.html"><em>01</em>HOME</a>
+      <a href="playground.html"><em>02</em>ARENA</a>
+    </div>
+    <div class="status"><span class="dot"></span>SYSTEM ONLINE</div>
+  </div>
+</nav>
+
+<header class="hero wrap" style="padding-bottom:30px">
+  <span class="kicker">COURSES // THE ARMORY — IN THE FORGE</span>
+  <h1 class="giant" style="font-size:clamp(44px,8vw,96px)">COMING<br>SO<span class="outline">ON</span></h1>
+  <p class="lead">Study tracks and lab journals I'm forging from real coursework — published here only when they genuinely exist. Nothing listed launches before it's real.</p>
+  <p class="mono" style="font-size:11.5px;color:var(--warn)"><span class="pulse-dot"></span>STATUS: FORGING — content drops as it completes</p>
+</header>
+
+<main class="wrap" id="courses">
+  <div class="lab-grid">
+    <div class="card soon reveal"><div class="lock">🔒</div>
+      <h3>Network+ Field Notes</h3>
+      <p style="color:var(--muted);font-size:14px">Networking, distilled through a security lens — subnetting, protocols, packets.</p>
+      <span class="badge b-soon">⚡ SOON</span></div>
+    <div class="card soon reveal"><div class="lock">🔒</div>
+      <h3>Security+ Study Track</h3>
+      <p style="color:var(--muted);font-size:14px">Threats, architecture, operations — notes from the certification path.</p>
+      <span class="badge b-soon">⚡ SOON</span></div>
+    <div class="card soon reveal"><div class="lock">🔒</div>
+      <h3>eJPT Lab Journal</h3>
+      <p style="color:var(--muted);font-size:14px">Hands-on pentest methodology — recon to report, documented live.</p>
+      <span class="badge b-soon">⚡ SOON</span></div>
+    <div class="card soon reveal"><div class="lock">🔒</div>
+      <h3>Web Hacking Playbook</h3>
+      <p style="color:var(--muted);font-size:14px">Burp workflows, auth logic, access control — the long road to OSWE.</p>
+      <span class="badge b-planned">→ PLANNED</span></div>
+  </div>
+  <div class="card reveal" style="margin:26px 0 90px;text-align:center">
+    <p class="mono" style="font-size:12px;color:var(--muted)">Want a ping when the first track drops?</p>
+    <div class="btnrow" style="justify-content:center"><a class="btn btn-p" href="mailto:HVoid9@proton.me?subject=Notify%20me%20—%20courses">NOTIFY ME →</a>
+    <a class="btn btn-g" href="index.html">← BACK TO PORTFOLIO</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap foot-grid">
+  <div><div class="mono" style="color:var(--text);letter-spacing:.14em">HOLY // COURSES</div></div>
+  <div class="mono" style="font-size:11px;text-align:right">© <span id="year">2026</span> KHALIFA (HOLY) · ALL RIGHTS RESERVED.</div>
+</div></footer>
+<script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+</body>
+</html>

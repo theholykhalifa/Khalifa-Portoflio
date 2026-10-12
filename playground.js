@@ -976,7 +976,13 @@ document.addEventListener("DOMContentLoaded",()=>{
     $$("#examTabs .btn").forEach(x=>x.className="btn btn-g");
     b.className="btn btn-p"; examBrief(b.dataset.ex);});
   examBrief("s1");
-  document.getElementById("examGo").onclick=()=>document.getElementById("examBox").scrollIntoView({behavior:"smooth",block:"center"});
+  document.getElementById("examGo").onclick=()=>{openTab("exams");setTimeout(()=>document.getElementById("examBox").scrollIntoView({behavior:"smooth",block:"center"}),150);};
+  $$("#atabs button").forEach(b=>b.onclick=()=>openTab(b.dataset.pane));
+  $$('a[href^="#"]').forEach(a=>a.addEventListener("click",()=>{
+    const id=a.getAttribute("href").slice(1);
+    if(document.querySelector('main section[data-pane="'+id+'"]'))openTab(id);}));
+  const startPane=(location.hash||"").slice(1);
+  if(document.querySelector('main section[data-pane="'+startPane+'"]'))openTab(startPane);
   fillChampion();
 /* simulation exams — timed stages, hint economy, safety violations fail */
 const EXAMS={
@@ -1155,6 +1161,14 @@ async function fillChampion(){
     const champ=document.getElementById("champName");
     if(champ&&rows.length)champ.textContent=`👑 ${rows[0].call.toUpperCase()} — ${Math.round(rows[0].avg*100)}% ACROSS ${rows[0].n}/3 SIMS`;
   }catch(e){}
+}
+/* arena tabs */
+function openTab(name){
+  if(!document.querySelector('main section[data-pane="'+name+'"]'))return;
+  document.querySelectorAll("#atabs button").forEach(b=>b.classList.toggle("on",b.dataset.pane===name));
+  document.querySelectorAll("main section.pane").forEach(s=>s.hidden=s.dataset.pane!==name);
+  try{history.replaceState(null,"","#"+name)}catch(e){}
+  scrollTo({top:0,behavior:"smooth"});
 }
 function localAv(){try{const p=JSON.parse(localStorage.getItem("holy_profile")||"null");return (p&&p.avatar)||0}catch(e){return 0}}
   $("#sbUp").onclick=async ()=>{

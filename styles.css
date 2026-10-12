@@ -509,6 +509,12 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 .bav{display:inline-flex;width:22px;height:22px;border-radius:50%;overflow:hidden;vertical-align:-5px;background:#0a0e13;flex:none}
 .bav svg,.bav img{width:22px;height:22px;display:block;object-fit:cover}
 .brow{align-items:center}
+/* arena tabs — one screen, no scroll maze */
+.atabs{display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:58px;z-index:60;background:rgba(5,7,10,.9);backdrop-filter:blur(12px);padding:12px 0;margin-bottom:6px}
+.atabs button{background:var(--card);border:1px solid var(--line2);color:var(--muted);border-radius:99px;padding:9px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer}
+.atabs button.on{background:var(--accent);border-color:var(--accent);color:#0a0507;font-weight:800}
+main section.pane{padding-top:34px}
+main section.pane[hidden]{display:none}
 /* live board motion — rotating tri-color border, travelling sheen, live dot */
 .board-top{position:relative;overflow:hidden;border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(from var(--ba,0deg),#FFB020,#FFF3C4,#FF8A3D,#FFB020,#8a6300,#FFB020) border-box;animation:holyspin 6s linear infinite,goldbreathe 3s ease-in-out infinite}
 @keyframes goldbreathe{0%,100%{box-shadow:0 0 12px rgba(255,176,32,.15)}50%{box-shadow:0 0 48px rgba(255,176,32,.4)}}

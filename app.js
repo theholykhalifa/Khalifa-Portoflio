@@ -240,6 +240,7 @@ function getAch(){try{return JSON.parse(localStorage.getItem("holy_ach")||"{}")}
 function unlockAch(k,label){const a=getAch(); if(a[k]) return; a[k]=1;
   try{localStorage.setItem("holy_ach",JSON.stringify(a))}catch(e){}
   toast("🏅 ACHIEVEMENT — "+label);
+  try{localStorage.setItem("holy_ach_last",label)}catch(e){}
   try{renderTrophies();}catch(e){}}
 const ACH_LABELS={term:"TERMINAL ACCESS",first:"FIRST FLAG",flagc:"FLAG CAPTURED",recon:"RECON COMPLETE",root:"ROOT ACCESS",researcher:"SECURITY RESEARCHER",pgp:"PGP VERIFIED",holy:"HOLY BADGE"};
 
@@ -522,6 +523,7 @@ function palList(q){
 document.addEventListener("DOMContentLoaded",()=>{
   // entry sequence — hack-style login, skippable
   const intro=document.getElementById("intro");
+  if(intro&&/[?&]intro=0/.test(location.search)){intro.remove();document.body.classList.add("ready");}
   function introDone(){ if(!document.getElementById("intro")) return;
     intro.classList.add("out"); document.body.classList.add("ready");
     document.body.style.overflow=""; setTimeout(()=>intro.remove(),650); }
@@ -742,8 +744,63 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#ticker").innerHTML=`&nbsp;SCOPE: AUTHORIZED LAB ONLY · ROE: OWNED TARGETS · ${phases} · <b>∞</b> CONTINUOUS RESEARCH · ${phases} · `;
 
   // charts + soc loop
+/* threat radar — slow conic sweep, drifting blips, simulation only */
+let radarOn=false;
+function radarFrame(ctx,S,cx,R,ang,blips,t){
+  ctx.clearRect(0,0,S,S);
+  ctx.strokeStyle="rgba(255,51,85,.18)";ctx.lineWidth=1;
+  [0.33,0.66,1].forEach(f=>{ctx.beginPath();ctx.arc(cx,cx,R*f,0,7);ctx.stroke();});
+  ctx.beginPath();ctx.moveTo(cx-R,cx);ctx.lineTo(cx+R,cx);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cx-R);ctx.lineTo(cx,cx+R);ctx.stroke();
+  const grad=ctx.createLinearGradient(cx,cx,cx+Math.cos(ang)*R,cx+Math.sin(ang)*R);
+  grad.addColorStop(0,"rgba(255,51,85,0)");grad.addColorStop(1,"rgba(255,51,85,.55)");
+  ctx.strokeStyle=grad;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(cx,cx);ctx.lineTo(cx+Math.cos(ang)*R,cx+Math.sin(ang)*R);ctx.stroke();
+  blips.forEach(b=>{
+    const age=(t-b.born)/2600, a=age<0?0:Math.max(0,1-age);
+    if(a<=0)return;
+    ctx.fillStyle=`rgba(255,${Math.round(80+120*(1-a))},85,${(.25+.65*a).toFixed(2)})`;
+    ctx.beginPath();ctx.arc(b.x,b.y,2.5,0,7);ctx.fill();
+  });
+}
+function radarBoot(){
+  const cv=document.getElementById("radarCv"); if(!cv) return;
+  const S=cv.width, cx=S/2, R=S/2-10, ctx=cv.getContext("2d");
+  const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let blips=[];
+  for(let i=0;i<4;i++)blips.push({x:cx+(Math.random()-.5)*R*1.5,y:cx+(Math.random()-.5)*R*1.5,born:-Math.random()*2600});
+  let ang=0, last=0;
+  radarFrame(ctx,S,cx,R,0.8,blips.map(b=>({...b,born:performance.now()-800})),performance.now());
+  const stat=document.getElementById("radarStat");
+  function draw(t){
+    if(!radarOn) return;
+    ang+=0.012;
+    if(t-last>1400){last=t;
+      if(blips.length<6&&Math.random()>.4)blips.push({x:cx+(Math.random()-.5)*R*1.5,y:cx+(Math.random()-.5)*R*1.5,born:t});
+      blips=blips.filter(b=>(t-b.born)/2600<1.4);
+      if(stat)stat.textContent=`SWEEP ${String(Math.floor((ang*57.3)%360)).padStart(3,"0")}° · CONTACTS 0${blips.length} · SIMULATION`;
+    }
+    radarFrame(ctx,S,cx,R,ang,blips,t);
+    requestAnimationFrame(draw);
+  }
+  if(reduced){radarFrame(ctx,S,cx,R,0.8,blips.map(b=>({...b,born:performance.now()-800})),performance.now());return;}
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    const vis=e.isIntersecting;
+    if(vis&&!radarOn){radarOn=true;requestAnimationFrame(draw);}
+    else if(!vis){radarOn=false;}
+  }),{threshold:.1});
+  io.observe(cv);
+}
   function charts(){ drawSpark("spark1",7,"rgba(255,51,85,1)"); drawSpark("spark2",21,"rgba(0,255,163,1)"); }
+  try{
   charts(); addEventListener("resize",charts);
+  radarBoot();
+  const dt=document.getElementById("deckTerm");
+  if(dt)dt.onclick=()=>{document.getElementById("terminal").scrollIntoView({behavior:"smooth"});
+    setTimeout(()=>document.getElementById("tinput").focus({preventScroll:true}),700);};
+  try{const last=localStorage.getItem("holy_ach_last");const da=document.getElementById("deckAch");
+    if(last&&da)da.textContent="LATEST HONOR: "+last;}catch(e){}
+  }catch(e){}
   if(!reduced) setInterval(tickSoc,3200);
 
   // packet counter

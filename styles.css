@@ -51,6 +51,7 @@ a{color:inherit}
 /* logo — single slow glow pulse, nothing more */
 .logo-mark{width:26px;height:26px;object-fit:cover;border-radius:7px;mix-blend-mode:screen;animation:logoGlow 5s ease-in-out infinite}
 .logo-hero{display:block;width:clamp(120px,18vw,190px);height:auto;margin-bottom:22px;border-radius:14px;mix-blend-mode:screen;animation:logoGlow 5s ease-in-out infinite}
+.logo-side{width:clamp(140px,22vw,210px);margin:0 auto 18px}
 @keyframes logoGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,51,85,.35))}50%{filter:drop-shadow(0 0 22px rgba(255,51,85,.6))}}
 .brand b{color:var(--accent)}
 .brand span{color:var(--muted);font-weight:400}
@@ -589,3 +590,10 @@ footer{border-top:1px solid var(--line2);padding:48px 0 32px;color:var(--muted);
   .term-body{font-size:14px;min-height:280px}
   .opt{padding:14px}
 }
+/* super-mobile: anchors clear the fixed nav, nothing overflows */
+section[id],header[id],div[id]{scroll-margin-top:84px}
+img,svg,canvas{max-width:100%}
+.kv span{min-width:0;overflow-wrap:anywhere}
+.mono{overflow-wrap:break-word}
+html{-webkit-text-size-adjust:100%}
+body{overscroll-behavior-y:none}

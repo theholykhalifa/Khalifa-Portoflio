@@ -585,7 +585,7 @@ async function sbInit(){
     SB=supabase.createClient(HOLY_SUPABASE.url,HOLY_SUPABASE.key);
     const {data}=await SB.auth.getSession();
     sbUser=(data&&data.session&&data.session.user)||null;
-    sbPaint(); loadBoard("sec");
+    sbPaint(); loadBoard("sec"); loadSimBoard("s1");
   }catch(e){sbStatus("failed to reach project — check URL/key.");}
 }
 function sbPaint(){
@@ -618,10 +618,6 @@ async function loadBoard(game){
   const box=document.getElementById("boardBox"); if(!box) return;
   const paint=(id,on)=>{const el=document.getElementById(id);if(el)el.className="btn btn-"+(on?"p":"g");};
   paint("boardSec",boardGame==="sec");paint("boardVuln",boardGame==="vuln");
-  paint("boardS1",boardGame==="s1");paint("boardS2",boardGame==="s2");
-  paint("boardS3",boardGame==="s3");paint("boardCrown",boardGame==="crown");
-  if(boardGame==="crown") return loadCrown();
-  if(["s1","s2","s3"].includes(boardGame)) return loadExamBoard();
   if(!SB){box.textContent="Connect a cloud project to light up this board.";return;}
   box.textContent="Loading…";
   try{
@@ -1002,9 +998,9 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#boardSec").onclick=()=>loadBoard("sec");
   $("#boardVuln").onclick=()=>loadBoard("vuln");
   $("#boardGo").onclick=()=>loadBoard();
-  ["boardS1","boardS2","boardS3","boardCrown"].forEach((id,i)=>{
+  ["simS1","simS2","simS3","simCrown"].forEach((id,i)=>{
     const el=document.getElementById(id); if(!el) return;
-    el.onclick=()=>loadBoard(["s1","s2","s3","crown"][i]);});
+    el.onclick=()=>loadSimBoard(["s1","s2","s3","crown"][i]);});
   $$("#examTabs .btn").forEach(b=>b.onclick=()=>{
     $$("#examTabs .btn").forEach(x=>x.className="btn btn-g");
     b.className="btn btn-p"; examBrief(b.dataset.ex);});
@@ -1118,19 +1114,28 @@ async function submitExam(){
       duration_s:exam.dur,hints:exam.hints,attempts:exam.attTotal});
     const el=document.getElementById("exSub");
     if(el)el.textContent=r.error?("Post failed: "+(r.error.message||"RLS")):"◉ Run posted — check the crown board.";
-    loadBoard(boardGame);
+    loadSimBoard(simGame);
   }catch(e){}
 }
+let simGame="s1";
+async function loadSimBoard(game){
+  simGame=game||simGame;
+  const paint=(id,on)=>{const el=document.getElementById(id);if(el)el.className="btn btn-"+(on?"p":"g");};
+  paint("simS1",simGame==="s1");paint("simS2",simGame==="s2");
+  paint("simS3",simGame==="s3");paint("simCrown",simGame==="crown");
+  if(simGame==="crown") return loadCrown();
+  return loadExamBoard();
+}
 async function loadExamBoard(){
-  const box=document.getElementById("boardBox"); if(!box) return;
+  const box=document.getElementById("simBox"); if(!box) return;
   if(typeof SB==="undefined"||!SB){box.textContent="Connect a cloud project to light up this board.";return;}
   box.textContent="Loading…";
   try{
-    const r=await SB.from("exam_runs").select("callsign,score,duration_s").eq("scenario",boardGame).order("score",{ascending:false}).order("duration_s",{ascending:true}).limit(10);
+    const r=await SB.from("exam_runs").select("callsign,score,duration_s").eq("scenario",simGame).order("score",{ascending:false}).order("duration_s",{ascending:true}).limit(10);
     if(r.error) throw r.error;
-    if(!r.data.length){box.innerHTML=`No runs yet — be the first through the fire.<br><br><button class="btn btn-p" id="exJump">START ${boardGame.toUpperCase()} →</button>`;
+    if(!r.data.length){box.innerHTML=`No runs yet — be the first through the fire.<br><br><button class="btn btn-p" id="exJump">START ${simGame.toUpperCase()} →</button>`;
       const jb=document.getElementById("exJump");
-      if(jb)jb.onclick=()=>{openTab("exams");const tb=document.querySelector(`#examTabs [data-ex="${boardGame}"]`);if(tb)tb.click();};
+      if(jb)jb.onclick=()=>{openTab("exams");const tb=document.querySelector(`#examTabs [data-ex="${simGame}"]`);if(tb)tb.click();};
       return;}
     box.innerHTML=r.data.map((row,i)=>{
       const cls=i===0?"r1":(i===1?"r2":(i===2?"r3":""));
@@ -1138,7 +1143,7 @@ async function loadExamBoard(){
   }catch(e){box.textContent="Board unreadable: "+(e.message||"check RLS policies");}
 }
 async function loadCrown(){
-  const box=document.getElementById("boardBox"); if(!box) return;
+  const box=document.getElementById("simBox"); if(!box) return;
   if(typeof SB==="undefined"||!SB){box.textContent="Connect a cloud project to light up this board.";return;}
   box.textContent="Loading…";
   try{
@@ -1250,7 +1255,7 @@ function localAv(){try{const p=JSON.parse(localStorage.getItem("holy_profile")||
     try{
       const r=await SB.auth.signInWithPassword({email:document.getElementById("sbEmail").value.trim(),password:document.getElementById("sbPass").value});
       if(r.error) throw r.error;
-      sbUser=r.data.user; sbPaint(); loadBoard(); toast("◉ LOGGED IN");
+      sbUser=r.data.user; sbPaint(); loadBoard(); loadSimBoard(); toast("◉ LOGGED IN");
       try{await SB.from("profiles").update({avatar:localAv()}).eq("id",sbUser.id);}catch(e){}
     }catch(e){toast("Login failed: "+(e.message||"unknown"));}
   };

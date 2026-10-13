@@ -541,6 +541,9 @@ main section.pane{animation:paneIn .5s cubic-bezier(.2,.7,.2,1)}
 .board-top::after{content:"";position:absolute;top:0;bottom:0;width:35%;left:-45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);animation:sheenmove 6s ease-in-out infinite;pointer-events:none}
 @keyframes sheenmove{0%{left:-45%}60%,100%{left:135%}}
 .board-top .idx::before{content:"● ";color:#00ffa3;animation:blinkSoft 1.6s ease-in-out infinite}
+/* sim board — gold-tinted twin of the live board */
+.sim-top{border-color:rgba(255,176,32,.3)}
+.sim-top .idx{color:#FFD88A!important}
 @keyframes blinkSoft{50%{opacity:.2}}
 /* exam terminal look */
 .exterm{background:#04070b;border:1px solid var(--line2);border-radius:14px;overflow:hidden}

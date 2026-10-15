@@ -18,6 +18,7 @@ async function sbClient(){
     if(typeof supabase==="undefined"){
       await new Promise(res=>{const s=document.createElement("script");
         s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js";
+        if(typeof HOLY_SRI!=="undefined"&&HOLY_SRI){s.integrity=HOLY_SRI;s.crossOrigin="anonymous";}
         s.onload=()=>res(); s.onerror=()=>res(); document.head.appendChild(s);});
       if(typeof supabase==="undefined") return null;
     }

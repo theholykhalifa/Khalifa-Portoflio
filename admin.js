@@ -89,6 +89,7 @@ function loadSbLibAdmin(){
     var fin=function(ok){if(!done){done=true;res(ok);}};
     var s=document.createElement("script");
     s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js";
+    if(typeof HOLY_SRI!=="undefined"&&HOLY_SRI){s.integrity=HOLY_SRI;s.crossOrigin="anonymous";}
     s.async=true;
     s.onload=function(){fin(typeof supabase!=="undefined");};
     s.onerror=function(){fin(false);};

@@ -358,7 +358,7 @@ OH48IE3EeGbkzBwK
 =VrZp
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-/* Admin gate — LOCAL DEMO ONLY. The password is stored as a hash,
+/* Admin gate — LOCAL DEMO ONLY. The password is stored as a hash,  
    but any client-side gate is bypassable: this controls demo data
    in one browser, never real access. Needs a backend to be real. */
 const HOLY_ADMIN = { user: "HolyV", passHash: "6bc6d71d9e02944298f347c59e5fcb96c2f22ce7d49e504472aabc4e0de9063c" };
@@ -366,6 +366,9 @@ const HOLY_ADMIN = { user: "HolyV", passHash: "6bc6d71d9e02944298f347c59e5fcb96c
    1) supabase.com → New project (free)  2) SQL Editor → run SUPABASE_SETUP.md
    3) Project Settings → API → paste URL + anon key here, push. */
 const HOLY_SUPABASE = { url: "https://clicgiyhobsuvbnngwel.supabase.co", key: "sb_publishable_EwkiYz3DUAk4GCfaW8uU8A_CdzaZoK5" };
+/* Subresource-integrity hash for the jsDelivr Supabase bundle. Empty = skip check.
+   Paste the sha384 hash here after computing it (see setup doc). */
+const HOLY_SRI = "";
 
 /* Maintenance mode — set on:true to park the whole site behind an
    under-construction screen. Bypass with ?live=1 or triple-click logo. */

@@ -15,6 +15,7 @@ function loadSbLib(){
     const fin=ok=>{if(!done){done=true;res(ok);}};
     const s=document.createElement("script");
     s.src=SB_CDN; s.async=true;
+    if(typeof HOLY_SRI!=="undefined"&&HOLY_SRI){s.integrity=HOLY_SRI;s.crossOrigin="anonymous";}
     s.onload=()=>fin(typeof supabase!=="undefined");
     s.onerror=()=>fin(false);
     document.head.appendChild(s);

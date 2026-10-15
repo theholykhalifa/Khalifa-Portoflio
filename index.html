@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>HOLY // Cybersecurity | Penetration Testing &amp; Security Research</title>
 <meta name="description" content="Personal cybersecurity portfolio of Holy — focused on penetration testing, network security, web application security, red teaming and security research.">
@@ -15,7 +18,7 @@
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link id="fonts" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" media="print">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -463,9 +466,5 @@
 <script src="config.js"></script>
 <script src="notes.js"></script>
 <script src="app.js"></script>
-<script>
-document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);
-setInterval(()=>{document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);},1000);
-</script>
 </body>
 </html>

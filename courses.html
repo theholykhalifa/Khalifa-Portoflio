@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>HOLY // Courses | Coming Soon</title>
 <meta name="description" content="Holy's upcoming cybersecurity study tracks and lab journals. Currently in the forge.">
@@ -68,6 +71,6 @@
   <div><div class="mono" style="color:var(--text);letter-spacing:.14em">HOLY // COURSES</div></div>
   <div class="mono" style="font-size:11px;text-align:right">© <span id="year">2026</span> KHALIFA (HOLY) · ALL RIGHTS RESERVED.</div>
 </div></footer>
-<script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+<script src="courses.js"></script>
 </body>
 </html>

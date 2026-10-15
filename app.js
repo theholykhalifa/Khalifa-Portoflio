@@ -85,7 +85,7 @@ function openJourney(i){
   <h3 style="font-size:28px;margin:8px 0">${j.title}</h3>
   <p style="color:#c6cfd8">${j.summary}</p>
   <ul style="color:#c6cfd8;padding-left:18px">${j.points.map(p=>`<li>${p}</li>`).join("")}</ul>
-  <br><button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+  <br><button class="btn btn-g" data-close-modal>CLOSE</button>`);
 }
 function renderNotes(){
   const badge=s=>s==="PUBLISHED"?`<span class="badge b-verified">✓ PUBLISHED</span>`:s==="DOCUMENTING"?`<span class="badge b-progress">◐ DOCUMENTING</span>`:`<span class="badge b-soon">⚡ SOON</span>`;
@@ -105,7 +105,7 @@ function openNote(i){
   openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">${w.index} // ${w.track} · AUTHORIZED LAB / EDUCATIONAL</div>
   <h3 style="font-size:28px;margin:8px 0 4px">${w.title}</h3>
   <p style="color:var(--muted);font-size:14px">${w.summary}</p>${body}
-  <br><button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+  <br><button class="btn btn-g" data-close-modal>CLOSE</button>`);
 }
 function renderQuotes(){
   $("#quotes").innerHTML=HOLY_QUOTES.length?HOLY_QUOTES.map(q=>`
@@ -131,7 +131,7 @@ function openOps(i){
   <div class="kv"><b>OUTPUT</b><span>${m.output}</span></div>
   <div class="kv"><b>DEFENSIVE VIEW</b><span>${m.defense}</span></div>
   <p class="ethics" style="margin-top:18px">All testing demonstrated through this portfolio is performed only against authorized, owned, intentionally vulnerable, or controlled environments.</p>
-  <button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+  <button class="btn btn-g" data-close-modal>CLOSE</button>`);
 }
 function openLab(i){
   const l=HOLY_LABS[i];
@@ -148,7 +148,7 @@ function openLab(i){
   <div class="kv"><b>RESULT</b><span>${l.result}</span></div>
   <div class="kv"><b>LESSONS</b><span>${l.lessons}</span></div>
   <div class="kv"><b>IMPROVEMENTS</b><span>${l.improvements}</span></div>
-  <br><button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+  <br><button class="btn btn-g" data-close-modal>CLOSE</button>`);
 }
 
 /* ---------- resume ---------- */
@@ -171,7 +171,7 @@ function openResume(){
     <h4>CONTACT</h4><p>${HOLY_SOCIALS.emailLabel}<br>GitHub: ${HOLY_SOCIALS.github}<br>LinkedIn: ${HOLY_SOCIALS.linkedin}</p>
   </div><br><div style="display:flex;gap:10px;flex-wrap:wrap">
   <button class="btn btn-p" id="printBtn">PRINT / SAVE PDF</button>
-  <button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button></div>`);
+  <button class="btn btn-g" data-close-modal>CLOSE</button></div>`);
   $("#printBtn").onclick=()=>window.print();
 }
 
@@ -376,7 +376,7 @@ function openWorkflow(){
   openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">ENGAGEMENT WORKFLOW // AUTHORIZATION IS NEVER OPTIONAL</div>
   <h3 style="font-size:28px;margin:8px 0">How an Engagement Runs</h3>
   ${steps.map(s=>`<div class="kv"><b>${s[0]}</b><span>${s[1]}</span></div>`).join("")}
-  <br><button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>`);
+  <br><button class="btn btn-g" data-close-modal>CLOSE</button>`);
 }
 function openSample(){
   openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">SAMPLE // ALL FINDINGS FICTIONAL — LAB.LOCAL</div>
@@ -387,14 +387,14 @@ function openSample(){
   <tr><td>F-03</td><td>Weak lab password policy</td><td>High</td></tr></table>
   <p>Each finding ships with observation, impact, remediation and evidence. Full structure — scope, ROE, executive summary, methodology — is in the downloadable file.</p></div>
   <div class="btnrow"><a class="btn btn-p" href="assets/pentest-report-sample.md" download>⤓ DOWNLOAD FULL .MD</a>
-  <button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button></div>`);
+  <button class="btn btn-g" data-close-modal>CLOSE</button></div>`);
 }
 function openInvoice(){
   openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">TEMPLATE // BLANK — FILL BEFORE USE</div>
   <h3 style="font-size:28px;margin:8px 0">Invoice Template</h3>
   <div class="article"><p>Sections: bill-to, engagement + authorization refs, testing period, line items, totals, payment terms, retest window. Every value is a <code>[BRACKETED]</code> placeholder — nothing filled, nothing implied.</p></div>
   <div class="btnrow"><a class="btn btn-p" href="assets/invoice-template.md" download>⤓ DOWNLOAD .MD</a>
-  <button class="btn btn-g" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button></div>`);
+  <button class="btn btn-g" data-close-modal>CLOSE</button></div>`);
 }
 
 /* low dread-drone: deep thump loop for scary sequences */
@@ -538,6 +538,10 @@ function palList(q){
 
 /* ---------- boot ---------- */
 document.addEventListener("DOMContentLoaded",()=>{
+  const __fl=document.getElementById("fonts");if(__fl)__fl.media="all";
+  const __ck=document.getElementById("clock");
+  const __tick=()=>{if(__ck)__ck.textContent=new Date().toTimeString().slice(0,8);};
+  __tick(); setInterval(__tick,1000);
 /* maintenance code rain — ambient, infinite, subtle */
 function maintRain(cv){
   if(!cv) return;
@@ -677,6 +681,7 @@ function maintenanceMode(){
 
   // modal close
   $("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
+  document.addEventListener("click",e=>{if(e.target.closest("[data-close-modal]"))closeModal();});
   $("#mclose2").onclick=closeModal;
   addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closePal();}});
 

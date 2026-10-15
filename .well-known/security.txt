@@ -1,0 +1,6 @@
+Contact: mailto:HVoid9@proton.me
+Expires: 2027-10-15T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://theholykhalifa.github.io/Khalifa-Portoflio/.well-known/security.txt
+Policy: https://theholykhalifa.github.io/Khalifa-Portoflio/disclosure.html
+Hiring: https://theholykhalifa.github.io/Khalifa-Portoflio/#contact

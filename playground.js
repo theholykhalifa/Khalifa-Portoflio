@@ -368,9 +368,9 @@ function renderTool(name){
   $$("#toolTabs .btn").forEach(b=>{b.className="btn "+(b.dataset.tool===name?"btn-p":"btn-g");});
   if(name==="hash") box.innerHTML=`<div class="tlab">INPUT TEXT</div>
     <input class="tfield" id="tin" placeholder="type here…" autocomplete="off">
-    <div class="btnrow"><button class="btn btn-p" onclick="doHash('SHA-256')">SHA-256</button>
-    <button class="btn btn-g" onclick="doHash('SHA-512')">SHA-512</button>
-    <button class="btn btn-g" onclick="doHash('SHA-1')">SHA-1</button></div>
+    <div class="btnrow"><button class="btn btn-p" data-hash="SHA-256">SHA-256</button>
+    <button class="btn btn-g" data-hash="SHA-512">SHA-512</button>
+    <button class="btn btn-g" data-hash="SHA-1">SHA-1</button></div>
     <div class="tout2" id="toolOut">hash appears here — computed locally</div>`;
   if(name==="b64") box.innerHTML=`<div class="tlab">TEXT / BASE64</div>
     <textarea class="tfield" id="tin2" placeholder="paste here…"></textarea>
@@ -964,6 +964,8 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#burger").onclick=()=>$("#mmenu").classList.add("open");
   $("#mclose").onclick=()=>$("#mmenu").classList.remove("open");
   $$("#mmenu a.big").forEach(a=>a.onclick=()=>$("#mmenu").classList.remove("open"));
+  document.addEventListener("click",e=>{const b=e.target.closest("[data-hash]");if(b)doHash(b.dataset.hash);});
+  const __yr=document.getElementById("year");if(__yr)__yr.textContent=new Date().getFullYear();
   const tV=$("#tabVuln"), tS=$("#tabSec"), tL=$("#tabLab"), tP=$("#tabProfile");
   const paint=which=>{tV.className="btn "+(which==="vuln"?"btn-p":"btn-g");
     tS.className="btn "+(which==="sec"?"btn-p":"btn-g");

@@ -124,6 +124,12 @@ BAN. UNBAN reverses it. The secret is typed per session, never stored.
 → `bans` → Insert row manually (user_id from auth.users, until or NULL).
 The RLS policy above enforces it instantly.
 
+> Do NOT remove the "bans readable by all" policy: the scores-insert check
+> reads the `bans` table as the invoking user, so without that read policy
+> the `NOT EXISTS` test would pass vacuously and bans would silently stop
+> working (fail-open). Banned UUIDs being visible is the accepted tradeoff;
+> a `SECURITY DEFINER` helper function would remove it if ever needed.
+
 ## 7. Achievements sync (one more table)
 
 SQL Editor → New query → Run:

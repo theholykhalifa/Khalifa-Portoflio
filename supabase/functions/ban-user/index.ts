@@ -11,13 +11,29 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+function timingSafeEqual(a: string, b: string): boolean {
+  const x = a || "", y = b || "";
+  const n = Math.max(x.length, y.length, 1);
+  let diff = x.length ^ y.length;
+  for (let i = 0; i < n; i++) {
+    diff |= (x.charCodeAt(i % Math.max(1, x.length)) || 0) ^ (y.charCodeAt(i % Math.max(1, y.length)) || 0);
+  }
+  return x.length > 0 && y.length > 0 && diff === 0;
+}
+
+function isUUID(v: unknown): v is string {
+  return typeof v === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") {
     return Response.json({ error: "POST only" }, { status: 405, headers: CORS });
   }
-  const secret = req.headers.get("x-admin-secret");
-  if (!secret || secret !== Deno.env.get("ADMIN_SECRET")) {
+  const secret = req.headers.get("x-admin-secret") || "";
+  const expected = Deno.env.get("ADMIN_SECRET") || "";
+  if (!timingSafeEqual(secret, expected)) {
     return Response.json({ error: "denied" }, { status: 401, headers: CORS });
   }
   let body: { action?: string; user_id?: string; hours?: number; reason?: string } = {};
@@ -26,8 +42,8 @@ serve(async (req) => {
   } catch {
     return Response.json({ error: "bad JSON" }, { status: 400, headers: CORS });
   }
-  if (!body.user_id) {
-    return Response.json({ error: "user_id required" }, { status: 400, headers: CORS });
+  if (!body.user_id || !isUUID(body.user_id)) {
+    return Response.json({ error: "valid user_id required" }, { status: 400, headers: CORS });
   }
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE ORB // HOLY</title>
+<meta name="description" content="Liquid Glass Orb — the fluid glass agent interface rendered live on the HOLY portfolio.">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="liquid-glass-orb.css">
+<script src="consent.js"></script>
+<style>
+.orb-main{position:relative;padding:132px 0 84px;min-height:66vh;display:flex;align-items:center;overflow:hidden}
+.orb-halo{position:absolute;left:50%;top:54%;width:min(86vw,660px);aspect-ratio:1;translate:-50% -50%;
+  background:radial-gradient(circle,rgba(255,51,85,.17),rgba(255,51,85,.05) 46%,transparent 70%);
+  filter:blur(8px);pointer-events:none;z-index:0;animation:haloBreathe 7s ease-in-out infinite}
+@keyframes haloBreathe{0%,100%{opacity:.5;scale:1}50%{opacity:1;scale:1.07}}
+.orb-copy{position:relative;z-index:1;text-align:center}
+.orb-copy .kicker{margin-bottom:20px}
+.orb-copy h1{font-size:clamp(34px,5.4vw,58px);letter-spacing:-.03em;margin:0 0 12px;font-weight:900;line-height:1.02}
+.orb-copy h1 span{color:var(--accent)}
+.orb-copy .sub{margin:0 auto;max-width:52ch;color:var(--muted);font-size:15px}
+.orb-stage{position:relative;z-index:1;display:flex;justify-content:center;align-items:center;
+  min-height:300px;margin-top:34px}
+.orb-note{position:relative;z-index:1;text-align:center;margin-top:30px;font-family:var(--mono);
+  font-size:11px;letter-spacing:.16em;color:var(--muted)}
+.orb-note b{color:var(--accent)}
+.orb-foot{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<a class="skip" href="#orb">Skip to content</a>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+<div class="orb-halo" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-in">
+    <a class="brand" href="index.html"><img class="logo-mark" src="assets/logo.png" alt="HOLY logo">HOLY <b>//</b> <span>THE ORB</span></a>
+    <div class="links" role="navigation">
+      <a href="index.html"><em>01</em>HOME</a>
+      <a href="playground.html"><em>02</em>ARENA</a>
+      <a href="courses.html"><em>03</em>COURSES</a>
+      <a href="orb.html" aria-current="page"><em>04</em>ORB</a>
+    </div>
+    <div class="status"><span class="dot"></span>SYSTEM ONLINE</div>
+    <button class="burger" id="burger" aria-label="Open menu">☰</button>
+  </div>
+</nav>
+
+<div class="mmenu" id="mmenu" role="dialog" aria-label="Menu">
+  <div class="mmenu-top">
+    <span class="mono" style="letter-spacing:.2em;font-size:12px;color:var(--accent)">HOLY // NAV</span>
+    <button class="xbtn" id="mclose" aria-label="Close menu">✕</button>
+  </div>
+  <div style="height:20px"></div>
+  <a class="big" href="index.html"><small>01</small>HOME</a>
+  <a class="big" href="playground.html"><small>02</small>ARENA</a>
+  <a class="big" href="courses.html"><small>03</small>COURSES</a>
+  <a class="big" href="orb.html"><small>04</small>ORB</a>
+  <div class="mono" style="margin-top:24px;font-size:11px;color:var(--muted)">● SYSTEM ONLINE (SIMULATION)</div>
+</div>
+
+<main id="orb" class="orb-main">
+  <div class="wrap">
+    <div class="orb-copy">
+      <span class="kicker">AGENT INTERFACE // FLUID GLASS</span>
+      <h1>LIQUID GLASS <span>ORB</span></h1>
+      <p class="sub">A live fluid-glass render — the same renderer, shaders and material controls the agent interface ships with, running here on its own stage.</p>
+    </div>
+    <div class="orb-stage" id="orbStage"></div>
+    <div class="orb-note">STATE: <b>IDLE</b> · ENTRANCE: 1.2S POWER4.OUT · 250PX · REDUCED-MOTION AWARE</div>
+  </div>
+</main>
+
+<footer class="orb-foot"><div class="wrap foot-grid">
+  <div>
+    <div class="mono" style="color:var(--text);letter-spacing:.14em">HOLY //</div>
+    <div class="mono" style="font-size:11px;margin-top:8px;line-height:2">LIQUID GLASS ORB · FLUID AGENT RENDERER<br>THINK LIKE AN ATTACKER. BUILD LIKE A DEFENDER.</div>
+  </div>
+  <div class="mono" style="font-size:11px;line-height:2;text-align:right">
+    <a href="index.html">HOME</a> ·
+    <a href="privacy.html">PRIVACY</a> ·
+    <a href="credits.html">CREDITS</a> ·
+    <a href="disclosure.html">DISCLOSURE</a> ·
+    <a href="#" data-consent-open>COOKIE SETTINGS</a><br>
+    © <span id="year">2026</span> KHALIFA (HOLY) — ALL RIGHTS RESERVED.
+  </div>
+</div></footer>
+
+<div class="toast" id="toast" role="status"></div>
+<script type="module" src="orb.js"></script>
+</body>
+</html>

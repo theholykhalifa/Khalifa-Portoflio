@@ -16,6 +16,10 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);lin
 a{color:inherit}
 .skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:#001318;padding:10px 16px;z-index:200;font-weight:700}
 .skip:focus{left:12px;top:12px;border-radius:8px}
+/* WCAG 2.4.7 — visible focus indicator on every interactive element */
+:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
+select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
 .bg-grid{position:fixed;inset:-60px;z-index:-2;background:
   linear-gradient(rgba(255,51,85,.045) 1px,transparent 1px),
   linear-gradient(90deg,rgba(255,51,85,.045) 1px,transparent 1px),

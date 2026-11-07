@@ -1,25 +1,19 @@
-/* HOLY // consent gate — asks before any non-essential third-party request.
-   Essential-only by default: no Google Fonts, no external requests beyond
-   what the page strictly needs. Choice is stored in localStorage (holy_consent)
-   and can be reopened at any time via [data-consent-open] ("COOKIE SETTINGS").
-   Styles are injected here so the banner works on pages with their own CSS. */
+/* HOLY // consent gate — asks before the ONE optional third-party request.
+   Fonts are self-hosted (assets/fonts/, first-party): they never need consent.
+   Essential-only by default: the page makes no external request at all until the
+   visitor presses ACCEPT ALL, which arms the live visit counter (counter.js —
+   loads supabase-js from a CDN and records one page path). Choice is stored in
+   localStorage (holy_consent) and can be reopened at any time via
+   [data-consent-open] ("COOKIE SETTINGS"). Every choice fires the
+   "holy:consent" event (detail = "all" | "essential") so scripts can arm
+   themselves the moment permission exists. */
 (function () {
-  var KEY = "holy_consent", BAR = "consentBar", FONTS = "holy-fonts";
-  var FONT_URL = "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap";
+  var KEY = "holy_consent", BAR = "consentBar";
 
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
-  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
-
-  function fontsOn() {
-    if (get() !== "all") return;
-    if (document.getElementById(FONTS)) return;
-    var l = document.createElement("link");
-    l.id = FONTS; l.rel = "stylesheet"; l.href = FONT_URL;
-    (document.head || document.documentElement).appendChild(l);
-  }
-  function fontsOff() {
-    var l = document.getElementById(FONTS);
-    if (l && l.parentNode) l.parentNode.removeChild(l);
+  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} dispatch(v); }
+  function dispatch(v) {
+    try { document.dispatchEvent(new CustomEvent("holy:consent", { detail: v })); } catch (e) {}
   }
 
   var CSS = [
@@ -64,9 +58,10 @@
       '<div class="c-in">' +
         '<div class="c-txt">' +
           '<span class="c-t">HOLY // PRIVACY CHOICE</span>' +
-          '<span class="c-d">No cookies, no analytics, no ad trackers. This site stores your settings and ' +
-          'game progress in this browser only. The single optional request is Google Fonts (it sends your ' +
-          'IP to Google) — it loads only if you accept. ' +
+          '<span class="c-d">No cookies, no analytics, no ad trackers. Your settings and ' +
+          'game progress stay in this browser only, and the fonts are served by this site ' +
+          'itself. The one optional request is the live visit counter (it loads its library ' +
+          'and records one page path) — it runs only if you accept. ' +
           '<a href="privacy.html">Read the full privacy policy</a>.</span>' +
         '</div>' +
         '<div class="c-btns">' +
@@ -76,12 +71,12 @@
       '</div>';
     document.body.appendChild(b);
     b.querySelector('[data-c="all"]').onclick = function () {
-      set("all"); fontsOn(); hide();
+      set("all"); hide();
       var n = document.getElementById("consentNote");
-      if (n) n.textContent = "CHOICE: ALL ACCEPTED — FONTS LOADED";
+      if (n) n.textContent = "CHOICE: ALL ACCEPTED — VISIT COUNTER ON";
     };
     b.querySelector('[data-c="ess"]').onclick = function () {
-      set("essential"); fontsOff(); hide();
+      set("essential"); hide();
       var n = document.getElementById("consentNote");
       if (n) n.textContent = "CHOICE: ESSENTIAL ONLY — NO THIRD-PARTY REQUESTS";
     };
@@ -96,8 +91,8 @@
 
   function init() {
     var c = get();
-    if (c === "all") fontsOn();
-    else if (!c) { var b = bar(); if (b) b.hidden = false; }
+    if (c) dispatch(c); // tell waiting scripts the stored choice ("all" arms, "essential" refuses)
+    else { var b = bar(); if (b) b.hidden = false; }
   }
 
   document.addEventListener("click", function (e) {
@@ -108,5 +103,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 
-  window.HOLY_CONSENT = { get: get, set: set, show: show, hide: hide, fontsOn: fontsOn, fontsOff: fontsOff };
+  window.HOLY_CONSENT = { get: get, set: set, show: show, hide: hide };
 })();

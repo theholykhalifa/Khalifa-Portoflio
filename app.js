@@ -538,7 +538,7 @@ function palList(q){
 
 /* ---------- boot ---------- */
 document.addEventListener("DOMContentLoaded",()=>{
-  /* Google Fonts load only via consent.js after ACCEPT ALL — never here. */
+  /* Fonts are self-hosted in assets/fonts/ — no third-party font request, ever. */
   const __ck=document.getElementById("clock");
   const __tick=()=>{if(__ck)__ck.textContent=new Date().toTimeString().slice(0,8);};
   __tick(); setInterval(__tick,1000);
@@ -617,8 +617,10 @@ function maintenanceMode(){
     if(!skip) maintenanceMode();
   }
   // entry sequence — hack-style login, skippable
-  const intro=document.getElementById("intro");
-  if(intro&&/[?&]intro=0/.test(location.search)){intro.remove();document.body.classList.add("ready");}
+  // (?intro=0 drops the gate entirely — MUST null the reference, or the block below
+  //  still runs against the detached node and init dies at #introForm)
+  let intro=document.getElementById("intro");
+  if(intro&&/[?&]intro=0/.test(location.search)){intro.remove();intro=null;document.body.classList.add("ready");}
   function introDone(){ if(!document.getElementById("intro")) return;
     intro.classList.add("out"); document.body.classList.add("ready");
     document.body.style.overflow=""; setTimeout(()=>intro.remove(),650); }

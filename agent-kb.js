@@ -120,7 +120,7 @@ var HOLY_KB = (function () {
   { id:"privacy", cat:"site", title:"Privacy",
     keys:["privacy","cookies","cookie","tracking","track me","analytics","gdpr","data","storage","personal data","spy"],
     gen:["site"],
-    answer:"privacy.html has the full policy. Short version: no cookies, no analytics, no tracking, no ads. Storage is browser-local only (localStorage/sessionStorage — your profile, quiz progress, preferences). Optional cloud accounts + the scoreboard use Supabase. Data deletion: a wipe button in your profile for everything in this browser, plus a prefilled email request for cloud rows.",
+    answer:"privacy.html has the full policy. Short version: no cookies, no analytics, no tracking, no ads. Storage is browser-local only (localStorage/sessionStorage — your profile, quiz progress, preferences). Fonts are served by the site itself. Optional cloud accounts, the scoreboard and the consent-gated visit counter use Supabase. Data deletion: a wipe button in your profile for everything in this browser, plus a prefilled email request for cloud rows.",
     link:{ label:"PRIVACY POLICY →", href:"privacy.html" } },
 
   { id:"disclosure", cat:"site", title:"Responsible disclosure",
@@ -130,7 +130,7 @@ var HOLY_KB = (function () {
 
   { id:"credits", cat:"site", title:"Credits and licenses",
     keys:["credits","license","licences","attribution","fonts","open source","oss","who made"],
-    answer:"credits.html lists everything: images (logo, operator portrait, avatar) are self-made by the owner; fonts Inter and JetBrains Mono are SIL OFL; software includes supabase-js (Apache 2.0), the Liquid Glass Orb renderer (ReactDrops Component License 1.0, license retained in source), and psrdnoise2 GLSL (MIT). Content is his own.",
+    answer:"credits.html lists everything: images (logo, operator portrait, avatar) are self-made by the owner; fonts Inter and JetBrains Mono are SIL OFL and self-hosted first-party from this site (no third-party font request); software includes supabase-js (Apache 2.0), the Liquid Glass Orb renderer (ReactDrops Component License 1.0, license retained in source), and psrdnoise2 GLSL (MIT). Content is his own.",
     link:{ label:"CREDITS →", href:"credits.html" } },
 
   { id:"resume", cat:"site", title:"Security profile / resume",

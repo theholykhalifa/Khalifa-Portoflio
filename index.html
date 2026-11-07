@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -16,8 +16,8 @@
 <meta property="og:image" content="favicon.svg">
 <meta name="twitter:card" content="summary">
 <link rel="icon" type="image/png" href="assets/logo.png">
-<!-- Google Fonts are injected by consent.js ONLY after ACCEPT ALL (no static
-     font/preconnect links: a media="print" stylesheet is still fetched). -->
+<!-- Fonts are SELF-HOSTED (assets/fonts/, first-party woff2) — no third-party
+     font request exists, so there is nothing to consent to for typography. -->
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -462,7 +462,7 @@
   <div class="mono" style="padding:10px 18px;font-size:10px;color:var(--muted);border-top:1px solid var(--line2)">HOLY // COMMAND PALETTE — ↑↓ NAVIGATE · ENTER OPEN · ESC CLOSE</div>
 </div></div>
 
-<div class="visitpill mono" id="visitPill" title="Total visits since launch">◉ …</div>
+<div class="visitpill mono" id="visitPill" title="Total visits since launch" style="display:none">◉ …</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="avatar.js"></script>

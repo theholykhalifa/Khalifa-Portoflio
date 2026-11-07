@@ -357,7 +357,7 @@ html[dir=rtl] .kv b,html[dir=rtl] .idrow small{text-align:right}
 /* pgp block */
 .pgp{background:#04070b;border:1px solid var(--line2);border-radius:10px;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:10.5px;line-height:1.6;color:var(--accent2);max-height:190px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
 /* pgp fingerprint display */
-.fp{font-family:var(--mono);font-size:clamp(13px,2.6vw,18px);letter-spacing:.1em;color:var(--accent2);border:1px solid var(--line2);border-radius:10px;padding:12px 16px;margin-top:8px;background:rgba(255,51,85,.05);overflow-x:auto;white-space:nowrap}
+.fp{font-family:var(--mono);font-size:clamp(13px,2.6vw,18px);letter-spacing:.1em;color:var(--accent2);border:1px solid var(--line2);border-radius:10px;padding:12px 16px;margin-top:8px;background:rgba(255,51,85,.05);overflow-x:auto;white-space:normal;overflow-wrap:break-word}
 /* full-note articles */
 .note.clickable{cursor:pointer}
 .article h4{color:var(--text);margin:24px 0 8px;font-size:18px}
@@ -673,6 +673,10 @@ body.recruiter::before{content:"RECRUITER VIEW — CLEAN PROFILE · CLICK ◉ BE
 .resume h4{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--accent);margin:22px 0 8px;border-bottom:2px solid #0b1118;padding-bottom:4px}
 /* contact */
 .contact-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+/* grid children must be able to shrink below their content's min-content —
+   otherwise one wide line (the PGP fingerprint) blows the track out, stretching
+   the whole card row past the viewport on phones and past the margin on desktop */
+.contact-grid>*{min-width:0}
 .cform{display:grid;gap:12px}
 .cform input,.cform textarea{background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:13px 15px;font-family:var(--sans);font-size:14px;width:100%}
 .cform input:focus,.cform textarea:focus{outline:1px solid var(--accent);border-color:var(--accent)}
@@ -698,6 +702,9 @@ footer{border-top:1px solid var(--line2);padding:48px 0 32px;color:var(--muted);
   .kv{grid-template-columns:1fr;gap:2px}
 }
 @media(max-width:560px){.cred-grid,.res-grid{grid-template-columns:1fr}.wrap{padding:0 16px}.ops-grid{grid-template-columns:1fr 1fr}}
+/* below ~378px the 2-col ops grid can't fit its longest label (RECONNAISSANCE)
+   — single column instead of letting the track blow past the viewport */
+@media(max-width:380px){.ops-grid{grid-template-columns:1fr}}
 /* mobile polish — touch-first */
 @media(max-width:768px){
   input.tfield,#cform input,#cform textarea,#tinput,.authbar input,#sbForm input{font-size:16px}

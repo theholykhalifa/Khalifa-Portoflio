@@ -154,11 +154,11 @@ function openLab(i){
 /* ---------- resume ---------- */
 function openResume(){
   const certs=HOLY_CERTS.map(c=>`${c.short} — ${c.name} [${c.status}]`).join("<br>");
-  const exp=HOLY_EXPERIENCE.map(e=>`<b>${e.org}</b> · ${e.role} · ${e.type} · ${e.status}<br><span style="color:#445">${e.date} — ${e.location}</span><br>${e.description}<br><br>`).join("");
+  const exp=HOLY_EXPERIENCE.map(e=>`<b>${e.org}</b> · ${e.role} · ${e.type} · ${e.status}<br><span style="color:var(--muted)">${e.date} — ${e.location}</span><br>${e.description}<br><br>`).join("");
   const ars=HOLY_ARSENAL.map(g=>`<b>${g.category}:</b> ${g.items.map(x=>x[0]+" ("+x[1]+")").join(", ")}`).join("<br><br>");
   const res=HOLY_RESEARCH.map(r=>`${r.topic} [${r.stage}]`).join(" · ");
   openModal(`<div class="resume">
-    <div class="mono" style="font-size:11px;letter-spacing:.2em;color:#A01025">HOLY // SECURITY PROFILE — DIGITAL RESUME (SIMULATION)</div>
+    <div class="mono" style="font-size:11px;letter-spacing:.2em;color:var(--accent)">HOLY // SECURITY PROFILE — DIGITAL RESUME (SIMULATION)</div>
     <h2>${HOLY_PROFILE.name}</h2><div class="mono" style="font-size:12px">${HOLY_PROFILE.realName} — working as ${HOLY_PROFILE.name}</div><div class="mono" style="font-size:12px">${HOLY_PROFILE.identity}</div>
     <p><em>"${HOLY_PROFILE.slogan}"</em><br>${HOLY_PROFILE.aboutSupport}</p>
     <h4>PROFILE</h4><p>Focus: ${HOLY_PROFILE.focus}<br>Specialization: ${HOLY_PROFILE.specialization}<br>Interests: ${HOLY_PROFILE.interests.join(", ")}<br>Mode: ${HOLY_PROFILE.modes.join(" · ")}<br>Open to: ${HOLY_PROFILE.openTo.join(", ")}</p>
@@ -337,7 +337,7 @@ function breachDrill(){
   lines.forEach((l,i)=>setTimeout(()=>{
     const el=document.getElementById("socLog"); if(!el) return;
     const t=new Date().toTimeString().slice(0,8);
-    el.insertAdjacentHTML("afterbegin",`<div><b>${t}</b><span class="lv-${l[0]}">[${l[0]}]</span> ${l[1]} <span style="color:#3a4653">(drill)</span></div>`);
+    el.insertAdjacentHTML("afterbegin",`<div><b>${t}</b><span class="lv-${l[0]}">[${l[0]}]</span> ${l[1]} <span style="color:var(--muted)">(drill)</span></div>`);
     while(el.children.length>8) el.lastChild.remove();
   },900*(i+1)));
   setTimeout(()=>{document.body.classList.remove("breach");
@@ -514,7 +514,7 @@ function tickSoc(){
   const el=$("#socLog"); if(!el) return;
   const l=LOGS[Math.floor(Math.random()*LOGS.length)];
   const t=new Date().toTimeString().slice(0,8);
-  el.insertAdjacentHTML("afterbegin",`<div><b>${t}</b><span class="lv-${l[1]}">[${l[1]}]</span> ${l[2]} <span style="color:#3a4653">(simulated)</span></div>`);
+  el.insertAdjacentHTML("afterbegin",`<div><b>${t}</b><span class="lv-${l[1]}">[${l[1]}]</span> ${l[2]} <span style="color:var(--muted)">(simulated)</span></div>`);
   while(el.children.length>8) el.lastChild.remove();
   const pk=$("#mPackets"); if(pk){ const n=parseInt(pk.textContent.replace(/,/g,""))||12842; pk.textContent=(n+Math.floor(Math.random()*17)).toLocaleString(); }
 }
@@ -538,7 +538,7 @@ function palList(q){
 
 /* ---------- boot ---------- */
 document.addEventListener("DOMContentLoaded",()=>{
-  const __fl=document.getElementById("fonts");if(__fl)__fl.media="all";
+  /* Google Fonts load only via consent.js after ACCEPT ALL — never here. */
   const __ck=document.getElementById("clock");
   const __tick=()=>{if(__ck)__ck.textContent=new Date().toTimeString().slice(0,8);};
   __tick(); setInterval(__tick,1000);

@@ -106,11 +106,11 @@
 <div class="wrap"><div class="authbar">
   <span class="mono" id="sbStatus">CLOUD: …</span>
   <span id="sbForm" class="authrow">
-    <input id="sbCall" placeholder="callsign" maxlength="20" autocomplete="off">
-    <input id="sbEmail" type="email" placeholder="email" autocomplete="email">
-    <input id="sbPass" type="password" placeholder="password" autocomplete="new-password">
-    <button id="sbUp">SIGN UP</button>
-    <button id="sbIn" class="ghost">LOG IN</button>
+    <input id="sbCall" placeholder="callsign" maxlength="20" autocomplete="off" aria-label="Callsign (leaderboard name)">
+    <input id="sbEmail" type="email" placeholder="email" autocomplete="email" aria-label="Email for your Arena account">
+    <input id="sbPass" type="password" placeholder="password" autocomplete="new-password" aria-label="Password for your Arena account">
+    <button id="sbUp" aria-label="Create Arena account">SIGN UP</button>
+    <button id="sbIn" class="ghost" aria-label="Log in to your Arena account">LOG IN</button>
   </span>
   <button id="sbOut" class="ghost" hidden>LOG OUT</button>
 </div></div>
@@ -243,6 +243,9 @@
   </div>
   <div class="mono" style="font-size:11px;line-height:2;text-align:right">
     <a href="index.html" style="text-decoration:none">← BACK TO PORTFOLIO</a><br>
+    <a href="privacy.html">PRIVACY</a> ·
+    <a href="credits.html">CREDITS</a> ·
+    <a href="#" data-consent-open>COOKIE SETTINGS</a><br>
     © <span id="year">2026</span> KHALIFA (HOLY) · ALL RIGHTS RESERVED.
   </div>
 </div></footer>
@@ -257,6 +260,7 @@
 </div></div>
 <div class="toast" id="toast" role="status"></div>
 <script src="avatar.js"></script>
+<script src="consent.js"></script>
 <script src="profile-ui.js"></script>
 <script src="counter.js"></script>
 <script src="config.js"></script>

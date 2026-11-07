@@ -16,10 +16,8 @@
 <meta property="og:image" content="favicon.svg">
 <meta name="twitter:card" content="summary">
 <link rel="icon" type="image/png" href="assets/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link id="fonts" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" media="print">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
+<!-- Google Fonts are injected by consent.js ONLY after ACCEPT ALL (no static
+     font/preconnect links: a media="print" stylesheet is still fetched). -->
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -284,11 +282,11 @@
       <div class="spanel">
         <div class="mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px">EVENT LOG // SIMULATED</div>
         <div class="log" id="socLog">
-          <div><b>12:41:25</b><span class="lv-OK">[OK]</span> Event contained <span style="color:#3a4653">(simulated)</span></div>
-          <div><b>12:41:20</b><span class="lv-INFO">[INFO]</span> Request analyzed <span style="color:#3a4653">(simulated)</span></div>
-          <div><b>12:41:16</b><span class="lv-WARN">[WARN]</span> Simulated suspicious request <span style="color:#3a4653">(simulated)</span></div>
-          <div><b>12:41:09</b><span class="lv-INFO">[INFO]</span> Network baseline established <span style="color:#3a4653">(simulated)</span></div>
-          <div><b>12:41:02</b><span class="lv-INFO">[INFO]</span> Lab environment initialized <span style="color:#3a4653">(simulated)</span></div>
+          <div><b>12:41:25</b><span class="lv-OK">[OK]</span> Event contained <span style="color:var(--muted)">(simulated)</span></div>
+          <div><b>12:41:20</b><span class="lv-INFO">[INFO]</span> Request analyzed <span style="color:var(--muted)">(simulated)</span></div>
+          <div><b>12:41:16</b><span class="lv-WARN">[WARN]</span> Simulated suspicious request <span style="color:var(--muted)">(simulated)</span></div>
+          <div><b>12:41:09</b><span class="lv-INFO">[INFO]</span> Network baseline established <span style="color:var(--muted)">(simulated)</span></div>
+          <div><b>12:41:02</b><span class="lv-INFO">[INFO]</span> Lab environment initialized <span style="color:var(--muted)">(simulated)</span></div>
         </div>
       </div>
     </div>
@@ -438,6 +436,10 @@
   <div class="mono" style="font-size:11px;line-height:2;text-align:right">
     <a id="ghBtn2" href="https://github.com/" target="_blank" rel="noopener" style="text-decoration:none">GITHUB ↗</a> ·
     <a id="liBtn2" href="https://www.linkedin.com/" target="_blank" rel="noopener" style="text-decoration:none">LINKEDIN ↗</a><br>
+    <a href="privacy.html">PRIVACY</a> ·
+    <a href="credits.html">CREDITS</a> ·
+    <a href="disclosure.html">DISCLOSURE</a> ·
+    <a href="#" data-consent-open>COOKIE SETTINGS</a><br>
     © <span id="year">2026</span> KHALIFA (HOLY) — ALL RIGHTS RESERVED.<br>
     NO PART OF THIS SITE, ITS DESIGN, OR ITS CONTENT MAY BE COPIED, REPRODUCED, OR USED IN ANY FORM WITHOUT EXPLICIT WRITTEN PERMISSION.<br>
     SIMULATION LABELS MARK FICTIONAL UI · AUTHORIZED TESTING ONLY.<br>
@@ -465,6 +467,7 @@
 
 <script src="avatar.js"></script>
 <script src="profile-ui.js"></script>
+<script src="consent.js"></script>
 <script src="counter.js"></script>
 <script src="config.js"></script>
 <script src="notes.js"></script>

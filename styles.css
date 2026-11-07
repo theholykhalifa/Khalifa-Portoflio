@@ -53,7 +53,7 @@ select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px 
 .mono{font-family:var(--mono)}
 /* NAV */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(5,7,10,.72);border-bottom:1px solid var(--line2)}
-.nav-in{max-width:1280px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:24px}
+.nav-in{max-width:1280px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px}
 .brand{font-family:var(--mono);font-weight:800;letter-spacing:.14em;font-size:15px;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:9px}
 /* logo — single slow glow pulse, nothing more */
 .logo-mark{width:26px;height:26px;object-fit:cover;border-radius:7px;mix-blend-mode:screen;animation:logoGlow 5s ease-in-out infinite}
@@ -62,8 +62,13 @@ select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px 
 @keyframes logoGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,51,85,.35))}50%{filter:drop-shadow(0 0 22px rgba(255,51,85,.6))}}
 .brand b{color:var(--accent)}
 .brand span{color:var(--muted);font-weight:400}
-.links{display:flex;gap:4px;margin-left:auto;align-items:center;flex-wrap:wrap}
-.links a{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px;transition:.2s}
+.links{display:flex;gap:4px;margin-left:auto;align-items:center;flex-wrap:nowrap}
+.links a{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px;transition:.2s;white-space:nowrap}
+/* numbering lives on the section labels and in the mobile menu — the desktop row stays one line */
+.links a em{display:none}
+/* SYSTEM ONLINE chip lives in the mobile menu and the hero telemetry panel;
+   the desktop header row is brand + links + language + profile, one line */
+.nav .status{display:none}
 .links a:hover,.links a.active{color:var(--text);background:rgba(255,51,85,.08)}
 .links a em{font-style:normal;color:var(--accent);opacity:.7;margin-right:5px;font-size:10px}
 .status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--accent2);border:1px solid var(--line);padding:7px 12px;border-radius:99px;background:rgba(255,51,85,.06);white-space:nowrap}
@@ -79,7 +84,9 @@ select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px 
 .mmenu a.big:hover{color:var(--accent2)}
 .xbtn{background:none;border:1px solid var(--line2);color:var(--text);border-radius:10px;font-size:18px;padding:8px 14px;cursor:pointer}
 /* HERO */
-.hero{padding:150px 0 60px;position:relative}
+/* side padding must survive: .hero also carries .wrap, and zero side padding made
+   the hero text touch the screen edge (561-1020px) and mis-centre the frame at 1440 */
+.hero{padding:150px 24px 60px;position:relative}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:start}
 .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;color:var(--accent);border:1px solid var(--line);display:inline-block;padding:7px 14px;border-radius:6px;background:rgba(255,51,85,.05);margin-bottom:26px}
 h1.giant{font-size:clamp(64px,12vw,150px);line-height:.9;margin:0;letter-spacing:-.04em;font-weight:900;transition:letter-spacing .5s ease,text-shadow .5s ease}
@@ -686,6 +693,12 @@ footer{border-top:1px solid var(--line2);padding:48px 0 32px;color:var(--muted);
 .reveal.vis{opacity:1;transform:none}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--elev);border:1px solid var(--accent);color:var(--text);font-family:var(--mono);font-size:12px;padding:12px 20px;border-radius:10px;opacity:0;z-index:300;transition:.3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%)}
+/* the desktop link row fits on one line above ~1180px; below that the burger takes
+   over (the mobile menu carries the same links, numbered, plus SYSTEM ONLINE) */
+@media(max-width:1180px){
+  .links{display:none}
+  .burger{display:block}
+}
 @media(max-width:1020px){
   .hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr}
   .cred-grid{grid-template-columns:repeat(2,1fr)}
@@ -695,8 +708,6 @@ footer{border-top:1px solid var(--line2);padding:48px 0 32px;color:var(--muted);
   .soc-panels{grid-template-columns:1fr}
   .lab-grid{grid-template-columns:1fr}
   .res-grid{grid-template-columns:repeat(2,1fr)}
-  .links,.nav .status{display:none}
-  .burger{display:block}
   section{padding:72px 0}
   .hero{padding-top:120px}
   .kv{grid-template-columns:1fr;gap:2px}

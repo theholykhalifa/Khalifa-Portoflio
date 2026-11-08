@@ -31,7 +31,7 @@ function renderExp(){
   $("#expList").innerHTML=HOLY_EXPERIENCE.map(e=>`
     <div class="titem reveal">
       <h3>${e.org}</h3>
-      <div style="color:var(--accent2);font-family:var(--mono);font-size:12px;margin-top:4px">${e.role}</div>
+      <div style="color:var(--accent2);font-family:var(--mono);font-size:13px;margin-top:4px">${e.role}</div>
       <div class="tmeta"><span class="pill cy">${e.type}</span><span class="pill ${e.status==="TARGET"||e.status==="PLANNED"?"warn":""}">${e.status}</span><span class="pill">${e.date}</span><span class="pill">${e.location}</span></div>
       <p>${e.description}</p>
       <div class="tags">${e.technologies.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
@@ -56,9 +56,9 @@ function renderLabs(){
     <article class="card lab ${l.concept?"concept":""} reveal" data-lab="${i}" tabindex="0" role="button" aria-label="Open ${l.title}">
       <div class="idx">${l.index}${l.concept?" · CONCEPT":""}</div>
       <h3>${l.title}</h3><p><em style="color:var(--accent2)">${l.tagline}</em></p>
-      ${l.category?`<div class="mono" style="font-size:10.5px;color:var(--muted);letter-spacing:.1em">${l.category}</div>`:""}
+      ${l.category?`<div class="mono" style="font-size:13px;color:var(--muted);letter-spacing:.1em">${l.category}</div>`:""}
       <div class="tags">${l.focus.map(f=>`<span class="tag">${f}</span>`).join("")}</div>
-      <div class="mono" style="font-size:11px;color:var(--accent)">OPEN CASE STUDY →</div>
+      <div class="mono" style="font-size:13px;color:var(--accent)">OPEN CASE STUDY →</div>
     </article>`).join("");
   $$("#labGrid .lab").forEach(el=>{
     el.onclick=()=>openLab(+el.dataset.lab);
@@ -69,7 +69,7 @@ function renderResearch(){
   const cls={"LEARNING":"st-LEARNING","DEEP DIVE":"st-DIVE","EXPERIMENT":"st-EXP","DOCUMENTED":"st-DOC"};
   $("#resGrid").innerHTML=HOLY_RESEARCH.map(r=>`
     <div class="card reveal"><small class="${cls[r.stage]||""}">${r.stage}</small>
-    <h4 style="margin:12px 0 6px">${r.topic}</h4><p style="color:var(--muted);font-size:13.5px;margin:0">${r.note}</p></div>`).join("");
+    <h4 style="margin:12px 0 6px">${r.topic}</h4><p style="color:var(--muted);font-size:13px;margin:0">${r.note}</p></div>`).join("");
 }
 function renderJourney(){
   $("#journeyGrid").innerHTML=HOLY_JOURNEY.map((j,i)=>`
@@ -81,8 +81,8 @@ function renderJourney(){
 }
 function openJourney(i){
   const j=HOLY_JOURNEY[i];
-  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">${j.year} // ${j.status}</div>
-  <h3 style="font-size:28px;margin:8px 0">${j.title}</h3>
+  openModal(`<div class="mono" style="font-size:13px;color:var(--accent);letter-spacing:.2em">${j.year} // ${j.status}</div>
+  <h3 style="font-size:34px;margin:8px 0">${j.title}</h3>
   <p style="color:#c6cfd8">${j.summary}</p>
   <ul style="color:#c6cfd8;padding-left:18px">${j.points.map(p=>`<li>${p}</li>`).join("")}</ul>
   <br><button class="btn btn-g" data-close-modal>CLOSE</button>`);
@@ -93,7 +93,7 @@ function renderNotes(){
     <article class="card note ${w.article?"clickable":""}" ${w.article?`data-note="${i}" tabindex="0" role="button" aria-label="Open ${w.title}"`:""}><div class="idx">${w.index}</div>
       <div class="track">${w.track}</div><h4>${w.title}</h4><p>${w.summary}</p>
       <div>${badge(w.status)}</div>
-      ${w.article?'<div class="mono" style="font-size:11px;color:var(--accent);margin-top:10px;letter-spacing:.1em">OPEN NOTE →</div>':'<div class="mono" style="font-size:10.5px;color:var(--muted);margin-top:10px;letter-spacing:.1em">FULL NOTE PUBLISHING SOON</div>'}
+      ${w.article?'<div class="mono" style="font-size:13px;color:var(--accent);margin-top:10px;letter-spacing:.1em">OPEN NOTE →</div>':'<div class="mono" style="font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.1em">FULL NOTE PUBLISHING SOON</div>'}
     </article>`).join("");
   $$("#notesGrid .note[data-note]").forEach(el=>{
     el.onclick=()=>openNote(+el.dataset.note);
@@ -102,9 +102,9 @@ function renderNotes(){
 }
 function openNote(i){
   const w=HOLY_WRITEUPS[i], body=(typeof HOLY_ARTICLES!=="undefined"&&HOLY_ARTICLES[w.article])||"<p>Article body missing.</p>";
-  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">${w.index} // ${w.track} · AUTHORIZED LAB / EDUCATIONAL</div>
-  <h3 style="font-size:28px;margin:8px 0 4px">${w.title}</h3>
-  <p style="color:var(--muted);font-size:14px">${w.summary}</p>${body}
+  openModal(`<div class="mono" style="font-size:13px;color:var(--accent);letter-spacing:.2em">${w.index} // ${w.track} · AUTHORIZED LAB / EDUCATIONAL</div>
+  <h3 style="font-size:34px;margin:8px 0 4px">${w.title}</h3>
+  <p style="color:var(--muted);font-size:16px">${w.summary}</p>${body}
   <br><button class="btn btn-g" data-close-modal>CLOSE</button>`);
 }
 function renderQuotes(){
@@ -114,7 +114,10 @@ function renderQuotes(){
     `<div class="quote-await reveal">◇ AWAITING FIRST RECOMMENDATION<br>Supervised Khalifa's work? Your words — with your permission — belong here.<br>Contact: ${HOLY_SOCIALS.emailLabel}</div>`;
 }
 function renderMind(){
-  $("#mind").innerHTML=HOLY_MINDSET.map((t,i)=>`<div class="${i===6?"hl":""}">${t}</div>`).join("");
+  /* the section label stops the probe (and the reader) from merging the seven mantras
+     into one giant paragraph — each mantra stays its own short headline; <p> (not <div>)
+     so .mind div:nth-of-type still counts only the mantras */
+  $("#mind").innerHTML='<p class="sec-label" style="margin-top:0">MINDSET // OPERATING PRINCIPLES</p>'+HOLY_MINDSET.map((t,i)=>`<div class="${i===6?"hl":""}">${t}</div>`).join("");
 }
 
 /* ---------- modals ---------- */
@@ -122,8 +125,8 @@ function openModal(html){ $("#sheet").innerHTML=html; $("#modal").classList.add(
 function closeModal(){ $("#modal").classList.remove("open"); document.body.style.overflow=""; }
 function openOps(i){
   const m=HOLY_METHODOLOGY[i];
-  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">${m.n} // SECURITY OPERATIONS</div>
-  <h3 style="font-size:30px;margin:8px 0">${m.title}</h3>
+  openModal(`<div class="mono" style="font-size:13px;color:var(--accent);letter-spacing:.2em">${m.n} // SECURITY OPERATIONS</div>
+  <h3 style="font-size:34px;margin:8px 0">${m.title}</h3>
   <div class="kv"><b>OBJECTIVE</b><span>${m.objective}</span></div>
   <div class="kv"><b>TOOLS</b><span>${m.tools}</span></div>
   <div class="kv"><b>KEY QUESTIONS</b><span>${m.questions}</span></div>
@@ -135,10 +138,10 @@ function openOps(i){
 }
 function openLab(i){
   const l=HOLY_LABS[i];
-  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">${l.index} // AUTHORIZED LAB / EDUCATIONAL ENVIRONMENT</div>
-  <h3 style="font-size:28px;margin:8px 0">${l.title}</h3>
+  openModal(`<div class="mono" style="font-size:13px;color:var(--accent);letter-spacing:.2em">${l.index} // AUTHORIZED LAB / EDUCATIONAL ENVIRONMENT</div>
+  <h3 style="font-size:34px;margin:8px 0">${l.title}</h3>
   <p style="color:var(--accent2)"><em>${l.tagline}</em></p>
-  ${l.category?`<div class="mono" style="font-size:11px;color:var(--muted)">${l.category}</div>`:""}
+  ${l.category?`<div class="mono" style="font-size:13px;color:var(--muted)">${l.category}</div>`:""}
   <div class="kv"><b>OBJECTIVE</b><span>${l.objective}</span></div>
   <div class="kv"><b>ENVIRONMENT</b><span>${l.environment}</span></div>
   <div class="kv"><b>TOOLS</b><span>${l.tools}</span></div>
@@ -158,8 +161,8 @@ function openResume(){
   const ars=HOLY_ARSENAL.map(g=>`<b>${g.category}:</b> ${g.items.map(x=>x[0]+" ("+x[1]+")").join(", ")}`).join("<br><br>");
   const res=HOLY_RESEARCH.map(r=>`${r.topic} [${r.stage}]`).join(" · ");
   openModal(`<div class="resume">
-    <div class="mono" style="font-size:11px;letter-spacing:.2em;color:var(--accent)">HOLY // SECURITY PROFILE — DIGITAL RESUME (SIMULATION)</div>
-    <h2>${HOLY_PROFILE.name}</h2><div class="mono" style="font-size:12px">${HOLY_PROFILE.realName} — working as ${HOLY_PROFILE.name}</div><div class="mono" style="font-size:12px">${HOLY_PROFILE.identity}</div>
+    <div class="mono" style="font-size:13px;letter-spacing:.2em;color:var(--accent)">HOLY // SECURITY PROFILE — DIGITAL RESUME (SIMULATION)</div>
+    <h2>${HOLY_PROFILE.name}</h2><div class="mono" style="font-size:13px">${HOLY_PROFILE.realName} — working as ${HOLY_PROFILE.name}</div><div class="mono" style="font-size:13px">${HOLY_PROFILE.identity}</div>
     <p><em>"${HOLY_PROFILE.slogan}"</em><br>${HOLY_PROFILE.aboutSupport}</p>
     <h4>PROFILE</h4><p>Focus: ${HOLY_PROFILE.focus}<br>Specialization: ${HOLY_PROFILE.specialization}<br>Interests: ${HOLY_PROFILE.interests.join(", ")}<br>Mode: ${HOLY_PROFILE.modes.join(" · ")}<br>Open to: ${HOLY_PROFILE.openTo.join(", ")}</p>
     <h4>JOURNEY SINCE 2019</h4><p>${HOLY_JOURNEY.map(j=>`<b>${j.year} — ${j.title}</b> [${j.status}]<br>${j.points.join("; ")}`).join("<br><br>")}</p>
@@ -373,14 +376,14 @@ function openWorkflow(){
     ["06 RETEST","Fixes verified within the agreed window."],
     ["07 INVOICE","Billed against the engagement and authorization refs."],
   ];
-  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">ENGAGEMENT WORKFLOW // AUTHORIZATION IS NEVER OPTIONAL</div>
-  <h3 style="font-size:28px;margin:8px 0">How an Engagement Runs</h3>
+  openModal(`<div class="mono" style="font-size:13px;color:var(--accent);letter-spacing:.2em">ENGAGEMENT WORKFLOW // AUTHORIZATION IS NEVER OPTIONAL</div>
+  <h3 style="font-size:34px;margin:8px 0">How an Engagement Runs</h3>
   ${steps.map(s=>`<div class="kv"><b>${s[0]}</b><span>${s[1]}</span></div>`).join("")}
   <br><button class="btn btn-g" data-close-modal>CLOSE</button>`);
 }
 function openSample(){
-  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">SAMPLE // ALL FINDINGS FICTIONAL — LAB.LOCAL</div>
-  <h3 style="font-size:28px;margin:8px 0">Pentest Report Sample</h3>
+  openModal(`<div class="mono" style="font-size:13px;color:var(--accent);letter-spacing:.2em">SAMPLE // ALL FINDINGS FICTIONAL — LAB.LOCAL</div>
+  <h3 style="font-size:34px;margin:8px 0">Pentest Report Sample</h3>
   <div class="article"><table><tr><th>ID</th><th>Finding (example)</th><th>Severity</th></tr>
   <tr><td>F-01</td><td>Missing security headers</td><td>Low</td></tr>
   <tr><td>F-02</td><td>Verbose error messages</td><td>Medium</td></tr>
@@ -390,8 +393,8 @@ function openSample(){
   <button class="btn btn-g" data-close-modal>CLOSE</button></div>`);
 }
 function openInvoice(){
-  openModal(`<div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.2em">TEMPLATE // BLANK — FILL BEFORE USE</div>
-  <h3 style="font-size:28px;margin:8px 0">Invoice Template</h3>
+  openModal(`<div class="mono" style="font-size:13px;color:var(--accent);letter-spacing:.2em">TEMPLATE // BLANK — FILL BEFORE USE</div>
+  <h3 style="font-size:34px;margin:8px 0">Invoice Template</h3>
   <div class="article"><p>Sections: bill-to, engagement + authorization refs, testing period, line items, totals, payment terms, retest window. Every value is a <code>[BRACKETED]</code> placeholder — nothing filled, nothing implied.</p></div>
   <div class="btnrow"><a class="btn btn-p" href="assets/invoice-template.md" download>⤓ DOWNLOAD .MD</a>
   <button class="btn btn-g" data-close-modal>CLOSE</button></div>`);
@@ -574,14 +577,14 @@ function maintenanceMode(){
   m.innerHTML=`<canvas class="maint-rain" id="maintRain"></canvas><div class="intro-box" style="text-align:center;position:relative">
     <img class="logo-intro" src="assets/logo.png" alt="HOLY logo">
     <div class="mono" style="font-size:clamp(26px,6vw,52px);font-weight:900;letter-spacing:-.02em">UNDER<br>CONSTRUCTION</div>
-    <div class="mono" id="maintLog" style="font-size:12.5px;color:var(--muted);line-height:2;min-height:120px;margin-top:14px;text-align:left"></div>
+    <div class="mono" id="maintLog" style="font-size:13px;color:var(--muted);line-height:2;min-height:120px;margin-top:14px;text-align:left"></div>
     <div class="intro-bar"><i id="maintBar" style="width:0"></i></div>
-    <p class="mono" style="font-size:12px;color:var(--accent2)">${HOLY_MAINTENANCE.eta}</p>
+    <p class="mono" style="font-size:13px;color:var(--accent2)">${HOLY_MAINTENANCE.eta}</p>
     <div class="btnrow" style="justify-content:center"><a class="btn btn-g" href="mailto:HVoid9@proton.me">CONTACT HOLY →</a></div>
     <div id="maintGate" style="margin-top:18px">
-      <div class="mono" style="font-size:10.5px;letter-spacing:.2em;color:var(--muted)">OPERATOR ACCESS</div>
-      <div class="intro-row" style="margin-top:8px"><input id="maintPass" type="password" placeholder="passphrase" autocomplete="off" style="flex:1;min-width:0;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:14px"><button id="maintGo" style="background:var(--accent);color:#0a0507;border:none;border-radius:10px;padding:12px 18px;font-family:var(--mono);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">ENTER →</button></div>
-      <div class="mono" id="maintErr" style="font-size:11px;color:var(--crit);min-height:18px;margin-top:6px"></div>
+      <div class="mono" style="font-size:13px;letter-spacing:.2em;color:var(--muted)">OPERATOR ACCESS</div>
+      <div class="intro-row" style="margin-top:8px"><input id="maintPass" type="password" placeholder="passphrase" autocomplete="off" style="flex:1;min-width:0;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:16px"><button id="maintGo" style="background:var(--accent);color:#0a0507;border:none;border-radius:10px;padding:12px 18px;font-family:var(--mono);font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">ENTER →</button></div>
+      <div class="mono" id="maintErr" style="font-size:13px;color:var(--crit);min-height:18px;margin-top:6px"></div>
     </div>
   </div>`;
   document.body.appendChild(m);

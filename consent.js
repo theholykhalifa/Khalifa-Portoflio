@@ -18,22 +18,22 @@
 
   var CSS = [
     "#" + BAR + "{position:fixed;left:0;right:0;bottom:0;z-index:600;background:rgba(5,7,10,.97);",
-    "border-top:2px solid #FF3355;padding:16px 20px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;",
+    "border-top:2px solid #FF3355;padding:12px 16px 14px;font-family:\"JetBrains Mono\",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;",
     "box-shadow:0 -18px 50px rgba(0,0,0,.6);backdrop-filter:blur(8px)}",
     "#" + BAR + " .c-in{max-width:1000px;margin:0 auto;display:flex;gap:18px;align-items:center;flex-wrap:wrap}",
     "#" + BAR + " .c-txt{flex:1 1 420px;min-width:260px}",
-    "#" + BAR + " .c-t{display:block;font-size:13px;letter-spacing:.2em;color:#FF3355;font-weight:700;margin-bottom:6px}",
+    "#" + BAR + " .c-t{display:block;font-size:13px;letter-spacing:.2em;color:#FF3355;font-weight:700;margin-bottom:4px}",
     "#" + BAR + " .c-d{display:block;font-size:13px;line-height:1.65;color:#F5F7FA}",
     "#" + BAR + " .c-d a{color:#FF8FA3}",
     "#" + BAR + " .c-btns{display:flex;gap:10px;flex-wrap:wrap}",
-    "#" + BAR + " button{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.08em;",
+    "#" + BAR + " button{font-family:\"JetBrains Mono\",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.08em;",
     "font-weight:800;padding:12px 18px;border-radius:9px;cursor:pointer;border:1px solid transparent}",
     "#" + BAR + " .c-acc{background:#FF3355;color:#001318}",
     "#" + BAR + " .c-acc:hover{background:#FF8FA3}",
     "#" + BAR + " .c-ess{background:none;border-color:rgba(255,255,255,.28);color:#F5F7FA}",
     "#" + BAR + " .c-ess:hover{border-color:#FF3355}",
     "#" + BAR + " :focus-visible{outline:2px solid #FF8FA3;outline-offset:3px}",
-    "@media(max-width:560px){#" + BAR + " button{flex:1 1 100%}}"
+    "@media(max-width:560px){#" + BAR + " button{padding:10px 12px}}"
   ].join("");
 
   function ensureStyles() {
@@ -58,11 +58,10 @@
       '<div class="c-in">' +
         '<div class="c-txt">' +
           '<span class="c-t">HOLY // PRIVACY CHOICE</span>' +
-          '<span class="c-d">No cookies, no analytics, no ad trackers. Your settings and ' +
-          'game progress stay in this browser only, and the fonts are served by this site ' +
-          'itself. The one optional request is the live visit counter (it loads its library ' +
-          'and records one page path) — it runs only if you accept. ' +
-          '<a href="privacy.html">Read the full privacy policy</a>.</span>' +
+          '<span class="c-d">No cookies, no analytics, no trackers — settings and progress ' +
+          'stay in this browser. One optional request: the live visit counter (its library ' +
+          '+ one page path), only if you accept. ' +
+          '<a href="privacy.html">Read the privacy policy</a>.</span>' +
         '</div>' +
         '<div class="c-btns">' +
           '<button type="button" class="c-acc" data-c="all">ACCEPT ALL</button>' +

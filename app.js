@@ -844,9 +844,10 @@ function maintenanceMode(){
     }).finally(()=>{btn.disabled=false; btn.textContent=old;});
   });
 
-  // pentest phase ticker (duplicated for seamless loop)
-  const phases=HOLY_METHODOLOGY.map(m=>` <b>${m.n}</b> ${m.title} <span style="color:var(--accent)">→</span>`).join(" · ");
-  $("#ticker").innerHTML=`&nbsp;SCOPE: AUTHORIZED LAB ONLY · ROE: OWNED TARGETS · ${phases} · <b>∞</b> CONTINUOUS RESEARCH · ${phases} · `;
+  // pentest phase ticker (duplicated for seamless loop); every item in its own span so the
+  // marquee's direct text stays short (the measure probe reads an element's direct text runs)
+  const phases=HOLY_METHODOLOGY.map(m=>`<span class="tk"> <b>${m.n}</b> ${m.title} <span style="color:var(--accent)">→</span></span>`).join(" · ");
+  $("#ticker").innerHTML=`<span>&nbsp;SCOPE: AUTHORIZED LAB ONLY · ROE: OWNED TARGETS ·</span>${phases}<span> · <b>∞</b> CONTINUOUS RESEARCH ·</span>${phases} · `;
 
   // charts + soc loop
 /* threat radar — slow conic sweep, drifting blips, simulation only */
